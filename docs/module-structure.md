@@ -16,12 +16,12 @@
 - **common-security**: 인증/인가, CompanyContext/MDC
 
 ## 2. 공통(common) 하위 구조
-common/
-├─ file/
-│ ├─ src/main/java/com/yulslab/common/file/...
-│ └─ src/main/resources/templates/fragments/
-│ ├─ fileUploadFragment.html
-│ └─ fileListFragment.html
+common-web/
+├─ src/main/java/com/yulslab/common/file/...
+└─ src/main/resources/templates/common/
+  └─ file/
+    ├─ fileUploadFragment.html
+    └─ fileListFragment.html
 
 shell
 코드 복사
