@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/defaultLayout}">
+
+<th:block layout:fragment="title">
+    <h2>점검 등록/수정</h2>
+</th:block>
+
+<th:block layout:fragment="content">
+    <div class="max-w-4xl mx-auto px-4">
+        <form th:action="@{/inspection/save}" th:object="${inspection}" method="post" class="space-y-8 divide-y divide-gray-200">
+            <div class="space-y-8 divide-y divide-gray-200">
+                <!-- Basic Information -->
+                <div class="pt-8">
+                    <h5 class="text-lg leading-6 font-medium text-gray-900">기본 정보</h5>
+                    <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        <input type="hidden" th:field="*{id.companyId}" />
+                        <div class="sm:col-span-3"><label for="inspectionId" class="block text-sm font-medium text-gray-700">점검ID</label><input type="text" id="inspectionId" th:field="*{id.inspectionId}" class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md bg-gray-100" readonly></div>
+                        <div class="sm:col-span-3"><label for="inspectionName" class="block text-sm font-medium text-gray-700">점검명</label><input type="text" id="inspectionName" th:field="*{inspectionName}" class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" required></div>
+                        <div class="sm:col-span-3"><label for="siteId" class="block text-sm font-medium text-gray-700">사이트</label><select id="siteId" th:field="*{id.siteId}" class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"><option th:each="site : ${sites}" th:value="${site.id.siteId}" th:text="${site.siteName}"></option></select></div>
+                        <div class="sm:col-span-3"><label for="plantId" class="block text-sm font-medium text-gray-700">설비</label><select id="plantId" th:field="*{plantId}" class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"><option value="">-- 선택 --</option><option th:each="plant : ${plants}" th:value="${plant.id.plantId}" th:text="${plant.plantName}"></option></select></div>
+                        <div class="sm:col-span-3"><label for="jobType" class="block text-sm font-medium text-gray-700">작업유형</label><select id="jobType" th:field="*{jobType}" class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"><option th:each="type : ${jobTypes}" th:value="${type.id.codeId}" th:text="${type.codeName}"></option></select></div>
+                        <div class="sm:col-span-3"><label for="deptId" class="block text-sm font-medium text-gray-700">담당부서</label><select id="deptId" th:field="*{deptId}" class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"><option th:each="dept : ${depts}" th:value="${dept.id.deptId}" th:text="${dept.deptName}"></option></select></div>
+                    </div>
+                </div>
+
+                <!-- Schedule -->
+                <div class="pt-8">
+                    <h5 class="text-lg font-medium text-gray-900">스케줄</h5>
+                    <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        <div class="sm:col-span-3"><label for="plannedDate" class="block text-sm font-medium text-gray-700">계획일시</label><input type="datetime-local" id="plannedDate" th:field="*{plannedDate}" class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></div>
+                        <div class="sm:col-span-3"><label for="actualDate" class="block text-sm font-medium text-gray-700">실시일시</label><input type="datetime-local" id="actualDate" th:field="*{actualDate}" class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></div>
+                        <div class="sm:col-span-6"><label class="block text-sm font-medium text-gray-700">상태</label><div class="mt-2"><input type="radio" th:field="*{status}" value="T"> 임시 <input type="radio" th:field="*{status}" value="C"> 확정</div></div>
+                    </div>
+                </div>
+
+                <!-- Items -->
+                <div class="pt-8">
+                    <h5 class="text-lg font-medium text-gray-900">점검 항목</h5>
+                    <div class="mt-6">
+                        <!-- TODO: Implement dynamic add/remove for items -->
+                        <p>점검 항목 그리드가 여기에 표시됩니다.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="pt-5">
+                <div class="flex justify-end">
+                    <a th:href="@{/inspection/inspectionList}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">취소</a>
+                    <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">저장</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</th:block>
+</html>

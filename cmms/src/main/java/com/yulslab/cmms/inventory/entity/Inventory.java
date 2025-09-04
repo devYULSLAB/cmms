@@ -1,22 +1,27 @@
 package com.yulslab.cmms.inventory.entity;
 
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
+@Table(name = "inventory")
 @Getter
 @Setter
 public class Inventory {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @EmbeddedId
+    private InventoryId id;
 
-    private String itemName;
-    private int quantity;
-    private String location;
+    private String inventoryName;
+    private String masterType;
+    private String deptId;
+    private String makerName;
+    private String spec;
+    private String modelNo;
+    private String serialNo;
+    private String notes;
+    private String fileGroupId;
 }

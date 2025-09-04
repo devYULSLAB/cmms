@@ -1,7 +1,9 @@
 package com.yulslab.cmms;
 
 import com.yulslab.domain.user.User;
+import com.yulslab.domain.user.UserId;
 import com.yulslab.domain.user.UserRepository;
+import java.time.LocalDateTime;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,13 +24,21 @@ public class CmmsApplication {
     @Bean
     public CommandLineRunner initDatabase(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            User testUser = new User();
-            testUser.setUserId("testuser");
-            testUser.setPassword(passwordEncoder.encode("password"));
-            testUser.setUsername("Test User");
-            testUser.setRoles("ROLE_USER");
-            testUser.setEnabled(true);
-            userRepository.save(testUser);
+            UserId userId = new UserId();
+            userId.setCompanyId("C0001");
+            userId.setUserId("testuser");
+
+            if (userRepository.findById(userId).isEmpty()) {
+                User testUser = new User();
+                testUser.setId(userId);
+                testUser.setUserName("Test User");
+                testUser.setPasswordHash(passwordEncoder.encode("password"));
+                testUser.setPasswordUpdatedAt(LocalDateTime.now());
+                testUser.setFailedLoginCount(0);
+                testUser.setIsLocked('N');
+                testUser.setMustChangePw('N');
+                userRepository.save(testUser);
+            }
         };
     }
 }

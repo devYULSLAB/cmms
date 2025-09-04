@@ -8,8 +8,7 @@
 </th:block>
 
 <th:block layout:fragment="content">
-    <div class="max-w-6xl mx-auto px-4">
-        <!-- Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="rounded-2xl shadow p-4 md:p-6 mb-6 bg-white">
             <div class="flex justify-between items-center mb-4">
                 <h5 class="text-base md:text-lg font-semibold text-gray-800">설비 리스트</h5>
@@ -17,10 +16,45 @@
                     신규 등록
                 </a>
             </div>
-            <!-- list -->
-            <p>설비 목록이 여기에 표시됩니다.</p>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">설비ID</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">설비명</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">자산유형</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">기능위치</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리부서</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">설치일</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">수정일</th>
+                            <th scope="col" class="relative px-6 py-3"><span class="sr-only">Edit</span></th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:if="${#lists.isEmpty(plants)}">
+                            <td colspan="8" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">데이터가 없습니다.</td>
+                        </tr>
+                        <tr th:each="plant : ${plants}">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${plant.id.plantId}">P0001</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                <a th:href="@{/plant/plantDetail(companyId=${plant.id.companyId}, siteId=${plant.id.siteId}, plantId=${plant.id.plantId})}"
+                                   class="text-blue-600 hover:underline" th:text="${plant.plantName}">
+                                    보일러 #1
+                                </a>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${plant.masterType}">설비</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${plant.funcId}">보일러동</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${plant.deptId}">생산1팀</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${plant.installDate != null ? #temporals.format(plant.installDate, 'yyyy-MM-dd') : ''}">2021-01-01</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${plant.updateDate != null ? #temporals.format(plant.updateDate, 'yyyy-MM-dd HH:mm') : ''}">2021-01-01 10:00</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </th:block>
-
 </html>

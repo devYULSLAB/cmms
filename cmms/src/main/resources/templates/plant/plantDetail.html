@@ -8,21 +8,68 @@
 </th:block>
 
 <th:block layout:fragment="content">
-    <div class="max-w-4xl mx-auto px-4">
-        <div class="rounded-2xl shadow p-4 md:p-6 mb-6 bg-white">
-             <h5 class="text-base md:text-lg font-semibold text-gray-800 mb-4">기본 정보</h5>
-            <!-- details -->
-            <p>설비 상세 정보가 여기에 표시됩니다.</p>
-
-            <div class="flex justify-end space-x-2 mt-6">
-                <a th:href="@{/plant/plantList}" class="py-2 px-4 inline-flex items-center rounded-md font-medium transition bg-gray-200 hover:bg-gray-300 text-gray-900">
-                    목록
-                </a>
-                <a th:href="@{/plant/editForm(id=1)}" class="py-1 px-3 inline-flex items-center rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">
-                    수정
-                </a>
-            </div>
+    <div class="max-w-4xl mx-auto px-4" th:if="${plant != null}" th:object="${plant}">
+        <!-- Basic Information -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6"><h5 class="text-lg leading-6 font-medium text-gray-900">기본 정보</h5></div>
+            <div class="border-t border-gray-200 px-4 py-5 sm:p-0"><dl class="sm:divide-y sm:divide-gray-200">
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">설비 ID</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{id.plantId}"></dd></div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">설비명</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{plantName}"></dd></div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">사이트</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{id.siteId}"></dd></div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">자산유형</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{masterType}"></dd></div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">기능위치</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{funcId}"></dd></div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">관리부서</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{deptId}"></dd></div>
+            </dl></div>
         </div>
+
+        <!-- Financial Information -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6"><h5 class="text-lg leading-6 font-medium text-gray-900">재무 정보</h5></div>
+            <div class="border-t border-gray-200 px-4 py-5 sm:p-0"><dl class="sm:divide-y sm:divide-gray-200">
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">설치일</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{installDate}"></dd></div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">감가유형</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{depreType}"></dd></div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">내용연수(년)</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{deprePeriod}"></dd></div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">취득가액</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{acquireCost}"></dd></div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">잔존가액</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{residualValue}"></dd></div>
+            </dl></div>
+        </div>
+
+        <!-- Maker Information -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6"><h5 class="text-lg leading-6 font-medium text-gray-900">제조사 정보</h5></div>
+            <div class="border-t border-gray-200 px-4 py-5 sm:p-0"><dl class="sm:divide-y sm:divide-gray-200">
+                 <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">제조사</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{makerName}"></dd></div>
+                 <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">규격/사양</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{spec}"></dd></div>
+                 <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">모델번호</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{modelNo}"></dd></div>
+                 <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">시리얼번호</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{serialNo}"></dd></div>
+            </dl></div>
+        </div>
+
+        <!-- Operational Flags -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6"><h5 class="text-lg leading-6 font-medium text-gray-900">운영 정보</h5></div>
+            <div class="border-t border-gray-200 px-4 py-5 sm:p-0"><dl class="sm:divide-y sm:divide-gray-200">
+                 <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">예방정비 대상</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{preventiveYn}"></dd></div>
+                 <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">PSM 대상</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{psmYn}"></dd></div>
+                 <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">작업허가 대상</dt><dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="*{wpTargetYn}"></dd></div>
+            </dl></div>
+        </div>
+
+        <!-- Notes -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6"><h5 class="text-lg leading-6 font-medium text-gray-900">비고</h5></div>
+            <div class="border-t border-gray-200 px-4 py-5 sm:p-0"><dl class="sm:divide-y sm:divide-gray-200">
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-1 sm:gap-4 sm:px-6"><dd class="mt-1 text-sm text-gray-900 sm:mt-0" th:text="*{notes}"></dd></div>
+            </dl></div>
+        </div>
+
+        <div class="flex justify-end space-x-2 mt-6">
+            <a th:href="@{/plant/plantList}" class="py-2 px-4 inline-flex items-center rounded-md font-medium transition bg-gray-200 hover:bg-gray-300 text-gray-900">목록</a>
+            <a th:href="@{/plant/plantForm(companyId=*{id.companyId}, siteId=*{id.siteId}, plantId=*{id.plantId})}" class="py-1 px-3 inline-flex items-center rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">수정</a>
+        </div>
+    </div>
+    <div th:if="${plant == null}" class="text-center py-10">
+        <p class="text-gray-500">설비 정보를 찾을 수 없습니다.</p>
     </div>
 </th:block>
 

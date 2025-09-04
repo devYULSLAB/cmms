@@ -125,9 +125,9 @@ CREATE TABLE IF NOT EXISTS code (
 );
 
 -- =========================================================
--- 3) 기능/저장 위치 마스터
+-- 3) 기능/저장 위치
 -- =========================================================
-CREATE TABLE IF NOT EXISTS func_master (
+CREATE TABLE IF NOT EXISTS func (
   company_id CHAR(5) NOT NULL,
   func_id CHAR(5) NOT NULL,
   func_name VARCHAR(100) NOT NULL,
@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS func_master (
   CONSTRAINT fk_func_company FOREIGN KEY (company_id) REFERENCES company(company_id)
 );
 
-CREATE TABLE IF NOT EXISTS storage_master (
+CREATE TABLE IF NOT EXISTS storage (
   company_id CHAR(5) NOT NULL,
   storage_id CHAR(5) NOT NULL,
   storage_name VARCHAR(100) NOT NULL,
@@ -182,9 +182,9 @@ CREATE TABLE IF NOT EXISTS file_attach (
 );
 
 -- =========================================================
--- 5) 설비/재고 마스터
+-- 5) 설비/재고
 -- =========================================================
-CREATE TABLE IF NOT EXISTS plant_master (
+CREATE TABLE IF NOT EXISTS plant (
   company_id CHAR(5) NOT NULL,
   site_id CHAR(5) NOT NULL,
   -- 기본정보 
@@ -214,13 +214,13 @@ CREATE TABLE IF NOT EXISTS plant_master (
   create_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   update_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (company_id, site_id, plant_id),
-  CONSTRAINT fk_pm_site  FOREIGN KEY (company_id, site_id) REFERENCES site(company_id, site_id),
-  CONSTRAINT fk_pm_func  FOREIGN KEY (company_id, func_id) REFERENCES func_master(company_id, func_id),
-  CONSTRAINT fk_pm_dept  FOREIGN KEY (company_id, dept_id) REFERENCES dept(company_id, dept_id)
+  CONSTRAINT fk_plant_site  FOREIGN KEY (company_id, site_id) REFERENCES site(company_id, site_id),
+  CONSTRAINT fk_plant_func  FOREIGN KEY (company_id, func_id) REFERENCES func(company_id, func_id),
+  CONSTRAINT fk_plant_dept  FOREIGN KEY (company_id, dept_id) REFERENCES dept(company_id, dept_id)
 );
 
--- inventory master는 회사 레벨, 재고는 site/storage 레벨
-CREATE TABLE IF NOT EXISTS inventory_master (
+-- inventory는 회사 레벨, 재고는 site/storage 레벨
+CREATE TABLE IF NOT EXISTS inventory (
   company_id CHAR(5) NOT NULL,
   -- 기본정보 
   inventory_id CHAR(10) NOT NULL,             -- 선두 2
@@ -254,8 +254,8 @@ CREATE TABLE IF NOT EXISTS stock (
   updated_at     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (company_id, site_id, storage_id, inventory_id),
   CONSTRAINT fk_stock_site    FOREIGN KEY (company_id, site_id) REFERENCES site(company_id, site_id),
-  CONSTRAINT fk_stock_inv     FOREIGN KEY (company_id, inventory_id) REFERENCES inventory_master(company_id, inventory_id),
-  CONSTRAINT fk_stock_storage FOREIGN KEY (company_id, storage_id) REFERENCES storage_master(company_id, storage_id)
+  CONSTRAINT fk_stock_inv     FOREIGN KEY (company_id, inventory_id) REFERENCES inventory(company_id, inventory_id),
+  CONSTRAINT fk_stock_storage FOREIGN KEY (company_id, storage_id) REFERENCES storage(company_id, storage_id)
 );
 
 CREATE TABLE IF NOT EXISTS stock_tx (
@@ -280,7 +280,7 @@ CREATE TABLE IF NOT EXISTS stock_tx (
   KEY idx_stock_tx_item (company_id, inventory_id),
   KEY idx_stock_tx_time (created_at),
   CONSTRAINT fk_stocktx_site FOREIGN KEY (company_id, site_id) REFERENCES site(company_id, site_id),
-  CONSTRAINT fk_stocktx_inv  FOREIGN KEY (company_id, inventory_id) REFERENCES inventory_master(company_id, inventory_id)
+  CONSTRAINT fk_stocktx_inv  FOREIGN KEY (company_id, inventory_id) REFERENCES inventory(company_id, inventory_id)
   -- storage_id는 애플리케이션 검증
 );
 
@@ -307,7 +307,7 @@ CREATE TABLE IF NOT EXISTS inspection (
   update_date   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (company_id, site_id, inspection_id),
   CONSTRAINT fk_insp_site  FOREIGN KEY (company_id, site_id) REFERENCES site(company_id, site_id),
-  CONSTRAINT fk_insp_plant FOREIGN KEY (company_id, site_id, plant_id) REFERENCES plant_master(company_id, site_id, plant_id),
+  CONSTRAINT fk_insp_plant FOREIGN KEY (company_id, site_id, plant_id) REFERENCES plant(company_id, site_id, plant_id),
   CONSTRAINT fk_insp_dept  FOREIGN KEY (company_id, dept_id) REFERENCES dept(company_id, dept_id)
 );
 
@@ -361,7 +361,7 @@ CREATE TABLE IF NOT EXISTS workorder (
   update_date    DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (company_id, site_id, workorder_id),
   CONSTRAINT fk_wo_site  FOREIGN KEY (company_id, site_id) REFERENCES site(company_id, site_id),
-  CONSTRAINT fk_wo_plant FOREIGN KEY (company_id, site_id, plant_id) REFERENCES plant_master(company_id, site_id, plant_id)
+  CONSTRAINT fk_wo_plant FOREIGN KEY (company_id, site_id, plant_id) REFERENCES plant(company_id, site_id, plant_id)
 );
 
 CREATE TABLE IF NOT EXISTS workorder_item (
@@ -384,7 +384,7 @@ CREATE TABLE IF NOT EXISTS workorder_item (
     ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT fk_woi_part_inv
     FOREIGN KEY (company_id, part_inventory_id)
-    REFERENCES inventory_master(company_id, inventory_id)
+    REFERENCES inventory(company_id, inventory_id)
 );
 
 -- =========================================================
@@ -422,7 +422,7 @@ CREATE TABLE IF NOT EXISTS workpermit (
   CONSTRAINT fk_wp_workorder FOREIGN KEY (company_id, site_id, workorder_id)
     REFERENCES workorder(company_id, site_id, workorder_id),
   CONSTRAINT fk_wp_plant FOREIGN KEY (company_id, site_id, plant_id)
-    REFERENCES plant_master(company_id, site_id, plant_id),
+    REFERENCES plant(company_id, site_id, plant_id),
   CONSTRAINT fk_wp_dept FOREIGN KEY (company_id, dept_id)
     REFERENCES dept(company_id, dept_id)
 );
@@ -552,8 +552,8 @@ CREATE TABLE IF NOT EXISTS approval_request_step (
 CREATE INDEX ix_code_type_use ON code_type (company_id, use_yn, sort_order);
 CREATE INDEX ix_code_type ON code (company_id, code_type, use_yn, sort_order);
 
-CREATE INDEX ix_inventory_name ON inventory_master (company_id, inventory_name);
-CREATE INDEX ix_plant_name ON plant_master (company_id, site_id, plant_name);
+CREATE INDEX ix_inventory_name ON inventory (company_id, inventory_name);
+CREATE INDEX ix_plant_name ON plant (company_id, site_id, plant_name);
 
 CREATE INDEX ix_stock_item ON stock (company_id, inventory_id);
 CREATE INDEX ix_stocktx_rel ON stock_tx (company_id, related_type, related_id);
@@ -626,11 +626,11 @@ INSERT INTO code (company_id, code_id, code_type, code_name, sort_order) VALUES
 ('C0001','F0001','FUNC','보일러동',10),
 ('C0001','F0002','FUNC','터빈동',20);
 
-INSERT INTO func_master (company_id, func_id, func_name, sort_order) VALUES
+INSERT INTO func (company_id, func_id, func_name, sort_order) VALUES
 ('C0001','F0001','보일러동',10),
 ('C0001','F0002','터빈동',20);
 
-INSERT INTO storage_master (company_id, storage_id, storage_name, sort_order) VALUES
+INSERT INTO storage (company_id, storage_id, storage_name, sort_order) VALUES
 ('C0001','S101','창고1',10),
 ('C0001','S102','창고2',20);
 
