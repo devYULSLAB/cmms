@@ -1,0 +1,17 @@
+spring:
+  # Production Database (e.g., PostgreSQL, MySQL)
+  datasource:
+    url: # jdbc:postgresql://your-prod-db-host:5432/cmmsdb
+    driverClassName: # org.postgresql.Driver
+    username: # prod_user
+    password: # prod_password
+
+  # JPA
+  jpa:
+    hibernate:
+      ddl-auto: validate # 애플리케이션 실행 시 스키마를 검증 (운영 환경에서는 자동 생성 비활성화)
+    show-sql: false
+
+logging:
+  level:
+    com.yulslab: info

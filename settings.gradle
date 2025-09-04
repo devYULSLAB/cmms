@@ -1,0 +1,5 @@
+rootProject.name = 'cmms-project'
+
+include 'common-web'
+include 'domain'
+include 'cmms'

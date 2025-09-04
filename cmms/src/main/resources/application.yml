@@ -1,0 +1,14 @@
+spring:
+  profiles:
+    active: dev # 기본 활성 프로파일을 'dev'로 설정
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+server:
+  servlet:
+    context-path: /
+
+# Custom App properties
+app:
+  default-company-code: C0001

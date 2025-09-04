@@ -1,0 +1,11 @@
+dependencies {
+    implementation project(':domain')
+    implementation project(':common-web')
+
+    // For development, we'll use an in-memory database
+    runtimeOnly 'com.h2database:h2'
+}
+
+bootJar {
+    enabled = true // The main application will be in this module
+}
