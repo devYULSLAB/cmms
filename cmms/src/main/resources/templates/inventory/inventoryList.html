@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/defaultLayout}">
+
+<th:block layout:fragment="title">
+    <h2>재고 목록</h2>
+</th:block>
+
+<th:block layout:fragment="content">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="rounded-2xl shadow p-4 md:p-6 mb-6 bg-white">
+            <div class="flex justify-between items-center mb-4">
+                <h5 class="text-base md:text-lg font-semibold text-gray-800">재고 리스트</h5>
+                <a th:href="@{/inventory/inventoryForm}" class="py-2 px-4 inline-flex items-center rounded-md font-medium transition bg-blue-600 hover:bg-blue-700 text-white">
+                    신규 등록
+                </a>
+            </div>
+            <p>재고 목록이 여기에 표시됩니다.</p>
+        </div>
+    </div>
+</th:block>
+
+</html>

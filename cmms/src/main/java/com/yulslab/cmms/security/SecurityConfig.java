@@ -22,6 +22,7 @@ public class SecurityConfig {
             .formLogin(formLogin -> formLogin
                 .loginPage("/login")
                 .loginProcessingUrl("/login") // The URL to submit the username and password to
+                .usernameParameter("userId") // Use "userId" instead of "username"
                 .defaultSuccessUrl("/plant/plantList", true)
                 .permitAll()
             )

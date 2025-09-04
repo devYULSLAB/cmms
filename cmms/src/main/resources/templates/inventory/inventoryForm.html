@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/defaultLayout}">
+
+<th:block layout:fragment="title">
+    <h2>재고 등록/수정</h2>
+</th:block>
+
+<th:block layout:fragment="content">
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="rounded-2xl shadow p-4 md:p-6 mb-6 bg-white">
+            <h5 class="text-base md:text-lg font-semibold text-gray-800 mb-4">재고 정보</h5>
+            <form th:action="@{/inventory/save}" method="post">
+                <p>재고 등록/수정 폼이 여기에 표시됩니다.</p>
+                <div class="flex justify-end space-x-2 mt-6">
+                    <a th:href="@{/inventory/inventoryList}" class="py-2 px-4 inline-flex items-center rounded-md font-medium transition bg-gray-200 hover:bg-gray-300 text-gray-900">
+                        취소
+                    </a>
+                    <button type="submit" class="py-2 px-4 inline-flex items-center rounded-md font-medium transition bg-blue-600 hover:bg-blue-700 text-white">
+                        저장
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</th:block>
+
+</html>

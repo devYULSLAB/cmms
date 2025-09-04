@@ -13,11 +13,11 @@
         <nav class="flex-1 px-2 py-4 space-y-2">
             <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Dashboard</a>
             <a th:href="@{/plant/plantList}" class="block px-4 py-2 rounded hover:bg-gray-700">설비 관리</a>
-            <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">재고 관리</a>
+            <a th:href="@{/inventory/inventoryList}" class="block px-4 py-2 rounded hover:bg-gray-700">재고 관리</a>
             <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">점검 관리</a>
             <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">작업 오더</a>
             <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">작업 허가</a>
-            <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">메모</a>
+            <a th:href="@{/memo/memoList}" class="block px-4 py-2 rounded hover:bg-gray-700">메모</a>
             <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">결재</a>
         </nav>
     </aside>
