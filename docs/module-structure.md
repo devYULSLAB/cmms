@@ -77,3 +77,56 @@ markdown
   - Form(new): 업로드만
   - Form(edit): 리스트 + 업로드
   - Detail: 리스트만(보기 전용)
+
+  ## 7. 로그인 처리 
+  - company_Id 는 application.yml의 default-company-code : C0001 (또는 사용자 설정값) 
+  - Login.html에서 companyId를 받지 말고 userId, password 만 받고 default-company-code를 주입하며, 추후 멀티 테넌트 형식으로 변경 가능하도록만 준비
+  (예시)
+    public interface CompanyIdResolver {
+        String resolve(HttpServletRequest request);
+        }
+
+        @Component
+        @RequiredArgsConstructor
+        class DefaultCompanyIdResolver implements CompanyIdResolver {
+            @Value("${app.default-company-code}")
+            private final String defaultCompanyId;
+
+            @Override
+            public String resolve(HttpServletRequest request) {
+                return defaultCompanyId; // 현재는 항상 C0001
+            }
+        }
+--추후 서브도메인 방식으로 바꿀 때는 SubdomainCompanyIdResolver를 만들어 빈 교체만 하면 됩니다.
+<form method="post" action="/login">
+  <input type="text" name="userId" placeholder="User ID" required />
+  <input type="password" name="password" placeholder="Password" required />
+  <button type="submit">Login</button>
+</form>
+--
+    @Component
+    @RequiredArgsConstructor
+    public class CompanyUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+
+        private final CompanyIdResolver companyIdResolver;
+
+        public CompanyUsernamePasswordAuthenticationFilter(CompanyIdResolver resolver) {
+            super(new AntPathRequestMatcher("/login", "POST"));
+            this.companyIdResolver = resolver;
+        }
+
+        @Override
+        public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
+                throws AuthenticationException, IOException, ServletException {
+
+            String userId   = req.getParameter("userId");
+            String password = req.getParameter("password");
+            if (userId == null || password == null) {
+                throw new BadCredentialsException("Missing credentials");
+            }
+
+            String companyId = companyIdResolver.resolve(req); // ★ 현재는 C0001
+            var authRequest  = new CompanyUsernamePasswordAuthenticationToken(companyId, userId.trim(), password);
+            return this.getAuthenticationManager().authenticate(authRequest);
+        }
+    }
