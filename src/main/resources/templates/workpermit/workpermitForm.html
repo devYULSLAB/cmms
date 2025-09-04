@@ -1,0 +1,670 @@
+<!-- workPermitForm.html -->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title>작업허가서 등록</title>
+</head>
+
+
+<body>
+    <div layout:fragment="content">
+        <div class="max-w-4xl mx-auto mt-8 space-y-6">
+            <h2 class="text-2xl font-bold"
+                th:text="${workpermit.permitId == null ? '작업허가서 신규' : '작업허가서 수정: ' + workpermit.permitId}">작업허가서 등록</h2>
+            <!-- Alerts -->
+            <div th:if="${successMessage}" class="p-3 bg-green-100 text-green-800 rounded">
+                <span th:text="${successMessage}"></span>
+            </div>
+            <div th:if="${errorMessage}" class="p-3 bg-red-100 text-red-800 rounded">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <form th:action="@{/workpermit/workpermitSave}" method="post" th:object="${workpermit}" class="space-y-6"
+                onsubmit="return saveSignature()">
+                <!-- Hidden fields -->
+                <input type="hidden" th:field="*{companyId}" />
+                <input type="hidden" th:field="*{createBy}" />
+                <input type="hidden" th:field="*{createDate}" />
+                <input type="hidden" th:field="*{updateBy}" />
+                <input type="hidden" th:field="*{updateDate}" />
+
+                <!-- Basic Info -->
+                <div class="border rounded-lg shadow p-4 space-y-4">
+                    <h3 class="font-semibold text-lg mb-2" th:text="#{basicInformation}">Basic Information</h3>
+                    <div class="grid grid-cols-12 gap-4">
+                        <div class="col-span-3">
+                            <label class="block text-sm font-medium mb-1" th:text="#{permitId}">Permit ID</label>
+                            <input type="text" th:field="*{permitId}"
+                                class="w-full border rounded px-2 py-1 bg-gray-100" readonly />
+                        </div>
+                        <div class="col-span-3">
+                            <label class="block text-sm font-medium mb-1" th:text="#{plantId}">Plant ID</label>
+                            <input type="text" th:field="*{plantId}" class="w-full border rounded px-2 py-1" />
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium mb-1" th:text="#{permitType}">Permit Type</label>
+                            <select th:field="*{permitType}" class="w-full border rounded px-2 py-1">
+                                <option value="">-- 허가 유형 선택 --</option>
+                                <option th:each="permitType : ${permitTypes}" th:value="${permitType.codeId}"
+                                    th:text="${permitType.codeId + ' - ' + permitType.codeName}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium mb-1" th:text="#{siteId}">Site</label>
+                            <select id="siteId" th:field="*{siteId}" class="w-full border rounded px-2 py-1">
+                                <option value="">-- Site 선택 --</option>
+                                <option th:each="site : ${sites}" th:value="${site.siteId}"
+                                    th:text="${site.siteId + ' - ' + site.siteName}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium mb-1" th:text="#{deptId}">Dept</label>
+                            <select th:field="*{deptId}" class="w-full border rounded px-2 py-1">
+                                <option value="">-- 부서 선택 --</option>
+                                <option th:each="dept : ${depts}" th:value="${dept.deptId}"
+                                    th:text="${dept.deptId + ' - ' + dept.deptName}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1" th:text="#{permitName}">Permit Name</label>
+                        <input type="text" th:field="*{permitName}" class="w-full border rounded px-2 py-1" />
+                    </div>
+                </div>
+                <!-- Permit Period -->
+                <div class="border rounded-lg shadow p-4 space-y-4">
+                    <h3 class="font-semibold text-lg mb-2" th:text="#{permitPeriod}">Permit Period</h3>
+                    <div class="grid grid-cols-12 gap-4">
+                        <div class="col-span-3">
+                            <label class="block text-sm font-medium mb-1" th:text="#{startDate}">Start Date</label>
+                            <input type="date" th:field="*{startDate}" class="w-full border rounded px-2 py-1" />
+                        </div>
+                        <div class="col-span-3">
+                            <label class="block text-sm font-medium mb-1" th:text="#{endDate}">End Date</label>
+                            <input type="date" th:field="*{endDate}" class="w-full border rounded px-2 py-1" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Permit Description -->
+                <div class="border rounded-lg shadow p-4 space-y-4">
+                    <h3 class="font-semibold text-lg mb-2" th:text="#{permitDescription}">Permit Description</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1" th:text="#{workDesc}">Work Description</label>
+                            <textarea th:field="*{workDesc}" rows="3"
+                                class="w-full border rounded px-2 py-1"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" th:text="#{hazardNote}">Hazard Note</label>
+                            <textarea th:field="*{hazardNote}" rows="3"
+                                class="w-full border rounded px-2 py-1"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <!-- Permit Safety Measures -->
+                <div class="border rounded-lg shadow p-4 space-y-4">
+                    <h3 class="font-semibold text-lg mb-2" th:text="#{safetyMeasures}">Permit Safety Measures</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1" th:text="#{safetyMeasure}">Safety
+                                Measure</label>
+                            <textarea th:field="*{safetyMeasure}" rows="3"
+                                class="w-full border rounded px-2 py-1"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <!-- Permit Signatures items-->
+                <div class="border rounded-lg shadow p-4 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-semibold text-lg mb-2" th:text="#{signature}">Permit Signatures</h3>
+                        <button type="button" onclick="addSigner()"
+                            class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm">
+                            <i class="fas fa-plus mr-1"></i>서명자 추가
+                        </button>
+                    </div>
+                    <table class="w-full">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 border text-left">순서</th>
+                                <th class="px-4 py-2 border text-left">서명자명</th>
+                                <th class="px-4 py-2 border text-left">서명</th>
+                                <th class="px-4 py-2 border text-left">작업</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemTableBody">
+                            <tr th:each="item, iterStat : *{items}" class="signer-row">
+                                <td class="px-4 py-2 border text-center">
+                                    <span class="signer-order" th:text="${iterStat.count}"></span>
+                                </td>
+                                <td class="px-4 py-2 border">
+                                    <input type="text" th:field="*{items[__${iterStat.index}__].signerName}"
+                                        class="w-full border rounded px-2 py-1"
+                                        th:placeholder="'서명자 ' + ${iterStat.count} + '명'" required />
+                                </td>
+                                <td class="px-4 py-2 border">
+                                    <div class="flex items-center space-x-2">
+                                        <canvas th:attr="id='signatureCanvas' + ${iterStat.index}" width="250"
+                                            height="80"
+                                            style="border:1px solid #ccc; border-radius: 4px; cursor: crosshair;"
+                                            class="signature-canvas"></canvas>
+                                        <input type="hidden" th:field="*{items[__${iterStat.index}__].signature}"
+                                            th:attr="id='signatureData' + ${iterStat.index}"
+                                            th:name="items[__${iterStat.index}__].signature" />
+                                    </div>
+                                </td>
+                                <td class="px-4 py-2 border">
+                                    <div class="flex space-x-1">
+                                        <button type="button"
+                                            th:attr="onclick='clearSignature(' + ${iterStat.index} + ')'"
+                                            class="px-2 py-1 text-blue-600 border border-blue-500 rounded hover:bg-blue-50 text-xs">
+                                            지우기
+                                        </button>
+                                        <button type="button"
+                                            th:attr="onclick='removeSigner(' + ${iterStat.index} + ')'"
+                                            class="px-2 py-1 text-red-600 border border-red-500 rounded hover:bg-red-50 text-xs">
+                                            삭제
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                    <div class="text-sm text-gray-600 mt-2">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        최소 1명의 서명자가 필요합니다. 서명자는 순서대로 진행됩니다.
+                    </div>
+                </div>
+
+                <!-- 체크시트 템플릿 선택 -->
+                <div class="border rounded-lg shadow p-4 space-y-4">
+                    <h3 class="font-semibold text-lg mb-2">🧾 안전 체크리스트</h3>
+                    <div class="mb-2">
+                        <label class="block text-sm font-medium mb-1">템플릿 선택</label>
+                        <select id="templateSelect" class="w-full border rounded p-2">
+                            <option value="">-- 템플릿 선택 --</option>
+                            <option th:each="tpl : ${templateList}" th:value="${tpl.templateId}"
+                                th:text="${tpl.templateName}">
+                            </option>
+                        </select>
+                        <!-- templateId를 서버로 전송하기 위한 hidden 필드 추가 -->
+                        <input type="hidden" id="templateIdHidden" name="templateId" />
+                    </div>
+
+                    <!-- formRender.js로 템플릿 표시 -->
+                    <div id="form-render" class="border rounded p-4 bg-gray-50 min-h-[200px]">
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fas fa-clipboard-list text-2xl mb-2"></i>
+                            <p>템플릿을 선택하면 체크리스트가 표시됩니다.</p>
+                        </div>
+                    </div>
+
+                    <!-- 체크 결과 저장용 -->
+                    <!-- <input type="hidden" id="checkResultJson" name="checkResultJson" /> -->
+                    <textarea id="checkResultJson" name="checkResultJson" hidden></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex gap-3 justify-end">
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        th:text="#{save}">저장 </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <th:block layout:fragment="page-js">
+        <!-- 체크시트 렌더링용 formRender.js -->
+        <script src="https://formbuilder.online/assets/js/form-render.min.js"></script>
+        <script th:inline="javascript">
+            // DOM 로드 후 실행
+            document.addEventListener('DOMContentLoaded', function () {
+                // ✅ 체크리스트 템플릿 렌더링
+                const templateJsonMap = /*[[${templateJsonMap}]]*/ {};
+                window.renderInstance = null; // Global variable
+
+                const templateSelect = document.getElementById('templateSelect');
+                const formRender = document.getElementById('form-render');
+
+                if (templateSelect) {
+                    templateSelect.addEventListener('change', function () {
+                        const tplId = this.value;
+                        const json = templateJsonMap[tplId];
+
+                        if (json && window.$ && window.$.fn.formRender) {
+                            // Remove existing form
+                            $('#form-render').empty();
+                            // Render new form
+                            $('#form-render').formRender({
+                                formData: json,
+                                readOnly: false,
+                                i18n: false
+                            });
+                            window.renderInstance = $('#form-render').data('formRender');
+
+                            // templateId hidden 필드에 값 설정
+                            document.getElementById("templateIdHidden").value = tplId;
+
+                            // Initialize check result field
+                            document.getElementById("checkResultJson").value = "{}";
+
+                            // 기존 체크시트 데이터 복원
+                            setTimeout(() => {
+                                restoreCheckResultData();
+                            }, 100);
+                        } else if (!tplId) {
+                            // Template not selected
+                            $('#form-render').html(`
+                                <div class="text-center text-gray-500 py-8">
+                                    <i class="fas fa-clipboard-list text-2xl mb-2"></i>
+                                    <p>Select a template to display checklist.</p>
+                                </div>
+                            `);
+                            window.renderInstance = null;
+                            // templateId hidden 필드 초기화
+                            document.getElementById("templateIdHidden").value = "";
+                            document.getElementById("checkResultJson").value = "{}";
+                        } else {
+                            $('#form-render').html(`
+                                <div class="text-center text-red-500 py-8">
+                                    <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                                    <p>Cannot load template.</p>
+                                </div>
+                            `);
+                            window.renderInstance = null;
+                            document.getElementById("checkResultJson").value = "{}";
+                        }
+                    });
+                }
+
+                // ✅ canvas 서명 입력 기능 (여러 개 지원) 및 기존 서명 이미지 로드
+                const canvases = document.querySelectorAll('canvas[id^="signatureCanvas"]');
+                canvases.forEach(function (canvas, index) {
+                    let drawing = false;
+                    let ctx = canvas.getContext('2d');
+
+                    // 캔버스 초기화
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 2;
+                    ctx.lineCap = 'round';
+
+                    let lastX = 0, lastY = 0;
+
+                    // 기존 서명 이미지가 있으면 캔버스에 그리기
+                    const signatureData = document.getElementById('signatureData' + index);
+                    if (signatureData && signatureData.value && signatureData.value.trim() !== '') {
+                        const img = new Image();
+                        img.onload = function () {
+                            // 캔버스 크기에 맞게 이미지 그리기
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        };
+                        img.src = signatureData.value;
+                    }
+
+                    function getXY(e) {
+                        if (e.touches) {
+                            const rect = canvas.getBoundingClientRect();
+                            return [e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top];
+                        } else {
+                            return [e.offsetX, e.offsetY];
+                        }
+                    }
+
+                    canvas.addEventListener('mousedown', function (e) {
+                        drawing = true;
+                        [lastX, lastY] = getXY(e);
+                    });
+                    canvas.addEventListener('mousemove', function (e) {
+                        if (!drawing) return;
+                        const [x, y] = getXY(e);
+                        ctx.beginPath();
+                        ctx.moveTo(lastX, lastY);
+                        ctx.lineTo(x, y);
+                        ctx.stroke();
+                        [lastX, lastY] = [x, y];
+                    });
+                    canvas.addEventListener('mouseup', function () { drawing = false; });
+                    canvas.addEventListener('mouseout', function () { drawing = false; });
+                    canvas.addEventListener('touchstart', function (e) {
+                        drawing = true;
+                        [lastX, lastY] = getXY(e);
+                    });
+                    canvas.addEventListener('touchmove', function (e) {
+                        if (!drawing) return;
+                        const [x, y] = getXY(e);
+                        ctx.beginPath();
+                        ctx.moveTo(lastX, lastY);
+                        ctx.lineTo(x, y);
+                        ctx.stroke();
+                        [lastX, lastY] = [x, y];
+                        e.preventDefault();
+                    }, { passive: false });
+                    canvas.addEventListener('touchend', function () { drawing = false; });
+                });
+
+                // ✅ 폼 제출 시 saveSignature() 함수에서 처리
+                // document.querySelector("form").addEventListener("submit", function (e) {
+                //     // 폼 제출 이벤트 발생
+                // });
+
+                // 페이지 로드 시 기존 체크시트 데이터 복원 (수정 모드인 경우)
+                setTimeout(() => {
+                    restoreCheckResultData();
+                }, 500);
+            });
+
+            // 폼 제출 시 호출되는 메인 함수
+            function saveSignature() {
+                // templateId 설정 (템플릿 선택 상태에 따라)
+                const templateSelect = document.getElementById('templateSelect');
+                const templateIdHidden = document.getElementById('templateIdHidden');
+                if (templateSelect && templateIdHidden) {
+                    templateIdHidden.value = templateSelect.value;
+                }
+
+                // 1. 먼저 모든 데이터 수집 (renderInstance가 있을 때)
+                collectAndSaveFormData();
+
+                // 2. 서명 데이터 저장
+                saveAllSignatures();
+
+                // 3. 폼 제출 허용
+                return true;
+            }
+
+            // 폼 제출 전 데이터 수집 및 저장
+            function collectAndSaveFormData() {
+                // renderInstance가 있는지 확인
+                if (window.renderInstance && typeof window.renderInstance.getData === 'function') {
+                    try {
+                        // formRender의 getData 메서드로 데이터 수집
+                        const formData = window.renderInstance.getData();
+                        if (formData && Object.keys(formData).length > 0) {
+                            const jsonOutput = JSON.stringify(formData);
+                            document.getElementById("checkResultJson").value = jsonOutput;
+                            return;
+                        }
+                    } catch (error) {
+                        // getData 메서드 실패 시 fallback
+                    }
+                }
+
+                // fallback: 직접 수집
+                const formData = collectFormDataDirectly();
+                if (formData && Object.keys(formData).length > 0) {
+                    const jsonOutput = JSON.stringify(formData);
+                    document.getElementById("checkResultJson").value = jsonOutput;
+                } else {
+                    // 데이터가 없으면 빈 객체 저장
+                    document.getElementById("checkResultJson").value = "{}";
+                }
+            }
+
+            // 기존 체크시트 데이터 복원
+            function restoreCheckResultData() {
+                const checkResultJson = document.getElementById("checkResultJson").value;
+                if (checkResultJson && checkResultJson !== "{}" && checkResultJson !== "{no template selected}") {
+                    try {
+                        const savedData = JSON.parse(checkResultJson);
+                        console.log('복원할 체크시트 데이터:', savedData);
+
+                        // formRender에 데이터 복원
+                        if (window.renderInstance && typeof window.renderInstance.setData === 'function') {
+                            window.renderInstance.setData(savedData);
+                            console.log('formRender setData로 데이터 복원 완료');
+                        } else {
+                            // setData가 없으면 직접 폼 요소에 값 설정
+                            restoreFormDataDirectly(savedData);
+                            console.log('직접 복원으로 데이터 복원 완료');
+                        }
+                    } catch (error) {
+                        console.error('체크시트 데이터 복원 실패:', error);
+                    }
+                }
+            }
+
+            // 폼 요소에 직접 데이터 복원 (fallback용)
+            function restoreFormDataDirectly(savedData) {
+                const formElements = document.querySelectorAll('#form-render input, #form-render select, #form-render textarea');
+
+                formElements.forEach((element) => {
+                    if (element.name && savedData[element.name] !== undefined) {
+                        if (element.type === 'checkbox') {
+                            element.checked = savedData[element.name];
+                        } else {
+                            element.value = savedData[element.name];
+                        }
+                    }
+                });
+            }
+
+            // 폼 요소에서 직접 데이터 수집하는 함수 (fallback용)
+            function collectFormDataDirectly() {
+                const formData = {};
+
+                // form-render 내부의 모든 폼 요소 수집
+                const formElements = document.querySelectorAll('#form-render input, #form-render select, #form-render textarea');
+
+                formElements.forEach((element) => {
+                    if (element.name && element.value !== undefined) {
+                        if (element.type === 'checkbox') {
+                            formData[element.name] = element.checked;
+                        } else {
+                            formData[element.name] = element.value;
+                        }
+                    }
+                });
+
+                // 템플릿이 선택되어 있지 않거나 데이터가 없는 경우
+                if (Object.keys(formData).length === 0) {
+                    const templateSelect = document.getElementById('templateSelect');
+                    if (templateSelect && templateSelect.value) {
+                        // 템플릿이 선택되어 있지만 아직 폼이 렌더링되지 않은 경우
+                        return {};
+                    }
+                }
+
+                return formData;
+            }
+
+            // 서명 저장
+            function saveAllSignatures() {
+                const canvases = document.querySelectorAll('canvas[id^="signatureCanvas"]');
+
+                canvases.forEach(function (canvas, index) {
+                    const idx = canvas.id.replace('signatureCanvas', '');
+
+                    // 캔버스가 비어있지 않은지 확인
+                    const ctx = canvas.getContext('2d');
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const hasData = imageData.data.some(channel => channel !== 0);
+
+                    if (hasData) {
+                        // 이미지 품질을 0.8로 설정하여 파일 크기 최적화
+                        const dataUrl = canvas.toDataURL("image/png", 0.8);
+                        // const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
+                        const hidden = document.getElementById('signatureData' + idx);
+                        if (hidden) {
+                            hidden.value = dataUrl;
+                        }
+                    }
+                });
+            }
+
+            // 서명 초기화
+            function clearSignature(idx) {
+                const canvas = document.getElementById('signatureCanvas' + idx);
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+                const hidden = document.getElementById('signatureData' + idx);
+                if (hidden) hidden.value = '';
+            }
+
+            // 서명자 추가
+            function addSigner() {
+                const tbody = document.getElementById('itemTableBody');
+                const newIndex = tbody.rows.length;
+                const newRow = tbody.insertRow();
+                newRow.className = 'signer-row';
+
+                const orderCell = newRow.insertCell();
+                orderCell.className = 'px-4 py-2 border text-center';
+                orderCell.innerHTML = `<span class="signer-order">${newIndex + 1}</span>`;
+
+                const nameCell = newRow.insertCell();
+                nameCell.className = 'px-4 py-2 border';
+                nameCell.innerHTML = `
+                    <input type="text" name="items[${newIndex}].signerName" class="w-full border rounded px-2 py-1" 
+                        placeholder="서명자 ${newIndex + 1}명" required />
+                `;
+
+                const signatureCell = newRow.insertCell();
+                signatureCell.className = 'px-4 py-2 border';
+                signatureCell.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <canvas id="signatureCanvas${newIndex}" width="250" height="80"
+                            style="border:1px solid #ccc; border-radius: 4px; cursor: crosshair;"
+                            class="signature-canvas"></canvas>
+                        <input type="hidden" name="items[${newIndex}].signature" id="signatureData${newIndex}" />
+                    </div>
+                `;
+
+                const actionsCell = newRow.insertCell();
+                actionsCell.className = 'px-4 py-2 border';
+                actionsCell.innerHTML = `
+                    <div class="flex space-x-1">
+                        <button type="button" onclick="clearSignature(${newIndex})"
+                            class="px-2 py-1 text-blue-600 border border-blue-500 rounded hover:bg-blue-50 text-xs">
+                            지우기
+                        </button>
+                        <button type="button" onclick="removeSigner(${newIndex})"
+                            class="px-2 py-1 text-red-600 border border-red-500 rounded hover:bg-red-50 text-xs">
+                            삭제
+                        </button>
+                    </div>
+                `;
+
+                // 새로 추가된 canvas에 서명 이벤트 리스너 추가
+                initializeSignatureCanvas(newIndex);
+
+                // 모든 서명자의 순서 업데이트
+                updateSignerOrders();
+            }
+
+            // 서명자 삭제
+            function removeSigner(index) {
+                const tbody = document.getElementById('itemTableBody');
+                const rows = tbody.querySelectorAll('.signer-row');
+
+                if (rows.length > 1) { // 최소 1명은 유지
+                    const rowToRemove = rows[index];
+                    if (rowToRemove) {
+                        rowToRemove.remove();
+                        updateSignerOrders();
+                    }
+                } else {
+                    alert('최소 1명의 서명자가 필요합니다.');
+                }
+            }
+
+            // 서명자 순서 업데이트
+            function updateSignerOrders() {
+                const signerOrders = document.querySelectorAll('.signer-order');
+                signerOrders.forEach((orderSpan, index) => {
+                    orderSpan.textContent = index + 1;
+                });
+            }
+
+            // 서명 canvas 초기화
+            function initializeSignatureCanvas(index) {
+                const canvas = document.getElementById('signatureCanvas' + index);
+                if (!canvas) {
+                    console.error('Canvas not found:', 'signatureCanvas' + index);
+                    return;
+                }
+
+                let drawing = false;
+                let ctx = canvas.getContext('2d');
+
+                // 캔버스 초기화
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+
+                let lastX = 0, lastY = 0;
+
+                // 기존 서명 이미지가 있으면 캔버스에 그리기
+                const signatureData = document.getElementById('signatureData' + index);
+                if (signatureData && signatureData.value && signatureData.value.trim() !== '') {
+                    const img = new Image();
+                    img.onload = function () {
+                        // 캔버스 크기에 맞게 이미지 그리기
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    };
+                    img.src = signatureData.value;
+                }
+
+                function getXY(e) {
+                    if (e.touches) {
+                        const rect = canvas.getBoundingClientRect();
+                        return [e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top];
+                    } else {
+                        return [e.offsetX, e.offsetY];
+                    }
+                }
+
+                canvas.addEventListener('mousedown', function (e) {
+                    drawing = true;
+                    [lastX, lastY] = getXY(e);
+                });
+                canvas.addEventListener('mousemove', function (e) {
+                    if (!drawing) return;
+                    const [x, y] = getXY(e);
+                    ctx.beginPath();
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    [lastX, lastY] = [x, y];
+                });
+                canvas.addEventListener('mouseup', function () { drawing = false; });
+                canvas.addEventListener('mouseout', function () { drawing = false; });
+                canvas.addEventListener('touchstart', function (e) {
+                    drawing = true;
+                    [lastX, lastY] = getXY(e);
+                });
+                canvas.addEventListener('touchmove', function (e) {
+                    if (!drawing) return;
+                    const [x, y] = getXY(e);
+                    ctx.beginPath();
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    [lastX, lastY] = [x, y];
+                    e.preventDefault();
+                }, { passive: false });
+                canvas.addEventListener('touchend', function () { drawing = false; });
+
+
+            }
+
+            // 페이지 로드 시 모든 기존 canvas 초기화
+            function initializeAllSignatureCanvases() {
+                const canvases = document.querySelectorAll('canvas[id^="signatureCanvas"]');
+                canvases.forEach(function (canvas, index) {
+                    initializeSignatureCanvas(index);
+                });
+            }
+
+            // DOM 로드 완료 후 초기화
+            initializeAllSignatureCanvases();
+        </script>
+    </th:block>
+</body>
+
+</html>

@@ -1,0 +1,59 @@
+# 공통 설정 - 모든 프로필에서 공통으로 사용
+spring:
+  # JPA 공통 설정
+  jpa:
+    open-in-view: false
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+        connection.isolation: 2  # READ_COMMITTED
+  
+  # 메시지 공통 설정
+  messages:
+    basename: messages/messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+    default-locale: ko
+  
+  # 웹 공통 설정
+  web:
+    locale: ko
+    locale-resolver: fixed
+  
+  # 파일 업로드 설정
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+
+# 서버 공통 설정
+server:
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  tomcat:
+    max-http-form-post-size: 100MB
+
+# 로깅 공통 설정
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# 커스텀 설정
+cmms10:
+  default-company-id: C0001
+
+# 파일 업로드 설정
+file:
+  upload:
+    root-path: uploads
+    max-file-size: 50MB
+    allowed-file-types: jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx,txt
+    max-file-count: 10
