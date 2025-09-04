@@ -11,6 +11,8 @@
 CREATE SCHEMA cmms DEFAULT CHARACTER SET utf8mb4;
 USE cmms;
 
+USE cmms;
+
 -- 1) 공통: ID 시퀀스 (prefix별 증가 관리)
 CREATE TABLE IF NOT EXISTS id_sequence (
   company_id CHAR(5) NOT NULL,
@@ -168,126 +170,149 @@ CREATE TABLE IF NOT EXISTS stock_tx (
 
 -- 5) 점검(Inspection)
 CREATE TABLE IF NOT EXISTS inspection (
-  company_id CHAR(5) NOT NULL,
-  site_id CHAR(5) NOT NULL,
+  company_id    CHAR(5)  NOT NULL,
+  site_id       CHAR(5)  NOT NULL,
   -- 기본정보 
-  inspection_id CHAR(10) NOT NULL,                    -- 선두 3
+  inspection_id CHAR(10) NOT NULL,                    -- 선두 3 (번호정책 적용)
   inspection_name VARCHAR(100) NOT NULL,
-  plant_id CHAR(10) NULL,  
-  job_type CHAR(5) NULL,                              -- 코드(JOBTP)
-  dept_idCHAR(5) NULL,
+  plant_id      CHAR(10) NOT NULL,  
+  job_type      CHAR(5),                               -- 코드(JOBTP, 5자리)
+  dept_id       CHAR(5),
   -- 스케줄 정보 
-  planned_date DATE NULL,
-  actual_date DATE NULL,
-  status CHAR(1) NOT NULL DEFAULT 'T',                -- T:임시, C:확정
+  planned_date  DATETIME,
+  actual_date   DATETIME,
+  status        CHAR(1) NOT NULL DEFAULT 'T',          -- T:임시, C:확정
   -- 참고 정보
-  notes VARCHAR(500) NULL,
-  file_group_id CHAR(10) NULL,
-  create_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  update_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  notes         VARCHAR(500),
+  file_group_id CHAR(10),
+  create_date   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_date   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (company_id, site_id, inspection_id)
-);
+) ;
 
-
+-- 점검 항목(Inspection Item) - (현재 구조 기준)
 CREATE TABLE IF NOT EXISTS inspection_item (
-  company_id CHAR(5) NOT NULL,
+  company_id    CHAR(5)  NOT NULL,
+  site_id       CHAR(5)  NOT NULL,
   inspection_id CHAR(10) NOT NULL,
-  item_id CHAR(2) NOT NULL,                           -- 2자리 아이템ID
-  item_name VARCHAR(100) NOT NULL,
-  method VARCHAR(100) NULL,
-  unit VARCHAR(20) NULL,
-  min_val DECIMAL(18,4) NULL,
-  max_val DECIMAL(18,4) NULL,
-  std_val DECIMAL(18,4) NULL,
-  result_val DECIMAL(18,4) NULL,
-  notes VARCHAR(500) NULL,
-  PRIMARY KEY (company_id, inspection_id, item_id),
-  CONSTRAINT fk_ii_inspection FOREIGN KEY (company_id, inspection_id)
-    REFERENCES inspection(company_id, inspection_id)
+  item_id       CHAR(2)  NOT NULL,                           -- 2자리 아이템ID
+  item_name     VARCHAR(100) NOT NULL,
+  method        VARCHAR(100),
+  unit          VARCHAR(20),
+  min_val       DECIMAL(18,4),
+  max_val       DECIMAL(18,4),
+  std_val       DECIMAL(18,4),
+  result_val    DECIMAL(18,4),
+  notes         VARCHAR(500),
+  create_date   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_date   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (company_id, site_id, inspection_id, item_id),
+  CONSTRAINT fk_ii_inspection
+    FOREIGN KEY (company_id, site_id, inspection_id)
+    REFERENCES inspection(company_id, site_id, inspection_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
 );
 
 -- 6) 작업지시(WorkOrder)
 CREATE TABLE IF NOT EXISTS workorder (
-  company_id CHAR(5) NOT NULL,
-  site_id CHAR(5) NOT NULL,
-  -- 기본정보 
-  workorder_id CHAR(10) NOT NULL,                     -- 선두 5
+  company_id     CHAR(5)   NOT NULL,
+  site_id        CHAR(5)   NOT NULL,
+  -- 기본정보
+  workorder_id   CHAR(10)  NOT NULL,                     -- 선두 5 (번호정책)
   workorder_name VARCHAR(100) NOT NULL,
-  plant_id CHAR(10) NULL,
-  job_type CHAR(5) NULL,
+  plant_id       CHAR(10)  NULL,
+  job_type       CHAR(5)   NULL,
   -- 스케줄 정보 
-  planned_date DATE NULL,
-  actual_date DATE NULL,
-  status CHAR(1) NOT NULL DEFAULT 'T',                -- T:임시, C:확정
-  -- 비용 정보
-  planned_cost DECIMAL(18,2) NULL,
-  actual_cost DECIMAL(18,2) NULL,
-  planned_time DECIMAL(18,2) NULL,
-  actual_time DECIMAL(18,2) NULL,
+  planned_date   DATE      NULL,
+  actual_date    DATE      NULL,
+  status         CHAR(1)   NOT NULL DEFAULT 'T',         -- T:임시, C:확정
+  -- 비용/시간 정보
+  planned_cost   DECIMAL(18,2) NULL,
+  actual_cost    DECIMAL(18,2) NULL,
+  planned_time   DECIMAL(18,2) NULL,                     -- 시간(예: 인시)
+  actual_time    DECIMAL(18,2) NULL,
   -- 참고 정보
-  notes VARCHAR(500) NULL,
-  file_group_id CHAR(10) NULL,
-  create_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  update_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (company_id, workorder_id)
-);
+  notes          VARCHAR(500) NULL,
+  file_group_id  CHAR(10)  NULL,
+  create_date    DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_date    DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (company_id, site_id, workorder_id)
+) ;
 
+-- 작업지시 항목
 CREATE TABLE IF NOT EXISTS workorder_item (
-  company_id        CHAR(5)       NOT NULL,
-  workorder_id     CHAR(10)      NOT NULL,
-  item_id           CHAR(2)       NOT NULL,   -- 01~99
-  item_name         VARCHAR(100)  NOT NULL,
-  method            VARCHAR(100)  NULL,
-  result_value      VARCHAR(100)  NULL,
-  part_inventory_id CHAR(10)      NULL,       -- 사용 부품(선택)
+  company_id        CHAR(5)      NOT NULL,
+  site_id           CHAR(5)      NOT NULL,
+  workorder_id      CHAR(10)     NOT NULL,
+  item_id           CHAR(2)      NOT NULL,               -- 01~99
+  item_name         VARCHAR(100) NOT NULL,
+  method            VARCHAR(100) NULL,
+  result_value      VARCHAR(100) NULL,                   -- 수치/텍스트 혼용 시 VARCHAR 유지
+  part_inventory_id CHAR(10)     NULL,                   -- 사용 부품(선택)
   qty               DECIMAL(18,3) NULL,
-  uom               VARCHAR(20)   NULL,
-  create_date        TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  update_date        TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (company_id, workorder_id, item_id),
-  FOREIGN KEY (company_id, workorder_id) REFERENCES workorder(company_id, workorder_id),
-  FOREIGN KEY (company_id, part_inventory_id) REFERENCES inventory_master(company_id, inventory_id)
-);
+  uom               VARCHAR(20)  NULL,
+  create_date       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_date       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (company_id, site_id, workorder_id, item_id),
+
+  CONSTRAINT fk_woi_workorder
+    FOREIGN KEY (company_id, site_id, workorder_id)
+    REFERENCES workorder(company_id, site_id, workorder_id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ;
 
 -- 7) 작업허가(WorkPermit)
 CREATE TABLE IF NOT EXISTS workpermit (
-  company_id CHAR(5) NOT NULL,
-  site_id CHAR(5) NOT NULL,
+  company_id    CHAR(5)     NOT NULL,
+  site_id       CHAR(5)     NOT NULL,
   -- 기본정보 
-  permit_id CHAR(10) NOT NULL,                        -- 선두 9
-  permit_name VARCHAR(100) NOT NULL,
-  permit_type CHAR(5) NULL,                           -- 코드(PERMT)
-  workorder_id CHAR(10) NULL,
-  plant_id CHAR(10) NULL,
-  dept_id CHAR(5) NULL,
+  permit_id     CHAR(10)    NOT NULL,                        -- 선두 9 (회사 단위 유일)
+  permit_name   VARCHAR(100) NOT NULL,
+  permit_type   CHAR(5)     ,                            -- 코드(PERMT)
+  workorder_id  CHAR(10)    ,
+  plant_id      CHAR(10)    ,
+  dept_id       CHAR(5)     ,
   -- 스케줄 정보 
-  start_date DATE NULL,
-  end_date DATE NULL,
-  status CHAR(1) NOT NULL DEFAULT 'T',                -- T:임시, C:확정
+  start_date    DATE        ,
+  end_date      DATE        ,
+  status        CHAR(1)     NOT NULL DEFAULT 'T',            -- T:임시, C:확정
   -- 안전정보   
-  work_summary VARCHAR(100) NULL,
-  hazard_factor VARCHAR(100) NULL,
-  safety_factor VARCHAR(100) NULL,
+  work_summary  VARCHAR(100) ,
+  hazard_factor VARCHAR(100) ,
+  safety_factor VARCHAR(100) ,
   -- 참고 정보
-  notes VARCHAR(500) NULL,
-  file_group_id CHAR(10) NULL,
-  create_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  update_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (company_id, permit_id)
-);
+  notes         VARCHAR(500) ,
+  file_group_id CHAR(10)     ,
+  create_date   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_date   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
+  PRIMARY KEY (company_id, site_id, permit_id),
+  
+  CONSTRAINT fk_wp_workorder
+    FOREIGN KEY (company_id, site_id, workorder_id)
+    REFERENCES workorder(company_id, site_id, workorder_id)
+) ;
+
+-- 작업허가 항목(체크리스트 등 결과)
 CREATE TABLE IF NOT EXISTS workpermit_item (
-  company_id      CHAR(5)       NOT NULL,
-  workpermit_id  CHAR(10)      NOT NULL,
-  item_id         CHAR(2)       NOT NULL,   -- 01~99
-  item_name       VARCHAR(100)  NOT NULL,
-  signature       VARCHAR(100)  NULL,  -- 서명
-  name            VARCHAR(100)  NULL,  -- 서명자 
-  create_date      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  update_date      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (company_id, workpermit_id, item_id),
-  FOREIGN KEY (company_id, workpermit_id) REFERENCES workpermit(company_id, workpermit_id)
-);
+  company_id   CHAR(5)      NOT NULL,
+  site_id      CHAR(5)      NOT NULL,
+  permit_id    CHAR(10)     NOT NULL,
+  item_id      CHAR(2)      NOT NULL,           -- 01~99
+  item_name    VARCHAR(100) NOT NULL,
+  signature    VARCHAR(100) NULL,               -- 서명(전자서명 식별자/파일ID 등)
+  name         VARCHAR(100) NULL,               -- 서명자명
+  create_date  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_date  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (company_id, site_id, permit_id, item_id),
+
+  CONSTRAINT fk_wpi_workpermit
+    FOREIGN KEY (company_id, site_id, permit_id)
+    REFERENCES workpermit(company_id, site_id, permit_id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ;
 
 -- 8) 메모(게시판)
 CREATE TABLE IF NOT EXISTS memo (
@@ -370,7 +395,12 @@ CREATE TABLE IF NOT EXISTS user (
   company_id CHAR(5) NOT NULL,
   user_id CHAR(5) NOT NULL,
   user_name VARCHAR(100) NOT NULL,
-  use_yn CHAR(1) NOT NULL DEFAULT 'Y',
+  password_hash        VARCHAR(100) NOT NULL,   -- BCrypt 해시만 저장
+  password_updated_at  DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP,  
+  failed_login_count   INT       NOT NULL DEFAULT 0,
+  is_locked            CHAR(1)   NOT NULL DEFAULT 'N',
+  last_login_at        DATETIME  NULL,
+  must_change_pw       CHAR(1)   NOT NULL DEFAULT 'N',      -- 최초 로그인 시 변경 강제 옵션,
   create_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   update_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (company_id, user_id)
@@ -454,12 +484,38 @@ CREATE TABLE approval_request_step (
 );
 
 -- 12) 인덱스
-CREATE INDEX ix_plant_func ON plant_master(company_id, func_id);
-CREATE INDEX ix_inventory_storage ON inventory_master(company_id, storage_id);
-CREATE INDEX ix_inspection_status ON inspection(company_id, status);
-CREATE INDEX ix_workorder_date ON workorder(company_id, perform_date);
+
 
 -- 13) 초기 데이터 (회사 C0001 가정)
+INSERT INTO company (company_id, company_name) VALUES
+('C0001','예시 회사');
+
+INSERT INTO site (company_id, site_id, site_name) VALUES
+('C0001','S0001','예시 사이트');
+('C0001','S0002','예시 사이트2');
+
+INSERT INTO dept (company_id, dept_id, dept_name) VALUES
+('C0001','D0001','예시 부서');
+('C0001','D0002','예시 부서2');
+('C0001','D0003','예시 부서3');
+
+INSERT INTO user (company_id, user_id, user_name, password_hash) VALUES
+('C0001','ADMIN','관리자','$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa'),
+('C0001','U0001','예시 사용자1','$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa');
+('C0001','U0002','예시 사용자2','$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa');
+('C0001','U0003','예시 사용자3','$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa');
+
+INSERT INTO role (company_id, role_id, role_name) VALUES
+('C0001','R0001','예시 권한');
+('C0001','R0002','예시 권한2');
+('C0001','R0003','예시 권한3');
+
+INSERT INTO user_role (company_id, user_id, role_id) VALUES
+('C0001','ADMIN','R0001'),
+('C0001','U0001','R0001'),
+('C0001','U0002','R0002'),
+('C0001','U0003','R0003');
+
 INSERT INTO id_sequence (company_id, prefix, next_val) VALUES
 ('C0001','1',1000000000),
 ('C0001','2',2000000000),
@@ -517,3 +573,4 @@ INSERT INTO approval_template (company_id, template_id, template_name) VALUES
 INSERT INTO approval_template_step (company_id, template_id, step_no, role_id, sort_order) VALUES
 ('C0001','7000000001',1,'APRV1',10),
 ('C0001','7000000001',2,'APRV2',20);
+
