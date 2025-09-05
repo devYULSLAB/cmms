@@ -135,6 +135,71 @@ CRA(Create React App) 또는 Vite를 기반으로, 기능별 모듈화에 초점
 
 ---
 
-## 7. 결론
+## 7. 주요 페이지별 컴포넌트 설계 (예시)
+
+본 설계안은 페이지를 기능별/공통 컴포넌트 단위로 분해하여 재사용성을 높이고 유지보수를 용이하게 하는 것을 목표로 합니다.
+
+### 7.1. 로그인 페이지 (LoginPage)
+
+| 컴포넌트명 | 타입 | 설명 | 위치 (제안) |
+| :--- | :--- | :--- | :--- |
+| `LoginPage` | Page | 로그인 페이지의 전체 레이아웃과 상태를 관리 | `/src/pages/LoginPage` |
+| `LoginForm` | Feature | 아이디, 비밀번호 입력 폼, 로그인 버튼을 포함 | `/src/components/feature/LoginForm` |
+| `Input` | Common | 텍스트 입력 필드 | `/src/components/common/Input` |
+| `Button` | Common | 클릭 가능한 버튼 | `/src/components/common/Button` |
+| `Label` | Common | Input 필드에 대한 설명 | `/src/components/common/Label` |
+
+### 7.2. 메인 페이지 (MainPage)
+
+| 컴포넌트명 | 타입 | 설명 | 위치 (제안) |
+| :--- | :--- | :--- | :--- |
+| `MainPage` | Page | 메인 페이지의 전체 레이아웃과 데이터 로딩 | `/src/pages/MainPage` |
+| `Header` | Feature | 사이트 로고, 네비게이션, 검색창 등을 포함하는 헤더 | `/src/components/feature/Header` |
+| `ProductGrid`| Feature | 상품 목록을 격자 형태로 표시하는 영역 | `/src/components/feature/ProductGrid` |
+| `ProductCard`| Feature | 개별 상품의 이미지, 이름, 가격을 표시하는 카드 | `/src/components/feature/ProductCard` |
+| `Footer` | Feature | 사이트 정보, 링크 등을 포함하는 푸터 | `/src/components/feature/Footer` |
+| `Spinner` | Common | 데이터 로딩 중임을 나타내는 스피너 | `/src/components/common/Spinner` |
+
+---
+
+## 8. 개발 서버 실행 기술 스택 및 절차
+
+### 8.1. 기술 스택 (Tech Stack)
+
+- **`Node.js`**: `v18.x` LTS 버전 이상
+- **`npm` 또는 `yarn`**: Node.js에 포함된 패키지 매니저
+- **`Vite`**: 차세대 프론트엔드 개발 및 빌드 도구
+
+### 8.2. 실행 절차 (Procedure)
+
+1.  **의존성 설치**: 프로젝트 루트 디렉토리에서 아래 명령어를 실행하여 `package.json`에 명시된 모든 라이브러리를 설치합니다.
+    ```bash
+    npm install
+    ```
+    또는 yarn 사용 시:
+    ```bash
+    yarn install
+    ```
+
+2.  **개발 서버 실행**: 아래 명령어를 실행하여 개발 서버를 시작합니다.
+    ```bash
+    npm run dev
+    ```
+    또는 yarn 사용 시:
+    ```bash
+    yarn dev
+    ```
+
+3.  **확인**: 서버가 성공적으로 실행되면, 터미널에 다음과 유사한 메시지가 출력됩니다. 브라우저에서 해당 주소로 접속하여 개발 중인 애플리케이션을 확인할 수 있습니다.
+    ```
+    VITE v5.x.x  ready in xxx ms
+
+    ➜  Local:   http://localhost:5173/
+    ➜  Network: use --host to expose
+    ```
+
+---
+
+## 9. 결론
 
 React 전환은 단기적으로는 기술 학습과 마이그레이션 비용이 발생하지만, 장기적으로는 향상된 사용자 경험, 개발 생산성, 유지보수성을 통해 더 큰 가치를 제공할 것입니다. 본 기획안을 바탕으로 성공적인 프로젝트 전환을 기대합니다.
