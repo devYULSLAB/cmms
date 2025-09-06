@@ -19,30 +19,30 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col" class="th-style" th:text="#{user.id}">ID</th>
-                        <th scope="col" class="th-style" th:text="#{user.name}">Name</th>
-                        <th scope="col" class="th-style" th:text="#{user.email}">Email</th>
-                        <th scope="col" class="th-style" th:text="#{user.deptId}">Department</th>
-                        <th scope="col" class="th-style" th:text="#{user.roleId}">Role</th>
+                        <th scope="col" class="th-style" th:text="#{user.userId}">ID</th>
+                        <th scope="col" class="th-style" th:text="#{user.userName}">Name</th>
+                        <th scope="col" class="th-style" th:text="#{user.isLocked}">Locked</th>
                         <th scope="col" class="th-style" th:text="#{common.action}">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <tr th:each="user : ${users}" class="hover:bg-gray-50">
-                        <td class="td-style" th:text="${user.id}"></td>
-                        <td class="td-style" th:text="${user.name}"></td>
-                        <td class="td-style" th:text="${user.email}"></td>
-                        <td class="td-style" th:text="${user.dept_id}"></td>
-                        <td class="td-style" th:text="${user.role_id}"></td>
+                        <td class="td-style" th:text="${user.userId}"></td>
+                        <td class="td-style" th:text="${user.userName}"></td>
+                        <td class="td-style">
+                            <span th:text="${user.isLocked}"
+                                  th:classappend="${user.isLocked == 'Y'} ? 'badge-danger' : 'badge-success'">
+                            </span>
+                        </td>
                         <td class="td-style space-x-2">
-                            <a th:href="@{/domain/user/form/{id}(id=${user.id})}" class="btn-secondary" th:text="#{common.button.edit}">Edit</a>
-                            <form th:action="@{/domain/user/delete/{id}(id=${user.id})}" method="post" class="inline-block" onsubmit="return confirm('Are you sure?');">
+                            <a th:href="@{/domain/user/{userId}/edit(userId=${user.userId})}" class="btn-secondary" th:text="#{common.button.edit}">Edit</a>
+                            <form th:action="@{/domain/user/{userId}/delete(userId=${user.userId})}" method="post" class="inline-block" onsubmit="return confirm('Are you sure?');">
                                 <button type="submit" class="btn-danger" th:text="#{common.button.delete}">Delete</button>
                             </form>
                         </td>
                     </tr>
                      <tr th:if="${#lists.isEmpty(users)}">
-                        <td colspan="6" class="text-center py-4" th:text="#{common.table.noData}">No users found.</td>
+                        <td colspan="4" class="text-center py-4" th:text="#{common.table.noData}">No users found.</td>
                     </tr>
                 </tbody>
             </table>

@@ -1,9 +1,9 @@
 package com.cmms.inventory.controller;
 
 import com.cmms.auth.dto.CustomUserDetails;
-import com.cmms.common.service.CommonCodeService;
-import com.cmms.domain.service.DeptService;
-import com.cmms.domain.service.SiteService;
+import com.cmms.auth.dto.CustomUserDetails;
+import com.cmms.domain.site.service.SiteService;
+import com.cmms.inventory.dto.InventoryLedgerDto;
 import com.cmms.inventory.dto.InventoryTransactionForm;
 import com.cmms.inventory.entity.Inventory;
 import com.cmms.inventory.entity.InventoryId;
@@ -15,12 +15,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,11 +33,8 @@ public class InventoryController {
 
     private final InventoryService inventoryService;
     private final StockService stockService;
-    // Assuming other services will be refactored and injected
-    // private final DeptService deptService;
-    // private final SiteService siteService;
-    // private final CommonCodeService commonCodeService;
-    // private final StorageService storageService;
+    private final SiteService siteService;
+    private final StorageService storageService;
 
     // ========== Inventory Master CRUD ==========
 
@@ -127,6 +126,73 @@ public class InventoryController {
 
         return "redirect:/inventory/transaction";
     }
+
+    // ========== Ledger & Closing ==========
+
+    @GetMapping("/ledger")
+    public String stockLedger(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(required = false) String siteId,
+            @RequestParam(required = false) String storageId,
+            @RequestParam(required = false) String inventoryId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Model model) {
+
+        // Set default date range if not provided (e.g., this month)
+        if (startDate == null) {
+            startDate = LocalDate.now().withDayOfMonth(1);
+        }
+        if (endDate == null) {
+            endDate = LocalDate.now();
+        }
+
+        List<InventoryLedgerDto> ledgerData = inventoryService.getInventoryLedger(
+                userDetails.getCompanyId(), siteId, storageId, inventoryId, startDate, endDate);
+
+        model.addAttribute("ledgerData", ledgerData);
+        model.addAttribute("sites", siteService.findAllByCompanyId(userDetails.getCompanyId()));
+        // TODO: Add a way to get storages by site
+        model.addAttribute("storages", storageService.findAllByCompanyId(userDetails.getCompanyId()));
+
+        // Pass search params back to the view
+        model.addAttribute("siteId", siteId);
+        model.addAttribute("storageId", storageId);
+        model.addAttribute("inventoryId", inventoryId);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+
+        return "inventory/inventoryStockLedger";
+    }
+
+    @GetMapping("/closing")
+    public String closingForm(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        // Populate the form with necessary data
+        model.addAttribute("sites", siteService.findAllByCompanyId(userDetails.getCompanyId()));
+        model.addAttribute("storages", storageService.findAllByCompanyId(userDetails.getCompanyId()));
+        // Populate closing history
+        model.addAttribute("closingHistory", inventoryService.getClosingHistory(userDetails.getCompanyId()));
+        return "inventory/inventoryStockByMonth";
+    }
+
+    @PostMapping("/closing")
+    public String closeMonth(
+            @RequestParam String yyyymm,
+            @RequestParam String siteId,
+            @RequestParam(required = false) String storageId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            inventoryService.closeStockForMonth(userDetails.getCompanyId(), siteId, storageId, yyyymm);
+            redirectAttributes.addFlashAttribute("successMessage", yyyymm + " 재고 마감이 성공적으로 실행되었습니다.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "재고 마감 중 오류 발생: " + e.getMessage());
+        }
+
+        return "redirect:/inventory/closing";
+    }
+
 
     // ========== API ==========
 

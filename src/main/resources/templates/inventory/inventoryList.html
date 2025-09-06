@@ -4,16 +4,32 @@
 
 <head>
     <title>Inventory List</title>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: white; }
+            .printable-area {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .pagination-container { display: none !important; }
+        }
+    </style>
 </head>
 
 <body>
     <div layout:fragment="content">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 printable-area">
 
             <!-- Page Header -->
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center mb-6 no-print">
                 <h1 class="text-3xl font-bold text-gray-800" th:text="#{inventory.list.title}">Inventory List</h1>
-                <a th:href="@{/inventory/form}" class="btn-primary" th:text="#{common.button.add}">Add New Item</a>
+                <div>
+                    <a th:href="@{/inventory/form}" class="btn-primary" th:text="'신규'">New Item</a>
+                    <button onclick="window.print()" class="btn-secondary" th:text="'출력'">Print</button>
+                </div>
             </div>
 
             <!-- Flash Messages -->

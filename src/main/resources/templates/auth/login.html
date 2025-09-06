@@ -39,6 +39,12 @@
                     <button type="submit" class="btn-primary w-full" th:text="#{login.submitButton}">
                         Login
                     </button>
+
+                    <div class="text-center mt-4">
+                        <a th:href="@{/auth/signup}" class="text-sm text-blue-600 hover:underline" th:text="'회원가입'">Sign Up</a>
+                        <span class="mx-2 text-gray-400">|</span>
+                        <a th:href="@{/auth/find-id}" class="text-sm text-blue-600 hover:underline" th:text="'아이디 조회'">Find ID</a>
+                    </div>
                 </form>
             </div>
         </div>
