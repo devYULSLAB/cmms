@@ -1,43 +1,91 @@
-package com.cmms10.auth.controller;
+package com.cmms.auth.controller;
 
+import com.cmms.domain.user.entity.User;
+import com.cmms.domain.user.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/**
- * cmms10 - AuthController
- * 인증 관련 컨트롤러
- * 
- * @author cmms10
- * @since 2024-03-19
- */
+import java.time.LocalDateTime;
+
 @Controller
+@RequiredArgsConstructor
 public class AuthController {
 
-    /**
-     * 로그인 화면을 조회합니다.
-     * 
-     * @return 로그인 화면
-     */
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+
     @GetMapping("/login")
     public String login() {
-        // Simply returns the view name for the login page
-        // The template should be located at /resources/templates/auth/login.html
         return "auth/login";
     }
 
-    /**
-     * 루트 URL에 대한 처리를 합니다.
-     * 인증된 사용자는 메모 목록으로, 그렇지 않은 사용자는 로그인 페이지로 리다이렉트합니다.
-     * 
-     * @param auth 인증 정보
-     * @return 리다이렉트 URL
-     */
     @GetMapping("/")
     public String home(Authentication auth) {
         if (auth != null && auth.isAuthenticated()) {
-            return "redirect:/memo/memoList"; 
+            return "redirect:/memo/memoList";
         }
         return "redirect:/login";
+    }
+
+    @GetMapping("/auth/signup")
+    public String signupForm() {
+        return "auth/signup";
+    }
+
+    @PostMapping("/auth/signup")
+    public String signup(@RequestParam String companyId,
+                         @RequestParam String userId,
+                         @RequestParam String password,
+                         RedirectAttributes redirectAttributes) {
+        try {
+            User user = new User();
+            user.setCompanyId(companyId);
+            user.setUserId(userId);
+            user.setUserName(userId); // 기본적으로 userName을 userId와 동일하게 설정
+            user.setPasswordHash(passwordEncoder.encode(password));
+            user.setPasswordUpdatedAt(LocalDateTime.now());
+            user.setFailedLoginCount(0);
+            user.setIsLocked("Y"); // 회원가입 시 기본으로 잠금
+            user.setMustChangePw("N");
+            user.setCreateDate(LocalDateTime.now());
+            user.setUpdateDate(LocalDateTime.now());
+
+            userService.saveUser(user);
+
+            redirectAttributes.addFlashAttribute("successMessage", "회원가입 요청이 완료되었습니다. 관리자의 승인을 기다려주세요.");
+            return "redirect:/login";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "회원가입 중 오류가 발생했습니다: " + e.getMessage());
+            return "redirect:/auth/signup";
+        }
+    }
+
+    @GetMapping("/auth/find-id")
+    public String findIdForm() {
+        return "auth/find_id";
+    }
+
+    @PostMapping("/auth/find-id")
+    public String findId(@RequestParam String companyId,
+                         @RequestParam String userId,
+                         RedirectAttributes redirectAttributes) {
+        try {
+            if (userService.isUserExist(companyId, userId)) {
+                redirectAttributes.addFlashAttribute("message", "ID '" + userId + "'는 존재하는 아이디입니다.");
+            } else {
+                redirectAttributes.addFlashAttribute("message", "ID '" + userId + "'는 존재하지 않는 아이디입니다.");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("message", "ID 조회 중 오류가 발생했습니다.");
+        }
+        redirectAttributes.addAttribute("companyId", companyId);
+        redirectAttributes.addAttribute("userId", userId);
+        return "redirect:/auth/find-id";
     }
 }

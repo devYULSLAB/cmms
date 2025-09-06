@@ -16,42 +16,37 @@
             </h1>
 
             <form th:action="@{/domain/user/save}" th:object="${user}" method="post" class="space-y-8 max-w-lg">
-                <input type="hidden" th:field="*{company_id}" />
+                <!-- Hidden fields for companyId and other non-editable fields if necessary -->
+                <input type="hidden" th:field="*{companyId}" />
 
                 <div class="form-section">
-                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="form-group">
-                            <label for="id" class="form-label" th:text="#{user.id}">ID</label>
-                            <input type="text" id="id" th:field="*{id}" class="form-input" th:readonly="${user.id != null}" required />
+                            <label for="userId" class="form-label" th:text="#{user.userId}">User ID</label>
+                            <input type="text" id="userId" th:field="*{userId}" class="form-input" th:readonly="*{userId != null}" required />
                         </div>
                         <div class="form-group">
-                            <label for="name" class="form-label" th:text="#{user.name}">Name</label>
-                            <input type="text" id="name" th:field="*{name}" class="form-input" required />
+                            <label for="userName" class="form-label" th:text="#{user.userName}">User Name</label>
+                            <input type="text" id="userName" th:field="*{userName}" class="form-input" required />
                         </div>
                         <div class="form-group md:col-span-2">
                             <label for="password" class="form-label" th:text="#{user.password}">Password</label>
-                            <input type="password" id="password" name="password" class="form-input" th:placeholder="${user.id == null} ? 'Required' : 'Leave blank to keep current password'" />
+                            <input type="password" id="password" name="rawPassword" class="form-input"
+                                   th:placeholder="*{userId == null} ? 'Required' : 'Leave blank to keep current password'" />
                         </div>
+
                         <div class="form-group">
-                            <label for="email" class="form-label" th:text="#{user.email}">Email</label>
-                            <input type="email" id="email" th:field="*{email}" class="form-input" />
-                        </div>
-                        <div class="form-group">
-                            <label for="phone" class="form-label" th:text="#{user.phone}">Phone</label>
-                            <input type="tel" id="phone" th:field="*{phone}" class="form-input" />
-                        </div>
-                        <div class="form-group">
-                            <label for="dept_id" class="form-label" th:text="#{user.deptId}">Department</label>
-                            <select id="dept_id" th:field="*{dept_id}" class="form-select">
-                                <option value="" th:text="#{common.select.placeholder}">Select a department...</option>
-                                <option th:each="dept : ${depts}" th:value="${dept.id}" th:text="${dept.name}"></option>
+                            <label for="isLocked" class="form-label" th:text="#{user.isLocked}">Locked</label>
+                            <select id="isLocked" th:field="*{isLocked}" class="form-select">
+                                <option value="N">N (Active)</option>
+                                <option value="Y">Y (Locked)</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="role_id" class="form-label" th:text="#{user.roleId}">Role</label>
-                            <select id="role_id" th:field="*{role_id}" class="form-select">
-                                <option value="" th:text="#{common.select.placeholder}">Select a role...</option>
-                                <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.name}"></option>
+                            <label for="mustChangePw" class="form-label" th:text="#{user.mustChangePw}">Force PW Change</label>
+                            <select id="mustChangePw" th:field="*{mustChangePw}" class="form-select">
+                                <option value="N">N</option>
+                                <option value="Y">Y</option>
                             </select>
                         </div>
                     </div>

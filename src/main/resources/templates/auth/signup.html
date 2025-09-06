@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/defaultLayout}">
+<head>
+    <title>회원가입</title>
+</head>
+<body>
+<div layout:fragment="content" class="flex items-center justify-center min-h-screen -mt-20">
+    <div class="w-full max-w-md">
+        <div class="bg-white shadow-lg rounded-lg p-8">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">회원가입</h2>
+
+            <div th:if="${successMessage}" class="alert-success mb-4" role="alert" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert-danger mb-4" role="alert" th:text="${errorMessage}"></div>
+
+            <form th:action="@{/auth/signup}" method="post" class="space-y-6">
+                <div class="form-group">
+                    <label for="companyId" class="form-label">회사 ID</label>
+                    <input type="text" id="companyId" name="companyId" required class="form-input" placeholder="회사 ID를 입력하세요" />
+                </div>
+                <div class="form-group">
+                    <label for="userId" class="form-label">사용자 ID</label>
+                    <input type="text" id="userId" name="userId" required class="form-input" placeholder="사용할 ID를 입력하세요" />
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">비밀번호</label>
+                    <input type="password" id="password" name="password" required class="form-input" placeholder="비밀번호를 입력하세요" />
+                </div>
+
+                <button type="submit" class="btn-primary w-full">가입 요청</button>
+
+                <div class="text-center mt-4">
+                    <a th:href="@{/login}" class="text-sm text-blue-600 hover:underline">로그인으로 돌아가기</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
