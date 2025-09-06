@@ -3,83 +3,78 @@
     layout:decorate="~{layout/defaultLayout}">
 
 <head>
-    <title>작업허가서 목록</title>
+    <title>Workpermit List</title>
 </head>
 
 <body>
     <div layout:fragment="content">
-        <div class="max-w-6xl mx-auto mt-8 space-y-6">
-            <h2 class="text-2xl font-bold" th:text="#{workpermitList}">작업허가서 목록</h2>
-            <div>
-                <a th:href="@{/workpermit/workpermitForm}"
-                    class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
-                    <i class="fas fa-plus mr-2"></i>신규 등록
-                </a>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800" th:text="#{workpermit.list.title}">Work Permit List</h1>
+                <a th:href="@{/workpermit/form}" class="btn-primary" th:text="#{common.button.add}">New Work Permit</a>
             </div>
-            <div class="border rounded-lg shadow overflow-x-auto mt-4">
-                <table class="min-w-full text-sm text-left">
-                    <thead class="bg-gray-100">
+
+            <!-- Data Table -->
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-2 border" th:text="#{siteId}">사이트 ID</th>
-                            <th class="px-4 py-2 border" th:text="#{permitId}">허가서 ID</th>
-                            <th class="px-4 py-2 border" th:text="#{plantId}">설비 ID</th>
-                            <th class="px-4 py-2 border" th:text="#{permitName}">허가서명</th>
-                            <th class="px-4 py-2 border" th:text="#{startDate}">시작일</th>
-                            <th class="px-4 py-2 border" th:text="#{endDate}">종료일</th>
-                            <th class="px-4 py-2 border" th:text="#{status}">상태</th>
-                            <th class="px-4 py-2 border">점검표</th>
-                            <th class="px-4 py-2 border" th:text="#{action}">Actions</th>
+                            <th scope="col" class="th-style" th:text="#{workpermit.id}">Permit ID</th>
+                            <th scope="col" class="th-style" th:text="#{workpermit.name}">Permit Name</th>
+                            <th scope="col" class="th-style" th:text="#{workpermit.plantId}">Plant</th>
+                            <th scope="col" class="th-style" th:text="#{workpermit.startDate}">Start Date</th>
+                            <th scope="col" class="th-style" th:text="#{workpermit.endDate}">End Date</th>
+                            <th scope="col" class="th-style" th:text="#{workpermit.status}">Status</th>
+                            <th scope="col" class="th-style" th:text="#{common.action}">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="bg-white divide-y divide-gray-200">
                         <tr th:each="wp : ${workpermits.content}" class="hover:bg-gray-50">
-                            <td class="border px-4 py-2" th:text="${wp.siteId}"></td>
-                            <td class="border px-4 py-2">
-                                <a th:href="@{/workpermit/workpermitDetail/{siteId}/{permitId}(siteId=${wp.siteId},permitId=${wp.permitId})}"
-                                    class="text-blue-700 hover:underline" th:text="${wp.permitId}"></a>
+                            <td class="td-style">
+                                <a th:href="@{/workpermit/detail/{id}(id=${wp.permit_id})}"
+                                   class="text-blue-600 hover:underline" th:text="${wp.permit_id}"></a>
                             </td>
-                            <td class="border px-4 py-2" th:text="${wp.plantId}"></td>
-                            <td class="border px-4 py-2" th:text="${wp.permitName}"></td>
-                            <td class="border px-4 py-2" th:text="${wp.startDate}"></td>
-                            <td class="border px-4 py-2" th:text="${wp.endDate}"></td>
-                            <td class="border px-4 py-2" th:text="${wp.status}"></td>
-                            <td class="border px-4 py-2">
-                                <a th:href="@{/checksheet/checksheetResultDetail/{permitId}(permitId=${wp.permitId})}"
-                                    class="px-2 py-1 text-blue-800 border border-blue-500 rounded hover:bg-blue-50 text-xs">
-                                    <i class="fas fa-clipboard-check mr-1"></i>점검표
-                                </a>
-                            </td>
-                            <td class="border px-4 py-2 space-x-2">
-                                <a th:href="@{/workpermit/workpermitForm/{siteId}/{permitId}(siteId=${wp.siteId},permitId=${wp.permitId})}"
-                                    class="px-2 py-1 text-yellow-800 border border-yellow-500 rounded hover:bg-yellow-50 text-xs"
-                                    th:text="#{edit}">수정</a>
-                                <form
-                                    th:action="@{/workpermit/workpermitDelete/{siteId}/{permitId}(siteId=${wp.siteId},permitId=${wp.permitId})}"
-                                    method="post" class="inline" th:onsubmit="return confirm('정말 삭제하시겠습니까?');">
-                                    <button type="submit"
-                                        class="px-2 py-1 text-red-800 border border-red-500 rounded hover:bg-red-50 text-xs"
-                                        th:text="#{delete}">삭제</button>
+                            <td class="td-style" th:text="${wp.permit_name}"></td>
+                            <td class="td-style" th:text="${wp.plant_id}"></td>
+                            <td class="td-style" th:text="${#dates.format(wp.start_date, 'yyyy-MM-dd')}"></td>
+                            <td class="td-style" th:text="${#dates.format(wp.end_date, 'yyyy-MM-dd')}"></td>
+                            <td class="td-style" th:text="${wp.status}"></td>
+                            <td class="td-style space-x-2">
+                                <a th:href="@{/workpermit/form/{id}(id=${wp.permit_id})}" class="btn-secondary" th:text="#{common.button.edit}">Edit</a>
+                                <form th:action="@{/workpermit/delete/{id}(id=${wp.permit_id})}" method="post" class="inline-block" onsubmit="return confirm('Are you sure?');">
+                                    <button type="submit" class="btn-danger" th:text="#{common.button.delete}">Delete</button>
                                 </form>
+                                <!-- TODO: Add checksheet link -->
                             </td>
+                        </tr>
+                        <tr th:if="${workpermits.empty}">
+                            <td colspan="7" class="text-center py-4" th:text="#{common.table.noData}">No data available</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+
             <!-- Pagination -->
-            <div th:if="${workpermits.totalPages > 0}" class="flex justify-center mt-4 space-x-1">
-                <a th:href="@{/workpermit/workpermitList(page=${workpermits.number - 1}, size=${workpermits.size})}"
-                    th:classappend="${workpermits.first ? 'pointer-events-none opacity-50' : ''}"
-                    class="px-3 py-1 border rounded hover:bg-gray-100 text-sm">이전</a>
-                <a th:each="i : ${#numbers.sequence(0, workpermits.totalPages - 1)}"
-                    th:href="@{/workpermit/workpermitList(page=${i}, size=${workpermits.size})}" th:text="${i + 1}"
-                    th:classappend="${i == workpermits.number ? 'bg-blue-600 text-white' : 'hover:bg-gray-100'}"
-                    class="px-3 py-1 border rounded text-sm"></a>
-                <a th:href="@{/workpermit/workpermitList(page=${workpermits.number + 1}, size=${workpermits.size})}"
-                    th:classappend="${workpermits.last ? 'pointer-events-none opacity-50' : ''}"
-                    class="px-3 py-1 border rounded hover:bg-gray-100 text-sm">다음</a>
-            </div>
+            <nav th:if="${workpermits.totalPages > 1}" class="pagination-container" aria-label="Pagination">
+                <ul class="pagination">
+                    <li th:classappend="${workpermits.first} ? 'disabled' : ''">
+                        <a th:href="@{/workpermit/list(page=${workpermits.number - 1}, size=${workpermits.size})}" class="pagination-link" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li th:each="i : ${#numbers.sequence(0, workpermits.totalPages - 1)}" th:classappend="${i == workpermits.number} ? 'active' : ''">
+                        <a th:href="@{/workpermit/list(page=${i}, size=${workpermits.size})}" class="pagination-link" th:text="${i + 1}"></a>
+                    </li>
+                    <li th:classappend="${workpermits.last} ? 'disabled' : ''">
+                        <a th:href="@{/workpermit/list(page=${workpermits.number + 1}, size=${workpermits.size})}" class="pagination-link" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
 </body>
-
 </html>

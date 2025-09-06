@@ -3,99 +3,80 @@
     layout:decorate="~{layout/defaultLayout}">
 
 <head>
-    <title>메모 상세</title>
-    <th:block layout:fragment="page-css">
-        <script src="https://cdn.tailwindcss.com"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    </th:block>
+    <title th:text="${memo.memo_name}">Memo Details</title>
 </head>
 
 <body>
     <div layout:fragment="content">
-        <div class="max-w-4xl mx-auto mt-6">
-            <!-- 메모 카드 -->
-            <div class="bg-white shadow rounded mb-6">
-                <div class="flex justify-between items-center border-b px-6 py-4 bg-gray-100">
-                    <h2 class="text-lg font-semibold" th:text="${memo.memoName}">메모 제목</h2>
-                    <div class="flex gap-2">
-                        <a th:href="@{/memo/memoForm/{memoId}(memoId=${memo.memoId})}"
-                            class="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white text-sm rounded inline-flex items-center"
-                            th:text="#{edit}">
-                            수정
-                        </a>
-                        <form th:action="@{/memo/memoDelete/{memoId}(memoId=${memo.memoId})}" method="post">
-                            <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?');"
-                                class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-sm rounded inline-flex items-center"
-                                th:text="#{delete}">
-                                삭제
-                            </button>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- Memo Content Card -->
+            <div class="bg-white shadow-md rounded-lg mb-8">
+                <!-- Card Header -->
+                <div class="p-4 border-b flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800" th:text="${memo.memo_name}">Memo Title</h1>
+                        <div class="flex items-center space-x-4 text-sm text-gray-500 mt-1">
+                            <span><i class="fas fa-user mr-1"></i><span th:text="${memo.create_by}">Author</span></span>
+                            <span><i class="fas fa-calendar-alt mr-1"></i><span th:text="${#dates.format(memo.create_date, 'yyyy-MM-dd HH:mm')}">Date</span></span>
+                            <span><i class="fas fa-eye mr-1"></i><span th:text="${memo.view_cnt}">Views</span></span>
+                            <span th:if="${memo.is_pinned == 'Y'}" class="text-blue-500 font-semibold"><i class="fas fa-thumbtack mr-1"></i>Pinned</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                         <a th:href="@{/memo/list}" class="btn-secondary" th:text="#{common.button.toList}">To List</a>
+                        <a th:href="@{/memo/form/{id}(id=${memo.memo_id})}" class="btn-secondary" th:text="#{common.button.edit}">Edit</a>
+                        <form th:action="@{/memo/delete/{id}(id=${memo.memo_id})}" method="post" class="inline-block" onsubmit="return confirm('Are you sure?');">
+                            <button type="submit" class="btn-danger" th:text="#{common.button.delete}">Delete</button>
                         </form>
                     </div>
                 </div>
-                <div class="px-6 py-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-sm">
-                        <div>
-                            <p><strong>작성자:</strong> <span th:text="${memo.createBy}"></span></p>
-                            <p><strong>작성일:</strong> <span
-                                    th:text="${#temporals.format(memo.createDate, 'yyyy-MM-dd HH:mm')}"></span></p>
-                        </div>
-                        <div class="text-right md:text-right">
-                            <p><strong>조회수:</strong> <span th:text="${memo.viewCount}"></span></p>
-                            <p th:if="${memo.isPinned == 'Y'}" class="text-blue-600"><i
-                                    class="fas fa-thumbtack mr-1"></i>고정됨</p>
-                        </div>
-                    </div>
-                    <div class="border rounded p-4 bg-gray-50 whitespace-pre-wrap" th:text="${memo.note}">메모 내용</div>
+                <!-- Card Body -->
+                <div class="p-6">
+                    <div class="prose max-w-none whitespace-pre-wrap" th:text="${memo.note}">Memo content goes here.</div>
                 </div>
             </div>
 
-            <!-- 댓글 카드 -->
-            <div class="bg-white shadow rounded">
-                <div class="border-b px-6 py-4 bg-gray-100">
-                    <h3 class="text-md font-semibold">댓글</h3>
-                </div>
-                <div class="p-6">
-                    <!-- 댓글 작성 -->
-                    <form th:action="@{/memo/memoComment/save}" method="post" class="mb-4">
-                        <input type="hidden" name="memoId" th:value="${memo.memoId}">
-                        <textarea name="note" rows="3" required
-                            class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"></textarea>
-                        <button type="submit"
-                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded">
-                            댓글 작성
-                        </button>
-                    </form>
+            <!-- Comments Section -->
+            <div class="bg-white shadow-md rounded-lg">
+                <h2 class="form-section-title p-4 border-b" th:text="#{memo.comment.title}">Comments</h2>
 
-                    <!-- 댓글 목록 -->
-                    <div th:if="${commentList != null and !commentList.empty}" class="space-y-4">
-                        <div th:each="comment : ${commentList}" class="border-b pb-4">
-                            <div class="flex justify-between items-center">
-                                <div class="text-sm text-gray-700 whitespace-pre-wrap" th:text="${comment.note}"></div>
-                                <form th:action="@{/memo/memoComment/delete}" method="post">
-                                    <input type="hidden" name="memoId" th:value="${memo.memoId}">
-                                    <input type="hidden" name="commentId" th:value="${comment.commentId}">
-                                    <button type="submit" onclick="return confirm('댓글을 삭제하시겠습니까?');"
-                                        class="ml-2 px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                <!-- Comment Form -->
+                <div class="p-4 border-b">
+                    <form th:action="@{/memo/comment/save}" method="post">
+                        <input type="hidden" name="memo_id" th:value="${memo.memo_id}" />
+                        <div class="form-group">
+                            <label for="comment-note" class="form-label sr-only">New Comment</label>
+                            <textarea id="comment-note" name="note" class="form-textarea" rows="3" th:placeholder="#{memo.comment.placeholder}" required></textarea>
+                        </div>
+                        <div class="text-right mt-2">
+                            <button type="submit" class="btn-primary" th:text="#{memo.comment.submit}">Submit Comment</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Comment List -->
+                <div class="p-4 space-y-4">
+                    <div th:each="comment : ${comments}" class="flex items-start space-x-3">
+                        <div class="flex-1 border rounded-md p-3">
+                            <p class="text-gray-800" th:text="${comment.note}"></p>
+                            <div class="text-xs text-gray-500 mt-2 flex justify-between items-center">
+                                <span><i class="fas fa-user mr-1"></i><span th:text="${comment.create_by}"></span></span>
+                                <span><i class="fas fa-calendar-alt mr-1"></i><span th:text="${#dates.format(comment.create_date, 'yyyy-MM-dd HH:mm')}"></span></span>
                             </div>
                         </div>
+                        <form th:action="@{/memo/comment/delete}" method="post" onsubmit="return confirm('Are you sure?');">
+                            <input type="hidden" name="memo_id" th:value="${memo.memo_id}" />
+                            <input type="hidden" name="comment_id" th:value="${comment.comment_id}" />
+                            <button type="submit" class="btn-danger-outline btn-sm"><i class="fas fa-trash"></i></button>
+                        </form>
                     </div>
-                    <div th:if="${commentList == null or commentList.empty}" class="text-center text-gray-500 mt-4">
-                        등록된 댓글이 없습니다.
+                    <div th:if="${#lists.isEmpty(comments)}" class="text-center text-gray-500 py-4">
+                        <p th:text="#{memo.comment.none}">No comments yet.</p>
                     </div>
                 </div>
-            </div>
-            <!-- 목록으로 버튼 -->
-            <div class="mt-6 mb-4">
-                <a th:href="@{/memo/memoList}" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
-                    th:text="#{cancel}">
-                    목록으로
-                </a>
             </div>
         </div>
     </div>
 </body>
-
 </html>
