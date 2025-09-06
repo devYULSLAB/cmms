@@ -8,57 +8,42 @@
 
 <body>
     <div layout:fragment="content">
-        <div class="max-w-4xl mx-auto mt-8 p-6 bg-white shadow-lg rounded-2xl">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold" th:text="#{siteList}">사이트코드 목록</h2>
-                <a th:href="@{/site/siteForm}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    th:text="#{add}">
-                    사이트코드 생성
-                </a>
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800" th:text="#{site.list.title}">Sites</h1>
+                <a th:href="@{/domain/site/form}" class="btn-primary" th:text="#{common.button.add}">New Site</a>
             </div>
 
-            <div th:if="${successMessage}" class="p-3 mb-4 text-green-800 bg-green-100 rounded">
-                <span th:text="${successMessage}"></span>
-            </div>
-            <div th:if="${errorMessage}" class="p-3 mb-4 text-red-800 bg-red-100 rounded">
-                <span th:text="${errorMessage}"></span>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-left text-sm">
-                    <thead class="border-b bg-gray-50">
+            <!-- Data Table -->
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-2" th:text="#{siteId}">사이트코드</th>
-                            <th class="px-4 py-2" th:text="#{siteName}">사이트명</th>
-                            <th class="px-4 py-2" th:text="#{action}">액션</th>
+                            <th scope="col" class="th-style" th:text="#{site.id}">ID</th>
+                            <th scope="col" class="th-style" th:text="#{site.name}">Name</th>
+                            <th scope="col" class="th-style" th:text="#{common.action}">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr th:each="s : ${siteList}" class="border-b hover:bg-gray-50">
-                            <td class="px-4 py-2" th:text="${s.siteId}"></td>
-                            <td class="px-4 py-2" th:text="${s.siteName}"></td>
-                            <td class="px-4 py-2 flex space-x-2">
-                                <a th:href="@{/site/siteForm/{companyId}/{siteId}(companyId=${s.companyId},siteId=${s.siteId})}"
-                                    class="px-3 py-1 bg-yellow-400 text-white rounded-md text-xs hover:bg-yellow-500"
-                                    th:text="#{edit}">수정</a>
-                                </a>
-                                <form
-                                    th:action="@{/site/siteDelete/{companyId}/{siteId}(companyId=${s.companyId},siteId=${s.siteId})}"
-                                    method="post">
-                                    <button type="submit"
-                                        class="px-3 py-1 bg-red-500 text-white rounded-md text-xs hover:bg-red-600"
-                                        th:text="#{delete}">삭제</button>
-                                    </button>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="site : ${sites}" class="hover:bg-gray-50">
+                            <td class="td-style" th:text="${site.id}"></td>
+                            <td class="td-style" th:text="${site.name}"></td>
+                            <td class="td-style space-x-2">
+                                <a th:href="@{/domain/site/form/{id}(id=${site.id})}" class="btn-secondary" th:text="#{common.button.edit}">Edit</a>
+                                <form th:action="@{/domain/site/delete/{id}(id=${site.id})}" method="post" class="inline-block" onsubmit="return confirm('Are you sure?');">
+                                    <button type="submit" class="btn-danger" th:text="#{common.button.delete}">Delete</button>
                                 </form>
                             </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(sites)}">
+                            <td colspan="3" class="text-center py-4" th:text="#{common.table.noData}">No sites found.</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-
         </div>
     </div>
 </body>
-
 </html>

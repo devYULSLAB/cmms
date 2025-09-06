@@ -3,174 +3,119 @@
     layout:decorate="~{layout/defaultLayout}">
 
 <head>
-    <title>Inspection Form</title>
+    <title th:text="${inspection.inspection_id == null} ? #{inspection.form.title.create} : #{inspection.form.title.edit}">Inspection Form</title>
 </head>
 
 <body>
     <div layout:fragment="content">
-        <div class="max-w-4xl mx-auto mt-8 space-y-6">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-            <h2 class="text-2xl font-bold"
-                th:text="${inspection.inspectionId == null ? '예방점검 신규' : '예방점검 수정: ' + inspection.inspectionId}">
-                Inspection Form</h2>
+            <h1 class="text-3xl font-bold text-gray-800 mb-6"
+                th:text="${inspection.inspection_id == null} ? #{inspection.form.header.create} : #{inspection.form.header.edit}">
+                Create Inspection
+            </h1>
 
-            <form th:action="@{/inspection/inspectionSave}" th:object="${inspection}" method="post" class="space-y-6">
+            <form th:action="@{/inspection/save}" th:object="${inspection}" method="post" class="space-y-8">
+                <input type="hidden" th:field="*{company_id}" />
+                <input type="hidden" th:field="*{inspection_id}" />
 
-                <!-- Hidden fields -->
-                <input type="hidden" th:field="*{companyId}" />
-                <input type="hidden" th:field="*{createBy}" />
-                <input type="hidden" th:field="*{createDate}" />
-                <input type="hidden" th:field="*{updateBy}" />
-                <input type="hidden" th:field="*{updateDate}" />
-
-                <!-- Basic Info -->
-                <div class="border rounded-lg shadow p-4 space-y-4">
-                    <h3 class="font-semibold text-lg mb-2" th:text="#{basicInformation}">Basic Information</h3>
-                    <div class="grid grid-cols-12 gap-4">
-                        <div class="col-span-3">
-                            <label class="block text-sm font-medium mb-1" th:text="#{inspectionId}">ID</label>
-                            <input type="text" th:field="*{inspectionId}"
-                                class="w-full border rounded px-2 py-1 bg-gray-100" readonly />
+                <!-- Main Details Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{inspection.form.section.details}">Inspection Details</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="form-group">
+                            <label for="inspection_name" class="form-label" th:text="#{inspection.name}">Name</label>
+                            <input type="text" id="inspection_name" th:field="*{inspection_name}" class="form-input" required />
                         </div>
-                        <div class="col-span-3">
-                            <label class="block text-sm font-medium mb-1" th:text="#{plantId}">Plant</label>
-                            <input type="text" th:field="*{plantId}" class="w-full border rounded px-2 py-1" />
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium mb-1" th:text="#{jobType}">Job Type</label>
-                            <select th:field="*{jobType}" class="w-full border rounded px-2 py-1">
-                                <option value="" th:text="#{select}">-- Select --</option>
-                                <option th:each="jobType : ${jobTypes}" th:value="${jobType.codeId}"
-                                    th:text="${jobType.codeId + ' - ' + jobType.codeName}"></option>
+                        <div class="form-group">
+                            <label for="plant_id" class="form-label" th:text="#{inspection.plantId}">Plant</label>
+                             <select id="plant_id" th:field="*{plant_id}" class="form-select" required>
+                                <option value="" th:text="#{common.select.placeholder}">Select a plant...</option>
+                                <option th:each="plant : ${plants}" th:value="${plant.plant_id}" th:text="${plant.plant_name}"></option>
                             </select>
                         </div>
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium mb-1" th:text="#{siteId}">Site</label>
-                            <select th:field="*{siteId}" class="w-full border rounded px-2 py-1">
-                                <option value="" th:text="#{select}">-- Select --</option>
-                                <option th:each="site : ${sites}" th:value="${site.siteId}"
-                                    th:text="${site.siteId + ' - ' + site.siteName}"></option>
-                            </select>
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium mb-1" th:text="#{deptId}">Dept</label>
-                            <select th:field="*{deptId}" class="w-full border rounded px-2 py-1">
-                                <option value="" th:text="#{select}">-- Select --</option>
-                                <option th:each="dept : ${depts}" th:value="${dept.deptId}"
-                                    th:text="${dept.deptId + ' - ' + dept.deptName}"></option>
+                        <div class="form-group">
+                            <label for="job_type" class="form-label" th:text="#{inspection.jobType}">Job Type</label>
+                            <select id="job_type" th:field="*{job_type}" class="form-select" required>
+                                <option value="" th:text="#{common.select.placeholder}">Select a type...</option>
+                                <option th:each="jt : ${jobTypes}" th:value="${jt.id}" th:text="${jt.name}"></option>
                             </select>
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1 mt-4" th:text="#{inspectionName}">Inspection
-                            Name</label>
-                        <input type="text" th:field="*{inspectionName}" class="w-full border rounded px-2 py-1"
-                            required />
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1 mt-4" th:text="#{note}">Note</label>
-                        <textarea th:field="*{note}" class="w-full border rounded px-2 py-1" rows="3"></textarea>
+                     <div class="form-group mt-6">
+                        <label for="note" class="form-label" th:text="#{inspection.note}">Note</label>
+                        <textarea id="note" th:field="*{note}" class="form-textarea" rows="3"></textarea>
                     </div>
                 </div>
 
-                <!-- Inspection Items -->
-                <div class="border rounded-lg shadow p-4 space-y-4">
-                    <h3 class="font-semibold text-lg mb-2" th:text="#{inspectionItems}">Inspection Items</h3>
+                <!-- Inspection Items Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{inspection.form.section.items}">Inspection Items</h2>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full text-sm border">
-                            <thead class="bg-gray-100">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="border px-2 py-1" th:text="#{itemName}">Item Name</th>
-                                    <th class="border px-2 py-1" th:text="#{itemMethod}">Item Method</th>
-                                    <th class="border px-2 py-1" th:text="#{itemUnit}">Item Unit</th>
-                                    <th class="border px-2 py-1" th:text="#{itemLower}">Lower</th>
-                                    <th class="border px-2 py-1" th:text="#{itemUpper}">Upper</th>
-                                    <th class="border px-2 py-1" th:text="#{itemStandard}">Standard</th>
-                                    <th class="border px-2 py-1" th:text="#{itemResult}">Result</th>
+                                    <th class="th-style" th:text="#{inspection.item.name}">Item Name</th>
+                                    <th class="th-style" th:text="#{inspection.item.method}">Method</th>
+                                    <th class="th-style" th:text="#{inspection.item.unit}">Unit</th>
+                                    <th class="th-style" th:text="#{inspection.item.lower}">Lower</th>
+                                    <th class="th-style" th:text="#{inspection.item.upper}">Upper</th>
+                                    <th class="th-style" th:text="#{inspection.item.standard}">Standard</th>
+                                    <th class="th-style" th:text="#{inspection.item.result}">Result</th>
                                 </tr>
                             </thead>
-                            <tbody id="itemTableBody">
-                                <tr th:each="item, i : *{items}">
-                                    <td class="border px-2 py-1">
-                                        <input type="text" th:field="*{items[__${i.index}__].itemName}"
-                                            class="w-full border rounded px-1 py-0.5" />
-                                    </td>
-                                    <td class="border px-2 py-1">
-                                        <input type="text" th:field="*{items[__${i.index}__].itemMethod}"
-                                            class="w-full border rounded px-1 py-0.5" />
-                                    </td>
-                                    <td class="border px-2 py-1">
-                                        <input type="text" th:field="*{items[__${i.index}__].itemUnit}"
-                                            class="w-full border rounded px-1 py-0.5" />
-                                    </td>
-                                    <td class="border px-2 py-1">
-                                        <input type="number" step="0.01" th:field="*{items[__${i.index}__].itemLower}"
-                                            class="w-full border rounded px-1 py-0.5" />
-                                    </td>
-                                    <td class="border px-2 py-1">
-                                        <input type="number" step="0.01" th:field="*{items[__${i.index}__].itemUpper}"
-                                            class="w-full border rounded px-1 py-0.5" />
-                                    </td>
-                                    <td class="border px-2 py-1">
-                                        <input type="number" step="0.01"
-                                            th:field="*{items[__${i.index}__].itemStandard}"
-                                            class="w-full border rounded px-1 py-0.5" />
-                                    </td>
-                                    <td class="border px-2 py-1">
-                                        <input type="number" step="0.01" th:field="*{items[__${i.index}__].itemResult}"
-                                            class="w-full border rounded px-1 py-0.5" />
-                                    </td>
+                            <tbody id="items-tbody">
+                                <tr th:each="item, iterStat : *{items}">
+                                    <td class="td-style"><input type="text" th:field="*{items[__${iterStat.index}__].item_name}" class="form-input-sm" /></td>
+                                    <td class="td-style"><input type="text" th:field="*{items[__${iterStat.index}__].item_method}" class="form-input-sm" /></td>
+                                    <td class="td-style"><input type="text" th:field="*{items[__${iterStat.index}__].item_unit}" class="form-input-sm" /></td>
+                                    <td class="td-style"><input type="number" th:field="*{items[__${iterStat.index}__].item_lower}" class="form-input-sm" step="any" /></td>
+                                    <td class="td-style"><input type="number" th:field="*{items[__${iterStat.index}__].item_upper}" class="form-input-sm" step="any" /></td>
+                                    <td class="td-style"><input type="number" th:field="*{items[__${iterStat.index}__].item_standard}" class="form-input-sm" step="any" /></td>
+                                    <td class="td-style"><input type="number" th:field="*{items[__${iterStat.index}__].item_result}" class="form-input-sm" step="any" /></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <div class="flex justify-between mt-3">
-                        <button type="button" class="px-3 py-1 border rounded text-blue-600 hover:bg-blue-50"
-                            onclick="addItem()" th:text="#{add}">Add</button>
-                        <button type="button" class="px-3 py-1 border rounded text-red-600 hover:bg-red-50"
-                            onclick="removeItem()" th:text="#{delete}">Remove</button>
+                    <div class="flex justify-start space-x-2 mt-4">
+                        <button type="button" onclick="addItemRow()" class="btn-secondary" th:text="#{common.button.addRow}">Add Item</button>
+                        <button type="button" onclick="removeItemRow()" class="btn-secondary-outline" th:text="#{common.button.removeLast}">Remove Last</button>
                     </div>
                 </div>
 
-                <!-- Buttons -->
-                <div class="flex gap-3 justify-end">
-                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                        th:text="#{save}">저장 </button>
-                    <a th:href="@{/inspection/inspectionList}"
-                        class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400" th:text="#{cancel}">취소</a>
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end space-x-4 pt-4 border-t">
+                    <a th:href="@{/inspection/list}" class="btn-secondary" th:text="#{common.button.cancel}">Cancel</a>
+                    <button type="submit" class="btn-primary" th:text="#{common.button.save}">Save Inspection</button>
                 </div>
             </form>
         </div>
     </div>
 
     <th:block layout:fragment="page-js">
-        <script th:inline="javascript">
-            let itemIndex = 0;
-            function addItem() {
-                const tbody = document.getElementById('itemTableBody');
-                const row = document.createElement('tr');
-                itemIndex = tbody.children.length;
-                row.innerHTML = `
-            <td class="border px-2 py-1"><input type="text" name="items[${itemIndex}].itemName" class="w-full border rounded px-1 py-0.5" /></td>
-            <td class="border px-2 py-1"><input type="text" name="items[${itemIndex}].itemMethod" class="w-full border rounded px-1 py-0.5" /></td>
-            <td class="border px-2 py-1"><input type="text" name="items[${itemIndex}].itemUnit" class="w-full border rounded px-1 py-0.5" /></td>
-            <td class="border px-2 py-1"><input type="number" step="0.01" name="items[${itemIndex}].itemLower" class="w-full border rounded px-1 py-0.5" /></td>
-            <td class="border px-2 py-1"><input type="number" step="0.01" name="items[${itemIndex}].itemUpper" class="w-full border rounded px-1 py-0.5" /></td>
-            <td class="border px-2 py-1"><input type="number" step="0.01" name="items[${itemIndex}].itemStandard" class="w-full border rounded px-1 py-0.5" /></td>
-            <td class="border px-2 py-1"><input type="number" step="0.01" name="items[${itemIndex}].itemResult" class="w-full border rounded px-1 py-0.5" /></td>
-        `;
-                tbody.appendChild(row);
+        <script>
+            function addItemRow() {
+                const tbody = document.getElementById('items-tbody');
+                const index = tbody.rows.length;
+                const newRow = tbody.insertRow();
+                newRow.innerHTML = `
+                    <td class="td-style"><input type="text" name="items[${index}].item_name" class="form-input-sm" /></td>
+                    <td class="td-style"><input type="text" name="items[${index}].item_method" class="form-input-sm" /></td>
+                    <td class="td-style"><input type="text" name="items[${index}].item_unit" class="form-input-sm" /></td>
+                    <td class="td-style"><input type="number" name="items[${index}].item_lower" class="form-input-sm" step="any" /></td>
+                    <td class="td-style"><input type="number" name="items[${index}].item_upper" class="form-input-sm" step="any" /></td>
+                    <td class="td-style"><input type="number" name="items[${index}].item_standard" class="form-input-sm" step="any" /></td>
+                    <td class="td-style"><input type="number" name="items[${index}].item_result" class="form-input-sm" step="any" /></td>
+                `;
             }
 
-            function removeItem() {
-                const tbody = document.getElementById('itemTableBody');
-                if (tbody.children.length > 0) {
-                    tbody.removeChild(tbody.lastElementChild);
-                    itemIndex = tbody.children.length;
+            function removeItemRow() {
+                const tbody = document.getElementById('items-tbody');
+                if (tbody.rows.length > 0) {
+                    tbody.deleteRow(-1);
                 }
             }
         </script>
     </th:block>
 </body>
-
 </html>

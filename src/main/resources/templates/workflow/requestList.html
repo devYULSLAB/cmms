@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title>Approval Request List</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800" th:text="#{workflow.request.list.title}">Approval Requests</h1>
+                <!-- No "add" button as requests are created programmatically -->
+            </div>
+
+            <!-- Data Table -->
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="th-style" th:text="#{workflow.request.id}">ID</th>
+                            <th scope="col" class="th-style" th:text="#{workflow.request.docType}">Doc Type</th>
+                            <th scope="col" class="th-style" th:text="#{workflow.request.docId}">Doc ID</th>
+                            <th scope="col" class="th-style" th:text="#{workflow.request.status}">Status</th>
+                            <th scope="col" class="th-style" th:text="#{common.createDate}">Request Date</th>
+                            <th scope="col" class="th-style" th:text="#{common.action}">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="request : ${requests.content}" class="hover:bg-gray-50">
+                            <td class="td-style">
+                                <a th:href="@{/workflow/request/detail/{id}(id=${request.id})}"
+                                   class="text-blue-600 hover:underline" th:text="${request.id}"></a>
+                            </td>
+                            <td class="td-style" th:text="${request.doc_type}"></td>
+                            <td class="td-style" th:text="${request.doc_id}"></td>
+                            <td class="td-style" th:text="${request.status}"></td>
+                            <td class="td-style" th:text="${#dates.format(request.create_date, 'yyyy-MM-dd HH:mm')}"></td>
+                            <td class="td-style space-x-2">
+                                <a th:href="@{/workflow/request/detail/{id}(id=${request.id})}" class="btn-secondary" th:text="#{common.button.view}">View</a>
+                            </td>
+                        </tr>
+                        <tr th:if="${requests.empty}">
+                            <td colspan="6" class="text-center py-4" th:text="#{common.table.noData}">No requests found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav th:if="${requests.totalPages > 1}" class="pagination-container" aria-label="Pagination">
+                <ul class="pagination">
+                    <li th:classappend="${requests.first} ? 'disabled' : ''">
+                        <a th:href="@{/workflow/requests(page=${requests.number - 1}, size=${requests.size})}" class="pagination-link" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li th:each="i : ${#numbers.sequence(0, requests.totalPages - 1)}" th:classappend="${i == requests.number} ? 'active' : ''">
+                        <a th:href="@{/workflow/requests(page=${i}, size=${requests.size})}" class="pagination-link" th:text="${i + 1}"></a>
+                    </li>
+                    <li th:classappend="${requests.last} ? 'disabled' : ''">
+                        <a th:href="@{/workflow/requests(page=${requests.number + 1}, size=${requests.size})}" class="pagination-link" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title>Approval Request Details</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800" th:text="#{workflow.request.detail.title} + ' #' + ${request.id}">Approval Request</h1>
+                <a th:href="@{/workflow/requests}" class="btn-secondary" th:text="#{common.button.back}">Back to List</a>
+            </div>
+
+            <!-- Request Details -->
+            <div class="bg-white shadow-md rounded-lg mb-8">
+                <div class="detail-group">
+                    <h2 class="form-section-title" th:text="#{workflow.request.detail.info}">Request Information</h2>
+                    <dl class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-6 mt-4">
+                        <div><dt class="detail-label" th:text="#{workflow.request.docType}">Document Type</dt><dd class="detail-value" th:text="${request.doc_type}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{workflow.request.docId}">Document ID</dt><dd class="detail-value" th:text="${request.doc_id}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{workflow.request.status}">Status</dt><dd class="detail-value font-semibold" th:text="${request.status}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{common.createdBy}">Requester</dt><dd class="detail-value" th:text="${request.create_by}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{common.createDate}">Request Date</dt><dd class="detail-value" th:text="${#dates.format(request.create_date, 'yyyy-MM-dd HH:mm')}"></dd></div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Approval Steps -->
+            <div class="bg-white shadow-md rounded-lg">
+                 <h2 class="form-section-title p-4 border-b" th:text="#{workflow.request.detail.steps}">Approval Steps</h2>
+                 <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="th-style" th:text="#{workflow.request.step.stepNo}">Step</th>
+                                <th class="th-style" th:text="#{workflow.request.step.roleId}">Role</th>
+                                <th class="th-style" th:text="#{workflow.request.step.status}">Status</th>
+                                <th class="th-style" th:text="#{workflow.request.step.approver}">Approver</th>
+                                <th class="th-style" th:text="#{workflow.request.step.approvedDate}">Approval Date</th>
+                                <th class="th-style" th:text="#{workflow.request.step.comment}">Comment</th>
+                                <th class="th-style" th:text="#{common.action}">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr th:each="step : ${request.steps}" class="hover:bg-gray-50">
+                                <td class="td-style" th:text="${step.step_no}"></td>
+                                <td class="td-style" th:text="${step.role_id}"></td>
+                                <td class="td-style" th:text="${step.status}"></td>
+                                <td class="td-style" th:text="${step.approve_by}"></td>
+                                <td class="td-style" th:text="${#dates.format(step.approve_date, 'yyyy-MM-dd HH:mm')}"></td>
+                                <td class="td-style" th:text="${step.comment}"></td>
+                                <td class="td-style">
+                                    <!-- Approval/Rejection form for pending steps assigned to the current user -->
+                                    <form th:if="${step.status == 'PENDING' and step.role_id == currentUser.role_id}"
+                                          th:action="@{/workflow/request/action}" method="post" class="space-x-2">
+                                        <input type="hidden" name="requestId" th:value="${request.id}" />
+                                        <input type="hidden" name="stepNo" th:value="${step.step_no}" />
+                                        <button type="submit" name="action" value="APPROVE" class="btn-success btn-sm">Approve</button>
+                                        <button type="submit" name="action" value="REJECT" class="btn-danger btn-sm">Reject</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

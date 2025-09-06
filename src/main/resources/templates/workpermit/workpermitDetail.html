@@ -1,369 +1,130 @@
 <!DOCTYPE html>
-<!--
-패키지: com.cmms10.workPermit
-파일: workPermitDetail.html
-주요기능: 작업허가서 상세정보 출력 및 프린트 폼
-생성자: (로그인 이름 입력)
-생성일: (생성일 입력)
--->
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
     layout:decorate="~{layout/defaultLayout}">
 
 <head>
-    <title>작업허가서 상세</title>
+    <title th:text="#{workpermit.detail.title} + ' - ' + ${workpermit.permit_name}">Work Permit Details</title>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: white; }
+            .printable-area { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+        }
+        .detail-group { padding: 1rem; border-bottom: 1px solid #e5e7eb; }
+        .detail-group:last-child { border-bottom: none; }
+        .detail-label { font-weight: 500; color: #4b5563; }
+        .detail-value { color: #1f2937; }
+    </style>
 </head>
 
 <body>
     <div layout:fragment="content">
-        <div class="max-w-4xl mx-auto mt-8 space-y-6">
-            <h2 class="text-2xl font-bold" th:text="#{workpermitDetail}">작업허가서 상세</h2>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-            <!-- Basic Information -->
-            <div class="border rounded-lg shadow p-4 space-y-4">
-                <h3 class="font-semibold text-lg mb-2" th:text="#{basicInformation}">기본 정보</h3>
-                <div class="grid grid-cols-12 gap-4">
-                    <div class="col-span-3">
-                        <label class="block text-sm font-medium mb-1" th:text="#{permitId}">Permit ID</label>
-                        <div class="p-2 bg-gray-50 rounded" th:text="${workpermit.permitId}"></div>
-                    </div>
-                    <div class="col-span-3">
-                        <label class="block text-sm font-medium mb-1" th:text="#{plantId}">Plant ID</label>
-                        <div class="p-2 bg-gray-50 rounded" th:text="${workpermit.plantId}"></div>
-                    </div>
-                    <div class="col-span-2">
-                        <label class="block text-sm font-medium mb-1" th:text="#{permitType}">Permit Type</label>
-                        <div class="p-2 bg-gray-50 rounded" th:text="${workpermit.permitType}"></div>
-                    </div>
-                    <div class="col-span-2">
-                        <label class="block text-sm font-medium mb-1" th:text="#{siteId}">Site</label>
-                        <div class="p-2 bg-gray-50 rounded" th:text="${workpermit.siteId}"></div>
-                    </div>
-                    <div class="col-span-2">
-                        <label class="block text-sm font-medium mb-1" th:text="#{deptId}">Dept</label>
-                        <div class="p-2 bg-gray-50 rounded" th:text="${workpermit.deptId}"></div>
-                    </div>
-                </div>
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-6 no-print">
                 <div>
-                    <label class="block text-sm font-medium mb-1" th:text="#{permitName}">Permit Name</label>
-                    <div class="p-2 bg-gray-50 rounded" th:text="${workpermit.permitName}"></div>
+                    <h1 class="text-3xl font-bold text-gray-800" th:text="${workpermit.permit_name}">Permit Name</h1>
+                    <p class="text-sm text-gray-500" th:text="'ID: ' + ${workpermit.permit_id}"></p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <a th:href="@{/workpermit/list}" class="btn-secondary" th:text="#{common.button.toList}">Back to List</a>
+                    <a th:href="@{/workpermit/form/{id}(id=${workpermit.permit_id})}" class="btn-primary" th:text="#{common.button.edit}">Edit</a>
+                    <button onclick="window.print()" class="btn-secondary"><i class="fas fa-print mr-2"></i><span th:text="#{common.button.print}">Print</span></button>
+                    <form th:action="@{/workpermit/delete/{id}(id=${workpermit.permit_id})}" method="post" class="inline-block" onsubmit="return confirm('Are you sure?');">
+                        <button type="submit" class="btn-danger" th:text="#{common.button.delete}">Delete</button>
+                    </form>
                 </div>
             </div>
 
-            <!-- Permit Period -->
-            <div class="border rounded-lg shadow p-4 space-y-4">
-                <h3 class="font-semibold text-lg mb-2" th:text="#{permitPeriod}">Permit Period</h3>
-                <div class="grid grid-cols-12 gap-4">
-                    <div class="col-span-3">
-                        <label class="block text-sm font-medium mb-1" th:text="#{startDate}">Start Date</label>
-                        <div class="p-2 bg-gray-50 rounded" th:text="${workpermit.startDate}"></div>
-                    </div>
-                    <div class="col-span-3">
-                        <label class="block text-sm font-medium mb-1" th:text="#{endDate}">End Date</label>
-                        <div class="p-2 bg-gray-50 rounded" th:text="${workpermit.endDate}"></div>
+            <!-- Main Content Area -->
+            <div class="bg-white shadow-md rounded-lg overflow-hidden printable-area">
+
+                <!-- Basic Information -->
+                <div class="detail-group">
+                    <h2 class="form-section-title" th:text="#{workpermit.form.section.details}">Permit Details</h2>
+                    <dl class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-6 mt-4">
+                        <div><dt class="detail-label" th:text="#{workpermit.name}">Permit Name</dt><dd class="detail-value" th:text="${workpermit.permit_name}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{workpermit.plantId}">Plant</dt><dd class="detail-value" th:text="${workpermit.plant_id}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{workpermit.permitType}">Permit Type</dt><dd class="detail-value" th:text="${workpermit.permit_type}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{workpermit.startDate}">Start Date</dt><dd class="detail-value" th:text="${#dates.format(workpermit.start_date, 'yyyy-MM-dd')}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{workpermit.endDate}">End Date</dt><dd class="detail-value" th:text="${#dates.format(workpermit.end_date, 'yyyy-MM-dd')}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{workpermit.status}">Status</dt><dd class="detail-value" th:text="${workpermit.status}"></dd></div>
+                    </dl>
+                </div>
+
+                <!-- Description -->
+                <div class="detail-group">
+                    <h2 class="form-section-title" th:text="#{workpermit.form.section.description}">Description</h2>
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6 mt-4">
+                        <div><dt class="detail-label" th:text="#{workpermit.workDesc}">Work Description</dt><dd class="detail-value whitespace-pre-wrap" th:text="${workpermit.work_desc}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{workpermit.safetyMeasure}">Safety Measures</dt><dd class="detail-value whitespace-pre-wrap" th:text="${workpermit.safety_measure}"></dd></div>
+                    </dl>
+                </div>
+
+                <!-- Signatures -->
+                <div class="detail-group">
+                    <h2 class="form-section-title" th:text="#{workpermit.form.section.signatures}">Signatures</h2>
+                    <table class="min-w-full mt-4">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="th-style w-16" th:text="#{workpermit.item.order}">Order</th>
+                                <th class="th-style" th:text="#{workpermit.item.signerName}">Signer Name</th>
+                                <th class="th-style w-80" th:text="#{workpermit.item.signature}">Signature</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr th:each="item, iterStat : ${workpermit.items}">
+                                <td class="td-style text-center" th:text="${iterStat.count}"></td>
+                                <td class="td-style" th:text="${item.signer_name}"></td>
+                                <td class="td-style"><img th:if="${item.signature}" th:src="${item.signature}" alt="Signature" class="h-16" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Checklist -->
+                <div class="detail-group no-print">
+                    <h2 class="form-section-title" th:text="#{workpermit.form.section.checklist}">Safety Checklist</h2>
+                    <div id="checklist-render-area" class="mt-4 p-4 border rounded-md bg-gray-50">
+                         <p class="text-gray-500" th:if="${workpermit.check_result_json == null or workpermit.check_result_json == '{}'}">No checklist submitted.</p>
                     </div>
                 </div>
-            </div>
 
-            <!-- Permit Description -->
-            <div class="border rounded-lg shadow p-4 space-y-4">
-                <h3 class="font-semibold text-lg mb-2" th:text="#{permitDescription}">Permit Description</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-1" th:text="#{workDesc}">Work Description</label>
-                        <div class="p-2 bg-gray-50 rounded min-h-[60px]" th:text="${workpermit.workDesc}"></div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1" th:text="#{hazardNote}">Hazard Note</label>
-                        <div class="p-2 bg-gray-50 rounded min-h-[60px]" th:text="${workpermit.hazardNote}"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Permit Safety Measures -->
-            <div class="border rounded-lg shadow p-4 space-y-4">
-                <h3 class="font-semibold text-lg mb-2" th:text="#{safetyMeasures}">Permit Safety Measures</h3>
-                <div>
-                    <label class="block text-sm font-medium mb-1" th:text="#{safetyMeasure}">Safety Measure</label>
-                    <div class="p-2 bg-gray-50 rounded min-h-[60px]" th:text="${workpermit.safetyMeasure}"></div>
-                </div>
-            </div>
-
-            <!-- Permit Signatures -->
-            <div class="border rounded-lg shadow p-4 space-y-4">
-                <h3 class="font-semibold text-lg mb-2" th:text="#{signature}">Permit Signatures</h3>
-                <table class="w-full">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-4 py-2 border text-left">Signer Name</th>
-                            <th class="px-4 py-2 border text-left">Signature</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="item : ${workpermit.items}" class="hover:bg-gray-50">
-                            <td class="px-4 py-2 border" th:text="${item.signerName}"></td>
-                            <td class="px-4 py-2 border">
-                                <!-- 서명 이미지 표시 -->
-                                <img th:if="${item.signature != null and item.signature != ''}"
-                                    th:src="${item.signature}" alt="Signature"
-                                    class="max-w-[200px] max-h-[100px] border rounded" />
-                                <span th:if="${item.signature == null or item.signature == ''}"
-                                    class="text-gray-500 italic">서명 없음</span>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(workpermit.items)}">
-                            <td colspan="2" class="px-4 py-2 border text-center text-gray-500">등록된 서명이 없습니다.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Checksheet 결과 렌더링 -->
-            <div th:if="${checkResultJson != null and checkResultJson != ''}"
-                class="border rounded-lg shadow p-4 space-y-4">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="font-semibold text-lg">🧾 체크시트 결과</h3>
-                    <a th:href="@{/checksheet/checksheetResultDetail/{permitId}(permitId=${workpermit.permitId})}"
-                        class="inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
-                        <i class="fas fa-external-link-alt mr-1"></i>상세보기
-                    </a>
-                </div>
-                <div id="checksheetView" class="p-4 bg-gray-50 rounded border"></div>
-            </div>
-            <!-- Buttons -->
-            <div class="flex space-x-4 mt-6 non-print-section">
-                <a th:href="@{/workpermit/workpermitList}"
-                    class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600" th:text="#{cancel}">취소</a>
-                <button onclick="printContent()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                    <i class="fas fa-print mr-1"></i><span>출력</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Print Container (체크시트 제외, 서명까지 포함) -->
-    <div id="printContainer" style="display: none;">
-        <div class="max-w-4xl mx-auto p-6">
-            <h2 class="text-2xl font-bold mb-6 text-center">작업허가서</h2>
-
-            <!-- Basic Info -->
-            <div class="border rounded-lg p-4 space-y-4 mb-6">
-                <h3 class="font-semibold text-lg mb-2">기본 정보</h3>
-                <div class="grid grid-cols-12 gap-4">
-                    <div class="col-span-3">
-                        <label class="block text-sm font-medium mb-1">허가 ID</label>
-                        <div th:text="${workpermit.permitId}">-</div>
-                    </div>
-                    <div class="col-span-3">
-                        <label class="block text-sm font-medium mb-1">설비</label>
-                        <div th:text="${workpermit.plantId}">-</div>
-                    </div>
-                    <div class="col-span-2">
-                        <label class="block text-sm font-medium mb-1">허가 유형</label>
-                        <div th:text="${workpermit.permitType}">-</div>
-                    </div>
-                    <div class="col-span-2">
-                        <label class="block text-sm font-medium mb-1">사이트</label>
-                        <div th:text="${workpermit.siteId}">-</div>
-                    </div>
-                    <div class="col-span-2">
-                        <label class="block text-sm font-medium mb-1">부서</label>
-                        <div th:text="${workpermit.deptId}">-</div>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1 mt-4">허가명</label>
-                    <div th:text="${workpermit.permitName}">-</div>
-                </div>
-            </div>
-
-            <!-- Permit Period -->
-            <div class="border rounded-lg p-4 space-y-4 mb-6">
-                <h3 class="font-semibold text-lg mb-2">허가 기간</h3>
-                <div class="grid grid-cols-12 gap-4">
-                    <div class="col-span-3">
-                        <label class="block text-sm font-medium mb-1">시작일</label>
-                        <div th:text="${workpermit.startDate}">-</div>
-                    </div>
-                    <div class="col-span-3">
-                        <label class="block text-sm font-medium mb-1">종료일</label>
-                        <div th:text="${workpermit.endDate}">-</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Permit Description -->
-            <div class="border rounded-lg p-4 space-y-4 mb-6">
-                <h3 class="font-semibold text-lg mb-2">허가 설명</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-1">작업 설명</label>
-                        <div th:text="${workpermit.workDesc}">-</div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">위험 요소</label>
-                        <div th:text="${workpermit.hazardNote}">-</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Permit Safety Measures -->
-            <div class="border rounded-lg p-4 space-y-4 mb-6">
-                <h3 class="font-semibold text-lg mb-2">안전 조치사항</h3>
-                <div>
-                    <label class="block text-sm font-medium mb-1">안전 조치</label>
-                    <div th:text="${workpermit.safetyMeasure}">-</div>
-                </div>
-            </div>
-
-            <!-- Permit Signatures -->
-            <div class="border rounded-lg p-4 space-y-4 mb-6">
-                <h3 class="font-semibold text-lg mb-2">서명</h3>
-                <table class="w-full">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-4 py-2 border text-left">순서</th>
-                            <th class="px-4 py-2 border text-left">서명자명</th>
-                            <th class="px-4 py-2 border text-left">서명</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="item, iterStat : ${workpermit.items}" class="signer-row">
-                            <td class="px-4 py-2 border text-center" th:text="${iterStat.count}"></td>
-                            <td class="px-4 py-2 border" th:text="${item.signerName}"></td>
-                            <td class="px-4 py-2 border">
-                                <div class="flex items-center space-x-2">
-                                    <img th:if="${item.signature && item.signature.trim() != ''}"
-                                        th:src="${item.signature}" alt="서명"
-                                        style="max-width: 200px; max-height: 60px; object-fit: contain;" />
-                                    <span th:if="${!item.signature || item.signature.trim() == ''}"
-                                        class="text-gray-400">서명 없음</span>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(workpermit.items)}">
-                            <td class="border px-4 py-2 text-center" colspan="3">서명자가 없습니다.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Footer -->
-            <div class="text-center text-sm text-gray-600 mt-8">
-                <p>출력일시: <span th:text="${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm')}">-</span></p>
-            </div>
+            </div> <!-- /printable-area -->
         </div>
     </div>
 
     <th:block layout:fragment="page-js">
-        <!-- formRender.js 삽입 -->
         <script src="https://formbuilder.online/assets/js/form-render.min.js"></script>
         <script th:inline="javascript">
-            document.addEventListener('DOMContentLoaded', function () {
-                const resultJson = /*[[${checkResultJson}]]*/ null;
-                const templateJson = /*[[${templateJson}]]*/ null;
-                console.log('체크시트 결과 JSON:', resultJson);
-                console.log('템플릿 JSON:', templateJson);
+            document.addEventListener("DOMContentLoaded", function() {
+                const checklistData = /*[[${workpermit.check_result_json}]]*/ null;
+                const templateData = /*[[${checklistTemplateJson}]]*/ null;
+                const renderArea = document.getElementById('checklist-render-area');
 
-                if (resultJson && resultJson !== '' && resultJson !== '{}') {
+                if (checklistData && templateData) {
                     try {
-                        const formData = typeof resultJson === 'string' ? JSON.parse(resultJson) : resultJson;
-                        console.log('파싱된 폼 데이터:', formData);
+                        const formData = JSON.parse(templateData);
+                        const renderOpts = {
+                            formData: formData,
+                            render: true
+                        };
 
-                        if (formData && Object.keys(formData).length > 0) {
-                            // formRender로 체크시트 렌더링
-                            $('#checksheetView').formRender({
-                                formData: templateJson || formData, // 템플릿이 있으면 템플릿 사용, 없으면 결과 데이터 사용
-                                readOnly: true,
-                                i18n: false
-                            });
+                        const formRenderInstance = $(renderArea).formRender(renderOpts);
 
-                            // 렌더링 완료 후 데이터 복원
-                            setTimeout(() => {
-                                restoreCheckResultData(formData);
-                            }, 100);
+                        setTimeout(function() {
+                            formRenderInstance.setData(JSON.parse(checklistData));
+                            $(renderArea).find(':input').prop('disabled', true);
+                        }, 100);
 
-                            console.log('체크시트 렌더링 완료');
-                        } else {
-                            document.getElementById('checksheetView').innerHTML =
-                                '<p class="text-gray-500 text-center py-8">체크시트 데이터가 없습니다.</p>';
-                        }
                     } catch (e) {
-                        console.error('체크시트 데이터 파싱 오류:', e);
-                        document.getElementById('checksheetView').innerHTML =
-                            '<p class="text-red-500 text-center py-8">체크시트 데이터를 불러올 수 없습니다.</p>';
+                        renderArea.innerHTML = '<p class="text-red-500">Error rendering checklist.</p>';
+                        console.error(e);
                     }
-                } else {
-                    document.getElementById('checksheetView').innerHTML =
-                        '<p class="text-gray-500 text-center py-8">체크시트 결과가 없습니다.</p>';
                 }
             });
-
-            // 체크시트 데이터 복원 함수
-            function restoreCheckResultData(savedData) {
-                if (!savedData || Object.keys(savedData).length === 0) {
-                    return;
-                }
-
-                try {
-                    console.log('복원할 체크시트 데이터:', savedData);
-
-                    // formRender 인스턴스 가져오기
-                    const formRenderInstance = $('#checksheetView').data('formRender');
-
-                    if (formRenderInstance && typeof formRenderInstance.setData === 'function') {
-                        // formRender의 setData 메서드로 데이터 복원
-                        formRenderInstance.setData(savedData);
-                        console.log('formRender setData로 데이터 복원 완료');
-                    } else {
-                        // setData가 없으면 직접 폼 요소에 값 설정
-                        restoreFormDataDirectly(savedData);
-                        console.log('직접 복원으로 데이터 복원 완료');
-                    }
-                } catch (error) {
-                    console.error('체크시트 데이터 복원 실패:', error);
-                    // fallback: 직접 복원
-                    restoreFormDataDirectly(savedData);
-                }
-            }
-
-            // 폼 요소에 직접 데이터 복원 (fallback용)
-            function restoreFormDataDirectly(savedData) {
-                const formElements = document.querySelectorAll('#checksheetView input, #checksheetView select, #checksheetView textarea');
-
-                formElements.forEach((element) => {
-                    if (element.name && savedData[element.name] !== undefined) {
-                        if (element.type === 'checkbox') {
-                            element.checked = savedData[element.name];
-                        } else {
-                            element.value = savedData[element.name];
-                        }
-                    }
-                });
-            }
-
-            // 인쇄 기능
-            function printContent() {
-                const printContainer = document.getElementById('printContainer');
-                const originalDisplay = printContainer.style.display;
-
-                // Print container를 보이게 설정
-                printContainer.style.display = 'block';
-
-                // 현재 페이지의 스타일을 저장
-                const originalBodyStyle = document.body.style.cssText;
-
-                // Print container만 보이도록 body 스타일 변경
-                document.body.innerHTML = printContainer.innerHTML;
-                document.body.style.cssText = 'margin: 0; padding: 20px; font-family: Arial, sans-serif;';
-
-                // 인쇄 실행
-                window.print();
-
-                // 원래 페이지로 복원
-                window.location.reload();
-            }
         </script>
     </th:block>
 </body>
-
 </html>

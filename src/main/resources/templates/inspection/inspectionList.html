@@ -3,100 +3,90 @@
     layout:decorate="~{layout/defaultLayout}">
 
 <head>
-    <title>Inspections</title>
+    <title>Inspection List</title>
 </head>
 
 <body>
     <div layout:fragment="content">
-        <div class="max-w-6xl mx-auto mt-8 space-y-6">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-            <h2 class="text-2xl font-bold mb-4" th:text="#{inspectionList}">Inspection List</h2>
-
-            <div>
-                <a th:href="@{/inspection/inspectionForm}"
-                    class="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600">
-                    <span th:text="#{add}">Add Inspection</span>
-                </a>
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800" th:text="#{inspection.list.title}">Inspection List</h1>
+                <a th:href="@{/inspection/form}" class="btn-primary" th:text="#{common.button.add}">New Inspection</a>
             </div>
 
-            <!-- 검색 조건 -->
-            <form th:action="@{/inspection/inspectionList}" method="get"
-                class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                <input type="text" name="siteId" placeholder="사이트 ID" th:value="${searchSiteId}"
-                    class="border rounded px-3 py-1 text-sm">
-                <input type="text" name="plantId" placeholder="설비 ID" th:value="${searchPlantId}"
-                    class="border rounded px-3 py-1 text-sm">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 text-sm">
-                    <i class="fas fa-search mr-1"></i><span th:text="#{search}">검색</span>
-                </button>
-                <a th:href="@{/inspection/inspectionList}"
-                    class="px-4 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm">
-                    <i class="fas fa-undo mr-1"></i><span th:text="#{reset}">초기화</span>
-                </a>
+            <!-- Search Form -->
+            <form th:action="@{/inspection/list}" method="get" class="p-4 bg-gray-50 rounded-lg mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" name="plantName" th:value="${param.plantName}" th:placeholder="#{inspection.search.plantName}" class="form-input-sm" />
+                    <input type="text" name="inspectionName" th:value="${param.inspectionName}" th:placeholder="#{inspection.search.inspectionName}" class="form-input-sm" />
+                    <div>
+                        <button type="submit" class="btn-secondary" th:text="#{common.button.search}">Search</button>
+                        <a th:href="@{/inspection/list}" class="btn-secondary-outline" th:text="#{common.button.reset}">Reset</a>
+                    </div>
+                </div>
             </form>
 
-            <div class="border rounded-lg shadow overflow-x-auto">
-                <table class="min-w-full text-sm text-left">
-                    <thead class="bg-gray-100">
+            <!-- Data Table -->
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-2 border" th:text="#{inspectionId}">ID</th>
-                            <th class="px-4 py-2 border" th:text="#{inspectionName}">Name</th>
-                            <th class="px-4 py-2 border" th:text="#{siteId}">Site</th>
-                            <th class="px-4 py-2 border" th:text="#{deptId}">Dept</th>
-                            <th class="px-4 py-2 border" th:text="#{plantId}">Plant</th>
-                            <th class="px-4 py-2 border" th:text="#{jobType}">Job Type</th>
-                            <th class="px-4 py-2 border" th:text="#{action}">Action</th>
+                            <th scope="col" class="th-style" th:text="#{inspection.id}">ID</th>
+                            <th scope="col" class="th-style" th:text="#{inspection.name}">Name</th>
+                            <th scope="col" class="th-style" th:text="#{inspection.plantId}">Plant</th>
+                            <th scope="col" class="th-style" th:text="#{inspection.jobType}">Job Type</th>
+                            <th scope="col" class="th-style" th:text="#{inspection.status}">Status</th>
+                            <th scope="col" class="th-style" th:text="#{inspection.createDate}">Date</th>
+                            <th scope="col" class="th-style" th:text="#{common.action}">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="bg-white divide-y divide-gray-200">
                         <tr th:each="insp : ${inspections.content}" class="hover:bg-gray-50">
-                            <td class="px-4 py-2 border">
-                                <a th:href="@{/inspection/inspectionDetail/{siteId}/{inspectionId}(siteId=${insp.siteId},inspectionId=${insp.inspectionId})}"
-                                    class="text-blue-700 hover:underline" th:text="${insp.inspectionId}"></a>
+                            <td class="td-style">
+                                <a th:href="@{/inspection/detail/{id}(id=${insp.inspection_id})}"
+                                   class="text-blue-600 hover:underline" th:text="${insp.inspection_id}"></a>
                             </td>
-                            <td class="px-4 py-2 border" th:text="${insp.inspectionName}"></td>
-                            <td class="px-4 py-2 border" th:text="${insp.siteId}"></td>
-                            <td class="px-4 py-2 border" th:text="${insp.deptId}"></td>
-                            <td class="px-4 py-2 border" th:text="${insp.plantId}"></td>
-                            <td class="px-4 py-2 border" th:text="${insp.jobType}"></td>
-                            <td class="px-4 py-2 border space-x-2">
-                                <a th:href="@{/inspection/inspectionForm/{siteId}/{inspectionId}(siteId=${insp.siteId},inspectionId=${insp.inspectionId})}"
-                                    class="px-2 py-1 text-yellow-800 border border-yellow-500 rounded hover:bg-yellow-50 text-xs">
-                                    <i class="fas fa-edit mr-1"></i><span th:text="#{edit}">수정 </span>
-                                </a>
-                                <form
-                                    th:action="@{/inspection/inspectionDelete/{siteId}/{inspectionId}(siteId=${insp.siteId},inspectionId=${insp.inspectionId})}"
-                                    method="post" class="inline">
-                                    <button type="submit"
-                                        class="px-2 py-1 text-red-800 border border-red-500 rounded hover:bg-red-50 text-xs">
-                                        <i class="fas fa-trash mr-1"></i><span th:text="#{delete}">삭제</span>
-                                    </button>
+                            <td class="td-style" th:text="${insp.inspection_name}"></td>
+                            <td class="td-style" th:text="${insp.plant_id}"></td>
+                            <td class="td-style" th:text="${insp.job_type}"></td>
+                            <td class="td-style" th:text="${insp.status}"></td>
+                            <td class="td-style" th:text="${#dates.format(insp.create_date, 'yyyy-MM-dd')}"></td>
+                            <td class="td-style space-x-2">
+                                <a th:href="@{/inspection/form/{id}(id=${insp.inspection_id})}" class="btn-secondary" th:text="#{common.button.edit}">Edit</a>
+                                <form th:action="@{/inspection/delete/{id}(id=${insp.inspection_id})}" method="post" class="inline-block" onsubmit="return confirm('Are you sure?');">
+                                    <button type="submit" class="btn-danger" th:text="#{common.button.delete}">Delete</button>
                                 </form>
                             </td>
+                        </tr>
+                        <tr th:if="${inspections.empty}">
+                            <td colspan="7" class="text-center py-4" th:text="#{common.table.noData}">No data available</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
             <!-- Pagination -->
-            <div th:if="${inspections.totalPages > 0}" class="flex justify-center mt-4 space-x-1">
-                <a th:href="@{/inspection/inspectionList(companyId=${companyId},siteId=${siteId},page=${inspections.number - 1},size=${inspections.size})}"
-                    th:classappend="${inspections.first ? 'pointer-events-none opacity-50' : ''}"
-                    class="px-3 py-1 border rounded hover:bg-gray-100 text-sm">Previous</a>
-
-                <a th:each="i : ${#numbers.sequence(0, inspections.totalPages - 1)}"
-                    th:href="@{/inspection/inspectionList(companyId=${companyId},siteId=${siteId},page=${i},size=${inspections.size})}"
-                    th:text="${i + 1}"
-                    th:classappend="${i == inspections.number ? 'bg-blue-600 text-white' : 'hover:bg-gray-100'}"
-                    class="px-3 py-1 border rounded text-sm"></a>
-
-                <a th:href="@{/inspection/inspectionList(companyId=${companyId},siteId=${siteId},page=${inspections.number + 1},size=${inspections.size})}"
-                    th:classappend="${inspections.last ? 'pointer-events-none opacity-50' : ''}"
-                    class="px-3 py-1 border rounded hover:bg-gray-100 text-sm">Next</a>
-            </div>
+            <nav th:if="${inspections.totalPages > 1}" class="pagination-container" aria-label="Pagination">
+                <ul class="pagination">
+                    <li th:classappend="${inspections.first} ? 'disabled' : ''">
+                        <a th:href="@{/inspection/list(page=${inspections.number - 1}, size=${inspections.size})}" class="pagination-link" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li th:each="i : ${#numbers.sequence(0, inspections.totalPages - 1)}" th:classappend="${i == inspections.number} ? 'active' : ''">
+                        <a th:href="@{/inspection/list(page=${i}, size=${inspections.size})}" class="pagination-link" th:text="${i + 1}"></a>
+                    </li>
+                    <li th:classappend="${inspections.last} ? 'disabled' : ''">
+                        <a th:href="@{/inspection/list(page=${inspections.number + 1}, size=${inspections.size})}" class="pagination-link" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
 
         </div>
     </div>
 </body>
-
 </html>

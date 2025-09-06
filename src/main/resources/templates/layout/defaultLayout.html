@@ -34,8 +34,10 @@
       <span class="font-bold text-lg">CMMS</span>
     </div>
     <div sec:authorize="isAuthenticated()" class="text-sm flex items-center gap-3">
-      <span th:text="${session.formattedUserInfo}">User Info Placeholder</span>
-      <form th:action="@{/logout}" method="post">
+      <span sec:authentication="principal.username">Username</span>
+      <span>|</span>
+      <span sec:authentication="principal.name">User Real Name</span>
+      <form th:action="@{/logout}" method="post" class="inline">
         <button type="submit" class="px-3 py-1 border border-gray-400 rounded text-gray-600 hover:bg-gray-200"
           th:text="#{login.logout}">Logout</button>
       </form>
@@ -57,12 +59,12 @@
             <i class="fas fa-chevron-down"></i>
           </button>
           <ul class="submenu hidden pl-7 mt-1 space-y-1">
-            <li><a th:href="@{/memo/memoForm}" class="block py-1 hover:text-yellow-300">입력</a></li>
-            <li><a th:href="@{/memo/memoList}" class="block py-1 hover:text-yellow-300">목록</a></li>
+            <li><a th:href="@{/memo/form}" class="block py-1 hover:text-yellow-300">New Memo</a></li>
+            <li><a th:href="@{/memo/list}" class="block py-1 hover:text-yellow-300">Memo List</a></li>
           </ul>
         </li>
 
-        <!-- Inspection 메뉴 (같은 방식으로 반복) -->
+        <!-- Inspection Menu -->
         <li>
           <button class="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-700 rounded menu-toggle">
             <div class="flex items-center gap-2">
@@ -72,137 +74,153 @@
             <i class="fas fa-chevron-down"></i>
           </button>
           <ul class="submenu hidden pl-7 mt-1 space-y-1">
-            <li><a th:href="@{/inspection/inspectionForm}" class="block py-1 hover:text-yellow-300">입력</a></li>
-            <li><a th:href="@{/inspection/inspectionList}" class="block py-1 hover:text-yellow-300">목록</a></li>
+            <li><a th:href="@{/inspection/form}" class="block py-1 hover:text-yellow-300">New Inspection</a></li>
+            <li><a th:href="@{/inspection/list}" class="block py-1 hover:text-yellow-300">Inspection List</a></li>
           </ul>
         </li>
 
-        <!-- Workorder 메뉴  -->
+        <!-- Workorder Menu -->
         <li>
           <button class="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-700 rounded menu-toggle">
             <div class="flex items-center gap-2">
-              <i class="fas fa-clipboard-check w-5 text-center"></i>
+              <i class="fas fa-tasks w-5 text-center"></i>
               <span class="menu-text">Workorder</span>
             </div>
             <i class="fas fa-chevron-down"></i>
           </button>
           <ul class="submenu hidden pl-7 mt-1 space-y-1">
-            <li><a th:href="@{/workorder/workorderForm}" class="block py-1 hover:text-yellow-300">입력</a></li>
-            <li><a th:href="@{/workorder/workorderList}" class="block py-1 hover:text-yellow-300">목록</a></li>
+            <li><a th:href="@{/workorder/form}" class="block py-1 hover:text-yellow-300">New Workorder</a></li>
+            <li><a th:href="@{/workorder/list}" class="block py-1 hover:text-yellow-300">Workorder List</a></li>
           </ul>
         </li>
 
-        <!-- Workpermit 메뉴  -->
+        <!-- Workpermit Menu -->
         <li>
           <button class="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-700 rounded menu-toggle">
             <div class="flex items-center gap-2">
-              <i class="fas fa-clipboard-check w-5 text-center"></i>
+              <i class="fas fa-file-signature w-5 text-center"></i>
               <span class="menu-text">Workpermit</span>
             </div>
             <i class="fas fa-chevron-down"></i>
           </button>
           <ul class="submenu hidden pl-7 mt-1 space-y-1">
-            <li><a th:href="@{/workpermit/workpermitForm}" class="block py-1 hover:text-yellow-300">입력</a></li>
-            <li><a th:href="@{/workpermit/workpermitList}" class="block py-1 hover:text-yellow-300">목록</a></li>
+            <li><a th:href="@{/workpermit/form}" class="block py-1 hover:text-yellow-300">New Workpermit</a></li>
+            <li><a th:href="@{/workpermit/list}" class="block py-1 hover:text-yellow-300">Workpermit List</a></li>
           </ul>
         </li>
 
-        <!-- PlantMaster 메뉴  -->
+        <!-- Plant Menu -->
         <li>
           <button class="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-700 rounded menu-toggle">
             <div class="flex items-center gap-2">
-              <i class="fas fa-clipboard-check w-5 text-center"></i>
-              <span class="menu-text">PlantMaster</span>
+              <i class="fas fa-industry w-5 text-center"></i>
+              <span class="menu-text">Plant</span>
             </div>
             <i class="fas fa-chevron-down"></i>
           </button>
           <ul class="submenu hidden pl-7 mt-1 space-y-1">
-            <li><a th:href="@{/plantMaster/plantMasterForm}" class="block py-1 hover:text-yellow-300">입력</a></li>
-            <li><a th:href="@{/plantMaster/plantMasterList}" class="block py-1 hover:text-yellow-300">목록</a></li>
-            <li><a th:href="@{/funcMaster/funcMasterList}" class="block py-1 hover:text-yellow-300">기능위치 </a></li>
+            <li><a th:href="@{/plant/form}" class="block py-1 hover:text-yellow-300">New Plant</a></li>
+            <li><a th:href="@{/plant/list}" class="block py-1 hover:text-yellow-300">Plant List</a></li>
           </ul>
         </li>
 
-        <!-- InventoryMaster 메뉴  -->
+        <!-- Inventory Menu -->
         <li>
           <button class="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-700 rounded menu-toggle">
             <div class="flex items-center gap-2">
-              <i class="fas fa-clipboard-check w-5 text-center"></i>
-              <span class="menu-text">InventoryMaster</span>
+              <i class="fas fa-boxes-stacked w-5 text-center"></i>
+              <span class="menu-text">Inventory</span>
             </div>
             <i class="fas fa-chevron-down"></i>
           </button>
           <ul class="submenu hidden pl-7 mt-1 space-y-1">
-            <li><a th:href="@{/inventoryMaster/inventoryMasterForm}" class="block py-1 hover:text-yellow-300">입력</a>
-            </li>
-            <li><a th:href="@{/inventoryMaster/inventoryMasterList}" class="block py-1 hover:text-yellow-300">목록</a>
-            </li>
-            <li><a th:href="@{/inventoryMaster/inventoryTransaction}" class="block py-1 hover:text-yellow-300">입출고</a>
-            </li>
-            <li><a th:href="@{/storMaster/storMasterList}" class="block py-1 hover:text-yellow-300">저장위치</a></li>
+            <li><a th:href="@{/inventory/form}" class="block py-1 hover:text-yellow-300">New Item</a></li>
+            <li><a th:href="@{/inventory/list}" class="block py-1 hover:text-yellow-300">Item List</a></li>
+            <li><a th:href="@{/inventory/transaction}" class="block py-1 hover:text-yellow-300">Transactions</a></li>
           </ul>
         </li>
 
-        <!-- FuncMaster 메뉴 -->
-        <!-- <li>
-          <button class="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-700 rounded menu-toggle">
-            <div class="flex items-center gap-2">
-              <i class="fas fa-clipboard-check w-5 text-center"></i>
-              <span class="menu-text">FuncMaster</span>
-            </div>
-            <i class="fas fa-chevron-down"></i>
-          </button>
-          <ul class="submenu hidden pl-7 mt-1 space-y-1">
-            <li><a th:href="@{/funcMaster/funcMasterList}" class="block py-1 hover:text-yellow-300">목록</a></li>
-            <li><a th:href="@{/funcMaster/funcMasterForm}" class="block py-1 hover:text-yellow-300">입력</a></li>
-          </ul>
-        </li>-->
-
-        <!-- StorMaster 메뉴  -->
-        <!-- <li>
-          <button class="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-700 rounded menu-toggle">
-            <div class="flex items-center gap-2">
-              <i class="fas fa-clipboard-check w-5 text-center"></i>
-              <span class="menu-text">StoreMaster</span>
-            </div>
-            <i class="fas fa-chevron-down"></i>
-          </button>
-          <ul class="submenu hidden pl-7 mt-1 space-y-1">
-            <li><a th:href="@{/storMaster/storMasterList}" class="block py-1 hover:text-yellow-300">목록</a></li>
-            <li><a th:href="@{/storMaster/storMasterForm}" class="block py-1 hover:text-yellow-300">입력</a></li>
-          </ul>
-        </li> -->
-
-        <!-- Common 메뉴  -->
+        <!-- Workflow Menu -->
         <li>
           <button class="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-700 rounded menu-toggle">
             <div class="flex items-center gap-2">
-              <i class="fas fa-clipboard-check w-5 text-center"></i>
-              <span class="menu-text">Common</span>
+              <i class="fas fa-project-diagram w-5 text-center"></i>
+              <span class="menu-text">Workflow</span>
             </div>
             <i class="fas fa-chevron-down"></i>
           </button>
           <ul class="submenu hidden pl-7 mt-1 space-y-1">
-            <li><a th:href="@{/commonCode/commonCodeForm}" class="block py-1 hover:text-yellow-300">입력</a></li>
-            <li><a th:href="@{/commonCode/commonCodeList}" class="block py-1 hover:text-yellow-300">목록</a></li>
+            <li><a th:href="@{/workflow/templates}" class="block py-1 hover:text-yellow-300">Templates</a></li>
+            <li><a th:href="@{/workflow/requests}" class="block py-1 hover:text-yellow-300">Requests</a></li>
           </ul>
         </li>
 
-        <!-- Domain 메뉴  -->
+        <!-- Divider -->
+        <li class="px-3 py-2">
+          <hr class="border-t border-gray-700">
+          <span class="text-xs font-bold text-gray-500 mt-2 block">Settings</span>
+        </li>
+
+        <!-- Functional Location Menu -->
         <li>
           <button class="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-700 rounded menu-toggle">
             <div class="flex items-center gap-2">
-              <i class="fas fa-clipboard-check w-5 text-center"></i>
-              <span class="menu-text">Domain</span>
+              <i class="fas fa-map-signs w-5 text-center"></i>
+              <span class="menu-text">Func. Location</span>
             </div>
             <i class="fas fa-chevron-down"></i>
           </button>
           <ul class="submenu hidden pl-7 mt-1 space-y-1">
-            <li><a th:href="@{/company/companyList}" class="block py-1 hover:text-yellow-300">회사코드</a></li>
-            <li><a th:href="@{/site/siteList}" class="block py-1 hover:text-yellow-300">사이트코드</a></li>
-            <li><a th:href="@{/dept/deptList}" class="block py-1 hover:text-yellow-300">부서코드</a></li>
-            <li><a th:href="@{/user/userList}" class="block py-1 hover:text-yellow-300">사용자</a></li>
-            <li><a th:href="@{/roleAuth/roleAuthList}" class="block py-1 hover:text-yellow-300">권한</a></li>
+            <li><a th:href="@{/func/form}" class="block py-1 hover:text-yellow-300">New Location</a></li>
+            <li><a th:href="@{/func/list}" class="block py-1 hover:text-yellow-300">Location List</a></li>
+          </ul>
+        </li>
+
+        <!-- Storage Location Menu -->
+        <li>
+          <button class="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-700 rounded menu-toggle">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-warehouse w-5 text-center"></i>
+              <span class="menu-text">Storage</span>
+            </div>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <ul class="submenu hidden pl-7 mt-1 space-y-1">
+            <li><a th:href="@{/storage/form}" class="block py-1 hover:text-yellow-300">New Storage</a></li>
+            <li><a th:href="@{/storage/list}" class="block py-1 hover:text-yellow-300">Storage List</a></li>
+          </ul>
+        </li>
+
+        <!-- Common Code Menu -->
+        <li>
+          <button class="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-700 rounded menu-toggle">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-book w-5 text-center"></i>
+              <span class="menu-text">Common Codes</span>
+            </div>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <ul class="submenu hidden pl-7 mt-1 space-y-1">
+            <li><a th:href="@{/code/form}" class="block py-1 hover:text-yellow-300">New Code</a></li>
+            <li><a th:href="@{/code/list}" class="block py-1 hover:text-yellow-300">Code List</a></li>
+          </ul>
+        </li>
+
+        <!-- Domain / System Menu -->
+        <li>
+          <button class="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-700 rounded menu-toggle">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-cogs w-5 text-center"></i>
+              <span class="menu-text">System</span>
+            </div>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <ul class="submenu hidden pl-7 mt-1 space-y-1">
+            <li><a th:href="@{/domain/company/list}" class="block py-1 hover:text-yellow-300">Companies</a></li>
+            <li><a th:href="@{/domain/site/list}" class="block py-1 hover:text-yellow-300">Sites</a></li>
+            <li><a th:href="@{/domain/dept/list}" class="block py-1 hover:text-yellow-300">Departments</a></li>
+            <li><a th:href="@{/domain/user/list}" class="block py-1 hover:text-yellow-300">Users</a></li>
+            <li><a th:href="@{/domain/role/list}" class="block py-1 hover:text-yellow-300">Roles</a></li>
           </ul>
         </li>
 

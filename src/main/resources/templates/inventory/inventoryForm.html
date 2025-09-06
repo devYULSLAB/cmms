@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title th:text="${inventory.inventory_id == null} ? #{inventory.form.title.create} : #{inventory.form.title.edit}">Inventory Form</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <h1 class="text-3xl font-bold text-gray-800 mb-6"
+                th:text="${inventory.inventory_id == null} ? #{inventory.form.header.create} : #{inventory.form.header.edit}">
+                Create Inventory Item
+            </h1>
+
+            <form th:action="@{/inventory/save}" th:object="${inventory}" method="post" class="space-y-8">
+                <input type="hidden" th:field="*{company_id}" />
+                <input type="hidden" th:field="*{inventory_id}" />
+                <input type="hidden" th:field="*{file_group_id}" />
+
+                <!-- Item Details Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{inventory.form.section.details}">Item Details</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group md:col-span-2">
+                            <label for="item_name" class="form-label" th:text="#{inventory.name}">Item Name</label>
+                            <input type="text" id="item_name" th:field="*{item_name}" class="form-input" required />
+                        </div>
+                        <div class="form-group md:col-span-2">
+                            <label for="specification" class="form-label" th:text="#{inventory.spec}">Specification</label>
+                            <input type="text" id="specification" th:field="*{specification}" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label for="unit" class="form-label" th:text="#{inventory.unit}">Unit</label>
+                            <input type="text" id="unit" th:field="*{unit}" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label for="item_cat" class="form-label" th:text="#{inventory.category}">Category</label>
+                            <input type="text" id="item_cat" th:field="*{item_cat}" class="form-input" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Information Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{inventory.form.section.stock}">Stock Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="form-group">
+                            <label for="storage_id" class="form-label" th:text="#{inventory.storageId}">Storage Location</label>
+                            <select id="storage_id" th:field="*{storage_id}" class="form-select" required>
+                                <option value="" th:text="#{common.select.placeholder}">Select a storage...</option>
+                                <option th:each="storage : ${storages}" th:value="${storage.id}" th:text="${storage.name}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantity" class="form-label" th:text="#{inventory.qty}">Quantity</label>
+                            <input type="number" id="quantity" th:field="*{quantity}" class="form-input" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="unit_price" class="form-label" th:text="#{inventory.price}">Unit Price</label>
+                            <input type="number" id="unit_price" th:field="*{unit_price}" class="form-input" step="0.01" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manufacturer Information Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{inventory.form.section.manufacturer}">Manufacturer Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="form-group">
+                            <label for="manufacturer" class="form-label" th:text="#{inventory.manufacturer}">Manufacturer</label>
+                            <input type="text" id="manufacturer" th:field="*{manufacturer}" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label for="model" class="form-label" th:text="#{inventory.model}">Model</label>
+                            <input type="text" id="model" th:field="*{model}" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label for="serial_no" class="form-label" th:text="#{inventory.serialNo}">Serial No.</label>
+                            <input type="text" id="serial_no" th:field="*{serial_no}" class="form-input" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Note Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{inventory.form.section.notes}">Notes</h2>
+                    <div class="form-group">
+                        <label for="note" class="form-label" th:text="#{inventory.note}">Note</label>
+                        <textarea id="note" th:field="*{note}" class="form-textarea" rows="4"></textarea>
+                    </div>
+                </div>
+
+                <!-- File Attachment Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{common.file.attachments}">File Attachments</h2>
+                    <div th:replace="~{common/file/uploadFragment :: fileUploadFragment(docType='inventory', fileGroupId=*{file_group_id})}"></div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end space-x-4 pt-4 border-t">
+                    <a th:href="@{/inventory/list}" class="btn-secondary" th:text="#{common.button.cancel}">Cancel</a>
+                    <button type="submit" class="btn-primary" th:text="#{common.button.save}">Save Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>
