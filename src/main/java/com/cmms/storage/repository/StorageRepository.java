@@ -10,5 +10,5 @@ import java.util.List;
 @Repository
 public interface StorageRepository extends JpaRepository<Storage, StorageId> {
 
-    List<Storage> findByCompanyId(String companyId);
+    List<Storage> findStoragesByCompanyId(String companyId);
 }

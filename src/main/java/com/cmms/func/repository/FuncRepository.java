@@ -10,5 +10,5 @@ import java.util.List;
 @Repository
 public interface FuncRepository extends JpaRepository<Func, FuncId> {
 
-    List<Func> findByCompanyId(String companyId);
+    List<Func> findFuncsByCompanyId(String companyId);
 }

@@ -20,7 +20,7 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th scope="col" class="th-style" th:text="#{user.userId}">ID</th>
-                        <th scope="col" class="th-style" th:text="#{user.userName}">Name</th>
+                        <th scope="col" class="th-style" th:text="#{user.userFullName}">Name</th>
                         <th scope="col" class="th-style" th:text="#{user.isLocked}">Locked</th>
                         <th scope="col" class="th-style" th:text="#{common.action}">Actions</th>
                     </tr>
@@ -28,7 +28,7 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     <tr th:each="user : ${users}" class="hover:bg-gray-50">
                         <td class="td-style" th:text="${user.userId}"></td>
-                        <td class="td-style" th:text="${user.userName}"></td>
+                        <td class="td-style" th:text="${user.userFullName}"></td>
                         <td class="td-style">
                             <span th:text="${user.isLocked}"
                                   th:classappend="${user.isLocked == 'Y'} ? 'badge-danger' : 'badge-success'">

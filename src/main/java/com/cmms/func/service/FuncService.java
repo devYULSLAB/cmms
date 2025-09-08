@@ -17,12 +17,12 @@ public class FuncService {
     private final FuncRepository funcRepository;
 
     @Transactional(readOnly = true)
-    public List<Func> findAllByCompanyId(String companyId) {
-        return funcRepository.findByCompanyId(companyId);
+    public List<Func> getFuncsByCompanyId(String companyId) {
+        return funcRepository.findFuncsByCompanyId(companyId);
     }
 
     @Transactional(readOnly = true)
-    public Func findFuncById(FuncId id) {
+    public Func getFuncById(FuncId id) {
         return funcRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Function location not found"));
     }

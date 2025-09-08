@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "memo_comment")
-@IdClass(MemoCommentIdClass.class)
+@IdClass(MemoCommentId.class)
 @DynamicInsert
 @DynamicUpdate
 public class MemoComment {

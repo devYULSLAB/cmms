@@ -17,12 +17,12 @@ public class StorageService {
     private final StorageRepository storageRepository;
 
     @Transactional(readOnly = true)
-    public List<Storage> findAllByCompanyId(String companyId) {
-        return storageRepository.findByCompanyId(companyId);
+    public List<Storage> getStoragesByCompanyId(String companyId) {
+        return storageRepository.findStoragesByCompanyId(companyId);
     }
 
     @Transactional(readOnly = true)
-    public Storage findStorageById(StorageId id) {
+    public Storage getStorageById(StorageId id) {
         return storageRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Storage not found"));
     }

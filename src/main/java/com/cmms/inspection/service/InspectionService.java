@@ -25,12 +25,12 @@ public class InspectionService {
     private final IdGeneratorService idGeneratorService;
 
     @Transactional(readOnly = true)
-    public Page<Inspection> findInspections(String companyId, Pageable pageable) {
-        return inspectionRepository.findByCompanyId(companyId, pageable);
+    public Page<Inspection> getInspectionsByCompanyId(String companyId, Pageable pageable) {
+        return inspectionRepository.findInspectionsByCompanyId(companyId, pageable);
     }
 
     @Transactional(readOnly = true)
-    public Inspection findInspectionById(InspectionId inspectionId) {
+    public Inspection getInspectionById(InspectionId inspectionId) {
         return inspectionRepository.findById(inspectionId)
                 .orElseThrow(() -> new RuntimeException("Inspection not found: " + inspectionId));
     }
@@ -71,7 +71,7 @@ public class InspectionService {
     }
 
     @Transactional(readOnly = true)
-    public List<InspectionItem> findInspectionItems(String companyId, String inspectionId) {
+    public List<InspectionItem> getInspectionItemsByCompanyAndInspectionId(String companyId, String inspectionId) {
         return inspectionItemRepository.findByCompanyIdAndInspectionIdOrderByItemIdAsc(companyId, inspectionId);
     }
 }

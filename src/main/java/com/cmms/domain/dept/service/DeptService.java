@@ -17,14 +17,20 @@ public class DeptService {
     private final DeptRepository deptRepository;
 
     @Transactional(readOnly = true)
-    public List<Dept> findAllByCompanyId(String companyId) {
-        return deptRepository.findByCompanyId(companyId);
+    public List<Dept> getDeptsByCompanyId(String companyId) {
+        return deptRepository.findDeptsByCompanyId(companyId);
     }
 
     @Transactional(readOnly = true)
-    public Dept findDeptById(DeptId deptId) {
+    public Dept getDeptById(DeptId deptId) {
         return deptRepository.findById(deptId)
                 .orElseThrow(() -> new RuntimeException("Dept not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public Dept getDeptByCompanyIdAndDeptId(String companyId, String deptId) {
+        return deptRepository.findDeptByCompanyIdAndDeptId(companyId, deptId)
+                .orElseThrow(() -> new RuntimeException("Dept not found: " + deptId));
     }
 
     public Dept saveDept(Dept dept) {

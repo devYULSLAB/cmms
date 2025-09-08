@@ -3,7 +3,7 @@
  * 기능: 패키지/네이밍/REST/API/ID발급/파일업로드/i18n/보안 규칙 표준
  * 생성자: devYULSLAB
  * 생성일: 2025-02-28
- * 변경일: 2025-09-04
+ * 변경일: 2025-01-27 (코드 리뷰 반영)
  */
 
 # CMMS 코딩 룰 & 프로젝트 구조 가이드
@@ -33,6 +33,8 @@
 - DTO 접미사: `Request` / `Response` / `Dto`
 - Service: `saveXxx`, `updateXxx`, `deleteXxx`, `getXxxBy...`, `listXxxBy...`
 - Repository: Spring Data 규칙(find/exists/count/save/delete)
+- Service, Repository Layer에서 반환값이 복수형이면 복수형으로 표기하고, 파라미터는 By 뒤에 표기함. 파라미터가 IdClass이면 ById로 표현
+ (예) getDeptsByCompanyId, getDeptByCompanyIdAndDeptId, getDeptById 
 
 ## 4. 세션/보안
 - `company_Id`, `user_Id`은 **요청 파라미터 금지**; 세션/보안컨텍스트에서만 주입
@@ -42,7 +44,7 @@
 
 ## 5. ID 정책 (CHAR(10), 선두자리 prefix)
 - 10자리 **숫자 문자열** 고정, **선두 1자리로 모듈 구분**  
-  - 1=plant, 2=inventory, 3=inspection, 5=workorder, 9=workpermit 
+  - 0=memo, 1=plant, 2=inventory, 3=inspection, 5=workorder, 7=stock, 8=Stock tx, 9=workpermit 
 - 공통 `id_sequence(company_id, prefix, next_val)`에서 **행 잠금** 후 증가값 사용 → **zero-pad** 10자리 생성
 - **파일 ID 규칙**
   - **`file_group_id`**: 도메인 레코드(plant/inventory/…/approval 등) 1건당 1개. 해당 도메인의 구분자자'FG'+'8자리 숫자:밀리초 기반'를 사용해 발급

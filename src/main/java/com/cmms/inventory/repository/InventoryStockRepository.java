@@ -1,7 +1,7 @@
-package com.cmms10.inventoryMaster.repository;
+package com.cmms.inventory.repository;
 
-import com.cmms10.inventoryMaster.entity.InventoryStock;
-import com.cmms10.inventoryMaster.entity.InventoryStockId;
+import com.cmms.inventory.entity.InventoryStock;
+import com.cmms.inventory.entity.InventoryStockId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -11,10 +11,10 @@ import jakarta.persistence.LockModeType;
 import java.util.Optional;
 
 /**
- * cmms10 - InventoryStockRepository
+ * cmms - InventoryStockRepository
  * 재고(InventoryStock) JPA 레포지토리 및 Pessimistic Lock 메서드
  *
- * @author cmms10
+ * @author cmms
  * @since 2024-07-13
  */
 public interface InventoryStockRepository extends JpaRepository<InventoryStock, InventoryStockId> {

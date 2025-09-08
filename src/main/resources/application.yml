@@ -2,13 +2,8 @@
 # Standard Spring Boot properties
 # ===================================================================
 
-# DataSource settings
+# Spring Boot 기본 설정
 spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/cmms_db?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
-    username: root
-    password:
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
   # JPA / Hibernate
   jpa:
@@ -19,12 +14,18 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: ${DB_DIALECT:org.hibernate.dialect.MariaDBDialect}
         connection.isolation: 2 # READ_COMMITTED
   
   # Thymeleaf
   thymeleaf:
     cache: false # Disable caching for development
+    mode: HTML
+    encoding: UTF-8
+    servlet:
+      content-type: text/html
+    prefix: classpath:/templates/
+    suffix: .html
 
   # Messages
   messages:
@@ -68,7 +69,7 @@ logging:
 # Custom application properties
 # ===================================================================
 cmms:
-  default-company-id: '1' # Changed from C0001 to match schema
+  default-company-id: ${DEFAULT_COMPANY_ID:C0001}
 
 # File Upload Settings
 file:

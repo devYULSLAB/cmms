@@ -22,12 +22,12 @@ public class RoleService {
 
     // == Role Methods ==
     @Transactional(readOnly = true)
-    public List<Role> findAllRolesByCompanyId(String companyId) {
-        return roleRepository.findByCompanyId(companyId);
+    public List<Role> getRolesByCompanyId(String companyId) {
+        return roleRepository.findRolesByCompanyId(companyId);
     }
 
     @Transactional(readOnly = true)
-    public Role findRoleById(RoleId id) {
+    public Role getRoleById(RoleId id) {
         return roleRepository.findById(id).orElseThrow(() -> new RuntimeException("Role not found"));
     }
 
@@ -41,7 +41,7 @@ public class RoleService {
 
     // == UserRole Methods ==
     @Transactional(readOnly = true)
-    public List<UserRole> findUserRoles(String companyId, String userId) {
+    public List<UserRole> getUserRolesByCompanyAndUserId(String companyId, String userId) {
         return userRoleRepository.findByCompanyIdAndUserId(companyId, userId);
     }
 

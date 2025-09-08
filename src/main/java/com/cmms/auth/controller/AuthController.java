@@ -47,7 +47,7 @@ public class AuthController {
             User user = new User();
             user.setCompanyId(companyId);
             user.setUserId(userId);
-            user.setUserName(userId); // 기본적으로 userName을 userId와 동일하게 설정
+            user.setUserFullName(userId); // 기본적으로 userFullName을 userId와 동일하게 설정
             user.setPasswordHash(passwordEncoder.encode(password));
             user.setPasswordUpdatedAt(LocalDateTime.now());
             user.setFailedLoginCount(0);

@@ -27,19 +27,19 @@ public class MemoService {
     @Transactional
     public Memo saveMemo(Memo memo) {
         if (memo.getMemoId() == null || memo.getMemoId().isEmpty()) {
-            memo.setMemoId(idGeneratorService.generateId(memo.getCompanyId(), "6"));
+            memo.setMemoId(idGeneratorService.generateId(memo.getCompanyId(), "0"));
             memo.setViewCnt(0);
         }
         return memoRepository.save(memo);
     }
 
     @Transactional(readOnly = true)
-    public Page<Memo> findMemos(String companyId, Pageable pageable) {
-        return memoRepository.findByCompanyId(companyId, pageable);
+    public Page<Memo> getMemosByCompanyId(String companyId, Pageable pageable) {
+        return memoRepository.findMemosByCompanyId(companyId, pageable);
     }
 
     @Transactional
-    public Memo findMemoByIdAndIncrementViewCount(MemoId memoId) {
+    public Memo getMemoByIdAndIncrementViewCount(MemoId memoId) {
         Memo memo = memoRepository.findById(memoId)
                 .orElseThrow(() -> new RuntimeException("Memo not found: " + memoId));
         memo.setViewCnt(memo.getViewCnt() + 1);
@@ -51,19 +51,19 @@ public class MemoService {
         if (!memoRepository.existsById(memoId)) {
             throw new RuntimeException("Memo not found with ID: " + memoId);
         }
-        memoCommentRepository.deleteAll(findMemoComments(memoId.getCompanyId(), memoId.getMemoId()));
+        memoCommentRepository.deleteAll(getMemoCommentsByCompanyAndMemoId(memoId.getCompanyId(), memoId.getMemoId()));
         memoRepository.deleteById(memoId);
     }
 
     @Transactional(readOnly = true)
-    public List<MemoComment> findMemoComments(String companyId, String memoId) {
+    public List<MemoComment> getMemoCommentsByCompanyAndMemoId(String companyId, String memoId) {
         return memoCommentRepository.findByCompanyIdAndMemoIdOrderByCreateDateAsc(companyId, memoId);
     }
 
     @Transactional
     public MemoComment saveMemoComment(MemoComment comment) {
         if (comment.getCommentId() == null || comment.getCommentId().isEmpty()) {
-            comment.setCommentId(idGeneratorService.generateId(comment.getCompanyId(), "7"));
+            comment.setCommentId(idGeneratorService.generateId(comment.getCompanyId(), "0"));
         }
         return memoCommentRepository.save(comment);
     }

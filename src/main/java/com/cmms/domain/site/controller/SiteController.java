@@ -20,7 +20,7 @@ public class SiteController {
 
     @GetMapping("/list")
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
-        model.addAttribute("sites", siteService.findAllByCompanyId(userDetails.getCompanyId()));
+        model.addAttribute("sites", siteService.getSitesByCompanyId(userDetails.getCompanyId()));
         return "domain/site/list";
     }
 
@@ -33,7 +33,7 @@ public class SiteController {
     @GetMapping("/{siteId}/edit")
     public String editForm(@PathVariable String siteId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         SiteId id = new SiteId(userDetails.getCompanyId(), siteId);
-        model.addAttribute("site", siteService.findSiteById(id));
+        model.addAttribute("site", siteService.getSiteById(id));
         return "domain/site/form";
     }
 

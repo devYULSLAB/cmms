@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "workpermit_item")
-@IdClass(WorkpermitItemIdClass.class)
+@IdClass(WorkpermitItemId.class)
 @DynamicInsert
 @DynamicUpdate
 public class WorkpermitItem {

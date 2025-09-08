@@ -22,7 +22,7 @@ public class CodeService {
 
     // == Code Methods ==
     @Transactional(readOnly = true)
-    public List<Code> findCodesByCompanyAndType(String companyId, String codeType) {
+    public List<Code> getCodesByCompanyAndCodeType(String companyId, String codeType) {
         return codeRepository.findByCompanyIdAndCodeType(companyId, codeType);
     }
 
@@ -36,7 +36,7 @@ public class CodeService {
 
     // == CodeType Methods ==
     @Transactional(readOnly = true)
-    public List<CodeType> findCodeTypesByCompany(String companyId) {
+    public List<CodeType> getCodeTypesByCompany(String companyId) {
         return codeTypeRepository.findByCompanyId(companyId);
     }
 

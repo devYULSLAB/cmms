@@ -20,7 +20,7 @@ public class IdGeneratorService {
         sequence.setNextVal(nextVal + 1);
         idSequenceRepository.save(sequence);
 
-        return String.valueOf(nextVal);
+        return String.format("%010d", nextVal);
     }
 
     // Special case for file group and file IDs as per docs

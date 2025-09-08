@@ -17,14 +17,20 @@ public class SiteService {
     private final SiteRepository siteRepository;
 
     @Transactional(readOnly = true)
-    public List<Site> findAllByCompanyId(String companyId) {
-        return siteRepository.findByCompanyId(companyId);
+    public List<Site> getSitesByCompanyId(String companyId) {
+        return siteRepository.findSitesByCompanyId(companyId);
     }
 
     @Transactional(readOnly = true)
-    public Site findSiteById(SiteId siteId) {
+    public Site getSiteById(SiteId siteId) {
         return siteRepository.findById(siteId)
                 .orElseThrow(() -> new RuntimeException("Site not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public Site getSiteByCompanyIdAndSiteId(String companyId, String siteId) {
+        return siteRepository.findSiteByCompanyIdAndSiteId(companyId, siteId)
+                .orElseThrow(() -> new RuntimeException("Site not found: " + siteId));
     }
 
     public Site saveSite(Site site) {

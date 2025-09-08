@@ -1,7 +1,6 @@
 package com.cmms.inventory.controller;
 
 import com.cmms.auth.dto.CustomUserDetails;
-import com.cmms.auth.dto.CustomUserDetails;
 import com.cmms.domain.site.service.SiteService;
 import com.cmms.inventory.dto.InventoryLedgerDto;
 import com.cmms.inventory.dto.InventoryTransactionForm;
@@ -40,7 +39,7 @@ public class InventoryController {
 
     @GetMapping("/list")
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model, @PageableDefault(size = 10, sort = "inventoryId") Pageable pageable) {
-        Page<Inventory> inventories = inventoryService.findInventories(userDetails.getCompanyId(), pageable);
+        Page<Inventory> inventories = inventoryService.getInventoriesByCompanyId(userDetails.getCompanyId(), pageable);
         model.addAttribute("inventories", inventories);
         return "inventory/list";
     }
@@ -57,7 +56,7 @@ public class InventoryController {
     @GetMapping("/{inventoryId}/edit")
     public String editForm(@PathVariable String inventoryId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         InventoryId id = new InventoryId(userDetails.getCompanyId(), inventoryId);
-        Inventory inventory = inventoryService.findInventoryById(id);
+        Inventory inventory = inventoryService.getInventoryById(id);
         model.addAttribute("inventory", inventory);
         // Populate model with necessary data for select boxes
         // model.addAttribute("depts", deptService.findAllByCompanyId(userDetails.getCompanyId()));
@@ -76,7 +75,7 @@ public class InventoryController {
     @GetMapping("/{inventoryId}")
     public String detail(@PathVariable String inventoryId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         InventoryId id = new InventoryId(userDetails.getCompanyId(), inventoryId);
-        model.addAttribute("inventory", inventoryService.findInventoryById(id));
+        model.addAttribute("inventory", inventoryService.getInventoryById(id));
         return "inventory/detail";
     }
 
@@ -201,7 +200,7 @@ public class InventoryController {
     public Inventory getInventoryDetails(@RequestParam String inventoryId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         InventoryId id = new InventoryId(userDetails.getCompanyId(), inventoryId);
         try {
-            return inventoryService.findInventoryById(id);
+            return inventoryService.getInventoryById(id);
         } catch (Exception e) {
             return null;
         }

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "`user`") // Use backticks for reserved keywords
-@IdClass(UserIdClass.class)
+@IdClass(UserId.class)
 @DynamicInsert
 @DynamicUpdate
 public class User {
@@ -27,8 +27,17 @@ public class User {
     @Column(name = "user_id", length = 5, nullable = false)
     private String userId;
 
-    @Column(name = "user_name", length = 100, nullable = false)
-    private String userName;
+    @Column(name = "user_full_name", length = 100, nullable = false)
+    private String userFullName;
+
+    @Column(name = "role_id", length = 5)
+    private String roleId;
+
+    @Column(name = "dept_id", length = 5)
+    private String deptId;
+
+    @Column(name = "password", length = 100)
+    private String password;
 
     @Column(name = "password_hash", length = 100, nullable = false)
     private String passwordHash;

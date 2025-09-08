@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "workpermit")
-@IdClass(WorkpermitIdClass.class)
+@IdClass(WorkpermitId.class)
 @DynamicInsert
 @DynamicUpdate
 public class Workpermit {

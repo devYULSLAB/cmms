@@ -18,8 +18,6 @@
             <form th:action="@{/workpermit/save}" th:object="${workpermit}" method="post" class="space-y-8" onsubmit="return collectAllFormData()">
                 <input type="hidden" th:field="*{company_id}" />
                 <input type="hidden" th:field="*{permit_id}" />
-                <input type="hidden" th:field="*{checksheet_id}" />
-                <textarea id="check_result_json" name="check_result_json" th:field="*{check_result_json}" class="hidden"></textarea>
 
                 <!-- Main Details Section -->
                 <div class="form-section">
@@ -95,20 +93,6 @@
                     </div>
                 </div>
 
-                <!-- Checklist Section -->
-                <div class="form-section">
-                    <h2 class="form-section-title" th:text="#{workpermit.form.section.checklist}">Safety Checklist</h2>
-                    <div class="form-group">
-                        <label for="checklist-template-select" class="form-label">Select Checklist Template</label>
-                        <select id="checklist-template-select" class="form-select">
-                            <option value="">Select a template...</option>
-                            <option th:each="template : ${checklistTemplates}" th:value="${template.id}" th:text="${template.name}" th:data-json="${template.template_json}"></option>
-                        </select>
-                    </div>
-                    <div id="checklist-render-area" class="mt-4 p-4 border rounded-md bg-gray-50 min-h-[150px]">
-                        <p class="text-gray-500">Select a template to view the checklist.</p>
-                    </div>
-                </div>
 
                 <!-- Action Buttons -->
                 <div class="flex items-center justify-end space-x-4 pt-4 border-t">
@@ -120,37 +104,12 @@
     </div>
 
     <th:block layout:fragment="page-js">
-        <script src="https://formbuilder.online/assets/js/form-render.min.js"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function() {
                 const signatureTbody = document.getElementById('signatures-tbody');
-                const templateSelect = document.getElementById('checklist-template-select');
-                const renderArea = document.getElementById('checklist-render-area');
-                let formRenderInstance;
 
                 // Initialize existing signature pads
                 signatureTbody.querySelectorAll('.signature-canvas').forEach(initSignaturePad);
-
-                // Handle checklist template selection
-                templateSelect.addEventListener('change', (e) => {
-                    const selectedOption = e.target.options[e.target.selectedIndex];
-                    const templateJson = selectedOption.dataset.json;
-                    document.querySelector('[name="checksheet_id"]').value = e.target.value;
-
-                    if (templateJson) {
-                        const options = { formData: JSON.parse(templateJson), dataType: 'json' };
-                        formRenderInstance = $(renderArea).formRender(options);
-                    } else {
-                        renderArea.innerHTML = '<p class="text-gray-500">Select a template to view the checklist.</p>';
-                        formRenderInstance = null;
-                    }
-                });
-
-                // Restore checklist data if available
-                const checklistData = document.getElementById('check_result_json').value;
-                if (checklistData && formRenderInstance) {
-                    formRenderInstance.setData(JSON.parse(checklistData));
-                }
             });
 
             function addSignerRow() {
@@ -184,11 +143,6 @@
             }
 
             function collectAllFormData() {
-                // Collect checklist data
-                if (formRenderInstance) {
-                    document.getElementById('check_result_json').value = JSON.stringify(formRenderInstance.userData);
-                }
-
                 // Collect signature data
                 document.querySelectorAll('.signature-canvas').forEach((canvas, index) => {
                     const hiddenInput = canvas.nextElementSibling;

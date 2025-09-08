@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "workorder_item")
-@IdClass(WorkorderItemIdClass.class)
+@IdClass(WorkorderItemId.class)
 @DynamicInsert
 @DynamicUpdate
 public class WorkorderItem {

@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ApprovalRequestRepository extends JpaRepository<ApprovalRequest, ApprovalRequestId> {
-    Page<ApprovalRequest> findByCompanyId(String companyId, Pageable pageable);
+    Page<ApprovalRequest> findRequestsByCompanyId(String companyId, Pageable pageable);
 }

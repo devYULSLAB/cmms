@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "workorder")
-@IdClass(WorkorderIdClass.class)
+@IdClass(WorkorderId.class)
 @DynamicInsert
 @DynamicUpdate
 public class Workorder {

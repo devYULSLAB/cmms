@@ -2,8 +2,8 @@ spring:
   profiles:
     active: dev
   datasource:
-    url: jdbc:mariadb://localhost:3306/cmms10
-    #url: jdbc:mariadb://cmms.c9gue80i0enx.us-east-2.rds.amazonaws.com:3306/cmms10
+    url: jdbc:mariadb://localhost:3306/cmms
+    #url: jdbc:mariadb://cmms.c9gue80i0enx.us-east-2.rds.amazonaws.com:3306/cmms
     username: root
     #password: root
     password: yuls88!#3
@@ -55,12 +55,12 @@ logging:
     name: logs/application.log
   level:
     org.springframework.security: DEBUG
-    com.cmms10: DEBUG 
+    com.cmms: DEBUG 
     org.springframework.context.support: TRACE
     org.springframework.context.i18n: TRACE
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
-cmms10:
+cmms:
   default-company-id: C0001

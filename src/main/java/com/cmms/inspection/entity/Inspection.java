@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "inspection")
-@IdClass(InspectionIdClass.class)
+@IdClass(InspectionId.class)
 @DynamicInsert
 @DynamicUpdate
 public class Inspection {

@@ -26,12 +26,12 @@ public class WorkpermitService {
     private final IdGeneratorService idGeneratorService;
 
     @Transactional(readOnly = true)
-    public Page<Workpermit> findWorkpermits(String companyId, Pageable pageable) {
-        return workpermitRepository.findByCompanyId(companyId, pageable);
+    public Page<Workpermit> getWorkpermitsByCompanyId(String companyId, Pageable pageable) {
+        return workpermitRepository.findWorkpermitsByCompanyId(companyId, pageable);
     }
 
     @Transactional(readOnly = true)
-    public Workpermit findWorkpermitById(WorkpermitId workpermitId) {
+    public Workpermit getWorkpermitById(WorkpermitId workpermitId) {
         return workpermitRepository.findById(workpermitId)
                 .orElseThrow(() -> new RuntimeException("Workpermit not found: " + workpermitId));
     }
@@ -39,7 +39,7 @@ public class WorkpermitService {
     @Transactional
     public Workpermit saveWorkpermit(Workpermit workpermit) {
         if (workpermit.getPermitId() == null || workpermit.getPermitId().isEmpty()) {
-            workpermit.setPermitId(idGeneratorService.generateId(workpermit.getCompanyId(), "5"));
+            workpermit.setPermitId(idGeneratorService.generateId(workpermit.getCompanyId(), "9"));
         }
 
         List<WorkpermitItem> items = workpermit.getItems();
@@ -67,12 +67,12 @@ public class WorkpermitService {
         if (!workpermitRepository.existsById(workpermitId)) {
             throw new RuntimeException("Workpermit not found with ID: " + workpermitId);
         }
-        workpermitItemRepository.deleteAll(findWorkpermitItems(workpermitId.getCompanyId(), workpermitId.getPermitId()));
+        workpermitItemRepository.deleteAll(getWorkpermitItemsByCompanyAndPermitId(workpermitId.getCompanyId(), workpermitId.getPermitId()));
         workpermitRepository.deleteById(workpermitId);
     }
 
     @Transactional(readOnly = true)
-    public List<WorkpermitItem> findWorkpermitItems(String companyId, String permitId) {
+    public List<WorkpermitItem> getWorkpermitItemsByCompanyAndPermitId(String companyId, String permitId) {
         return workpermitItemRepository.findByCompanyIdAndPermitId(companyId, permitId);
     }
 

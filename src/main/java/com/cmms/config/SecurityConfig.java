@@ -1,6 +1,6 @@
-package com.cmms10.config;
+package com.cmms.config;
 
-import com.cmms10.auth.dto.CustomUserDetails;
+import com.cmms.auth.dto.CustomUserDetails;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

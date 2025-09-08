@@ -23,13 +23,19 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
-    public List<User> findAllByCompanyId(String companyId) {
-        return userRepository.findByCompanyId(companyId);
+    public List<User> getUsersByCompanyId(String companyId) {
+        return userRepository.findUsersByCompanyId(companyId);
     }
 
     @Transactional(readOnly = true)
-    public User findUserById(UserId userId) {
+    public User getUserById(UserId userId) {
         return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+    }
+
+    @Transactional(readOnly = true)
+    public User getUserByCompanyIdAndUserId(String companyId, String userId) {
+        return userRepository.findUserByCompanyIdAndUserId(companyId, userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
     }
 
@@ -53,7 +59,7 @@ public class UserService {
         if (existingUserOpt.isPresent()) {
             // Update existing user
             userToSave = existingUserOpt.get();
-            userToSave.setUserName(formUser.getUserName());
+            userToSave.setUserFullName(formUser.getUserFullName());
             userToSave.setIsLocked(formUser.getIsLocked());
             userToSave.setMustChangePw(formUser.getMustChangePw());
             userToSave.setUpdateDate(LocalDateTime.now());

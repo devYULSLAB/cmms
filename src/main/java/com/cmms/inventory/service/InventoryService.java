@@ -1,13 +1,6 @@
 package com.cmms.inventory.service;
 
 import com.cmms.common.id.IdGeneratorService;
-import com.cmms.inventory.entity.Inventory;
-import com.cmms.inventory.entity.InventoryId;
-import com.cmms.common.id.IdGeneratorService;
-import com.cmms.inventory.dto.InventoryLedgerDto;
-import com.cmms.inventory.entity.Inventory;
-import com.cmms.inventory.entity.InventoryId;
-import com.cmms.common.id.IdGeneratorService;
 import com.cmms.inventory.dto.InventoryLedgerDto;
 import com.cmms.inventory.entity.Inventory;
 import com.cmms.inventory.entity.InventoryId;
@@ -37,12 +30,12 @@ public class InventoryService {
     private final InventoryStockByMonthRepository inventoryStockByMonthRepository;
 
     @Transactional(readOnly = true)
-    public Page<Inventory> findInventories(String companyId, Pageable pageable) {
-        return inventoryRepository.findByCompanyId(companyId, pageable);
+    public Page<Inventory> getInventoriesByCompanyId(String companyId, Pageable pageable) {
+        return inventoryRepository.findInventoriesByCompanyId(companyId, pageable);
     }
 
     @Transactional(readOnly = true)
-    public Inventory findInventoryById(InventoryId inventoryId) {
+    public Inventory getInventoryById(InventoryId inventoryId) {
         return inventoryRepository.findById(inventoryId)
                 .orElseThrow(() -> new RuntimeException("Inventory not found: " + inventoryId));
     }

@@ -26,6 +26,12 @@ public class CompanyService {
                 .orElseThrow(() -> new RuntimeException("Company not found: " + companyId));
     }
 
+    @Transactional(readOnly = true)
+    public Company findCompanyByCompanyId(String companyId) {
+        return companyRepository.findCompanyByCompanyId(companyId)
+                .orElseThrow(() -> new RuntimeException("Company not found: " + companyId));
+    }
+
     public Company saveCompany(Company company) {
         return companyRepository.save(company);
     }

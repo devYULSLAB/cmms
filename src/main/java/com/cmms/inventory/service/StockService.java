@@ -2,7 +2,6 @@ package com.cmms.inventory.service;
 
 import com.cmms.common.id.IdGeneratorService;
 import com.cmms.inventory.entity.Stock;
-import com.cmms.inventory.entity.StockId;
 import com.cmms.inventory.entity.StockTx;
 import com.cmms.inventory.repository.StockRepository;
 import com.cmms.inventory.repository.StockTxRepository;
@@ -110,7 +109,10 @@ public class StockService {
             return existingStock.get();
         } else {
             Stock newStock = new Stock();
-            newStock.setId(new StockId(companyId, siteId, storageId, inventoryId));
+            newStock.setCompanyId(companyId);
+            newStock.setSiteId(siteId);
+            newStock.setStorageId(storageId);
+            newStock.setInventoryId(inventoryId);
             newStock.setQty(BigDecimal.ZERO);
             newStock.setUnitPrice(BigDecimal.ZERO);
             return newStock;

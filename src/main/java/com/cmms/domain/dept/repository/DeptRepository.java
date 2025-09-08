@@ -6,9 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DeptRepository extends JpaRepository<Dept, DeptId> {
 
-    List<Dept> findByCompanyId(String companyId);
+    List<Dept> findDeptsByCompanyId(String companyId);
+    
+    Optional<Dept> findDeptByCompanyIdAndDeptId(String companyId, String deptId);
 }

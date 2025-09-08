@@ -3,7 +3,6 @@ package com.cmms.common.file.service;
 import com.cmms.common.file.entity.FileAttachment;
 import com.cmms.common.file.entity.FileAttachmentId;
 import com.cmms.common.file.entity.FileGroup;
-import com.cmms.common.file.entity.FileGroupId;
 import com.cmms.common.file.repository.FileAttachmentRepository;
 import com.cmms.common.file.repository.FileGroupRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
+import com.cmms.common.id.IdGeneratorService;
 
 @Service
 @RequiredArgsConstructor
@@ -28,12 +27,13 @@ public class FileAttachmentService {
 
     private final FileAttachmentRepository fileAttachmentRepository;
     private final FileGroupRepository fileGroupRepository;
+    private final IdGeneratorService idGeneratorService;
 
     @Value("${file.upload.root-path:uploads}")
     private String uploadRootPath;
 
     public String createFieGroup(String companyId) {
-        String fileGroupId = generateFileGroupId();
+        String fileGroupId = idGeneratorService.generateFileGroupId();
         FileGroup fileGroup = new FileGroup();
         fileGroup.setCompanyId(companyId);
         fileGroup.setFileGroupId(fileGroupId);
@@ -42,7 +42,7 @@ public class FileAttachmentService {
     }
 
     public FileAttachment storeFile(MultipartFile file, String companyId, String fileGroupId, String module) throws IOException {
-        String fileId = generateFileId();
+        String fileId = idGeneratorService.generateFileId();
         String originalName = file.getOriginalFilename();
         String storedName = fileId + getFileExtension(originalName);
 
@@ -83,13 +83,5 @@ public class FileAttachmentService {
             return "";
         }
         return fileName.substring(fileName.lastIndexOf('.'));
-    }
-
-    private String generateFileGroupId() {
-        return "FG" + String.format("%08d", System.currentTimeMillis() % 100000000L);
-    }
-
-    private String generateFileId() {
-        return "FI" + String.format("%08d", System.currentTimeMillis() % 100000000L);
     }
 }

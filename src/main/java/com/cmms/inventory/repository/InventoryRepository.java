@@ -14,8 +14,8 @@ import java.util.List;
 @Repository
 public interface InventoryRepository extends JpaRepository<Inventory, InventoryId> {
 
-    Page<Inventory> findByCompanyId(String companyId, Pageable pageable);
+    Page<Inventory> findInventoriesByCompanyId(String companyId, Pageable pageable);
 
     @Query("SELECT i FROM Inventory i WHERE i.companyId = :companyId AND i.siteId = :siteId AND (:storageId IS NULL OR i.storageId = :storageId)")
-    List<Inventory> findByScope(@Param("companyId") String companyId, @Param("siteId") String siteId, @Param("storageId") String storageId);
+    List<Inventory> findInventoriesByScope(@Param("companyId") String companyId, @Param("siteId") String siteId, @Param("storageId") String storageId);
 }

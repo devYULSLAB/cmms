@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "memo")
-@IdClass(MemoIdClass.class)
+@IdClass(MemoId.class)
 @DynamicInsert
 @DynamicUpdate
 public class Memo {

@@ -1,7 +1,7 @@
-package com.cmms10.inventoryMaster.repository;
+package com.cmms.inventory.repository;
 
-import com.cmms10.inventoryMaster.entity.InventoryHistory;
-import com.cmms10.inventoryMaster.entity.InventoryHistoryId;
+import com.cmms.inventory.entity.InventoryHistory;
+import com.cmms.inventory.entity.InventoryHistoryId;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

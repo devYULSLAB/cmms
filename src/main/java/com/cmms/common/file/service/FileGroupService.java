@@ -16,8 +16,8 @@ public class FileGroupService {
     private final IdGeneratorService idGeneratorService;
 
     public FileGroup saveFileGroup(FileGroup fileGroup) {
-        if (fileGroup.getId() == null || fileGroup.getId().isEmpty()) {
-            fileGroup.setId(idGeneratorService.generateId(fileGroup.getCompanyId(), "F"));
+        if (fileGroup.getFileGroupId() == null || fileGroup.getFileGroupId().isEmpty()) {
+            fileGroup.setFileGroupId(idGeneratorService.generateFileGroupId());
         }
         return fileGroupRepository.save(fileGroup);
     }

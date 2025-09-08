@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS user_role (
 -- =========================================================
 CREATE TABLE IF NOT EXISTS id_sequence (
   company_id CHAR(5) NOT NULL,
-  prefix CHAR(1) NOT NULL, -- 1:plant, 2:inventory, 3:inspection, 5:workorder, 7:workflow, 8:file/memo, 9:workpermit
+  prefix CHAR(1) NOT NULL, -- 0:memo, 1:plant, 2:inventory, 3:inspection, 5:workorder, 7:stock, 8:stock tx, 9:workpermit
   next_val BIGINT NOT NULL,
   PRIMARY KEY (company_id, prefix),
   CONSTRAINT fk_idseq_company FOREIGN KEY (company_id) REFERENCES company(company_id)
@@ -283,6 +283,21 @@ CREATE TABLE IF NOT EXISTS stock_tx (
   CONSTRAINT fk_stocktx_site FOREIGN KEY (company_id, site_id) REFERENCES site(company_id, site_id),
   CONSTRAINT fk_stocktx_inv  FOREIGN KEY (company_id, inventory_id) REFERENCES inventory(company_id, inventory_id)
   -- storage_id는 애플리케이션 검증
+);
+
+CREATE TABLE IF NOT EXISTS stock_by_month (
+  company_id CHAR(5) NOT NULL,
+  site_id CHAR(5) NOT NULL,
+  storage_id CHAR(5) NOT NULL,
+  inventory_id CHAR(10) NOT NULL,
+  yyyymm CHAR(6) NOT NULL,
+  closing_qty DECIMAL(18,3) NOT NULL,
+  closing_total_value DECIMAL(18,2) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (company_id, site_id, storage_id, inventory_id, yyyymm),
+  CONSTRAINT fk_stock_by_month_site FOREIGN KEY (company_id, site_id) REFERENCES site(company_id, site_id),
+  CONSTRAINT fk_stock_by_month_storage FOREIGN KEY (company_id, storage_id) REFERENCES storage(company_id, storage_id),
+  CONSTRAINT fk_stock_by_month_inventory FOREIGN KEY (company_id, inventory_id) REFERENCES inventory(company_id, inventory_id)
 );
 
 -- =========================================================
@@ -575,7 +590,7 @@ INSERT INTO dept (company_id, dept_id, dept_name) VALUES
 ('C0001','D0002','예시 부서2'),
 ('C0001','D0003','예시 부서3');
 
-INSERT INTO `user` (company_id, user_id, user_name, password_hash) VALUES
+INSERT INTO user (company_id, user_id, user_name, password_hash) VALUES
 ('C0001','ADMIN','관리자','$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa'),
 ('C0001','U0001','예시 사용자1','$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa'),
 ('C0001','U0002','예시 사용자2','$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDa'),
@@ -614,8 +629,10 @@ INSERT INTO code_type (company_id, code_type, code_type_name) VALUES
 INSERT INTO code (company_id, code_id, code_type, code_name, sort_order) VALUES
 ('C0001','PM001','JOBTP','예방정비',10),
 ('C0001','CM001','JOBTP','돌발정비',20),
+('C0001','CL001','JOBTP','검교정',30),
 ('C0001','EQ001','ASSET','설비',10),
 ('C0001','SP001','ASSET','예비품',20),
+('C0001','TL001','ASSET','계측기',30),
 ('C0001','SL001','DEPRE','정액법',10),
 ('C0001','SLD01','DEPRE','정률법',20),
 ('C0001','WP001','PERMT','화기작업',10),

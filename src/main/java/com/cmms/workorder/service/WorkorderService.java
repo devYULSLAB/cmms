@@ -25,12 +25,12 @@ public class WorkorderService {
     private final IdGeneratorService idGeneratorService;
 
     @Transactional(readOnly = true)
-    public Page<Workorder> findWorkorders(String companyId, Pageable pageable) {
-        return workorderRepository.findByCompanyId(companyId, pageable);
+    public Page<Workorder> getWorkordersByCompanyId(String companyId, Pageable pageable) {
+        return workorderRepository.findWorkordersByCompanyId(companyId, pageable);
     }
 
     @Transactional(readOnly = true)
-    public Workorder findWorkorderById(WorkorderId workorderId) {
+    public Workorder getWorkorderById(WorkorderId workorderId) {
         return workorderRepository.findById(workorderId)
                 .orElseThrow(() -> new RuntimeException("Workorder not found: " + workorderId));
     }
@@ -38,7 +38,7 @@ public class WorkorderService {
     @Transactional
     public Workorder saveWorkorder(Workorder workorder) {
         if (workorder.getWorkorderId() == null || workorder.getWorkorderId().isEmpty()) {
-            workorder.setWorkorderId(idGeneratorService.generateId(workorder.getCompanyId(), "4"));
+            workorder.setWorkorderId(idGeneratorService.generateId(workorder.getCompanyId(), "5"));
         }
 
         List<WorkorderItem> items = workorder.getItems();
@@ -66,12 +66,12 @@ public class WorkorderService {
         if (!workorderRepository.existsById(workorderId)) {
             throw new RuntimeException("Workorder not found with ID: " + workorderId);
         }
-        workorderItemRepository.deleteAll(findWorkorderItems(workorderId.getCompanyId(), workorderId.getWorkorderId()));
+        workorderItemRepository.deleteAll(getWorkorderItemsByCompanyAndWorkorderId(workorderId.getCompanyId(), workorderId.getWorkorderId()));
         workorderRepository.deleteById(workorderId);
     }
 
     @Transactional(readOnly = true)
-    public List<WorkorderItem> findWorkorderItems(String companyId, String workorderId) {
+    public List<WorkorderItem> getWorkorderItemsByCompanyAndWorkorderId(String companyId, String workorderId) {
         return workorderItemRepository.findByCompanyIdAndWorkorderIdOrderByItemIdAsc(companyId, workorderId);
     }
 

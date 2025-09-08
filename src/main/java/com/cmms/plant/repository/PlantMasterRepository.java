@@ -1,4 +1,4 @@
-package com.cmms10.plantMaster.repository;
+package com.cmms.plant.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,18 +8,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.cmms10.plantMaster.entity.PlantMaster;
-import com.cmms10.plantMaster.entity.PlantMasterIdClass;
+import com.cmms.plant.entity.PlantMaster;
+import com.cmms.plant.entity.PlantMasterIdClass;
 
 import java.util.Optional;
 
 import jakarta.persistence.LockModeType;
 
 /**
- * cmms10 - PlantMasterRepository
+ * cmms - PlantMasterRepository
  * 설비 마스터 정보 조회 인터페이스
  * 
- * @author cmms10
+ * @author cmms
  * @since 2024-03-19
  */
 

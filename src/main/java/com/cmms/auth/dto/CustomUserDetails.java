@@ -1,4 +1,4 @@
-package com.cmms10.auth.dto;
+package com.cmms.auth.dto;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User; // Spring Security's User class

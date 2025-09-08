@@ -1,13 +1,13 @@
-package com.cmms10;
+package com.cmms;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Cmms10Application {
+public class CmmsApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Cmms10Application.class, args);
+		SpringApplication.run(CmmsApplication.class, args);
 	}
 
 }

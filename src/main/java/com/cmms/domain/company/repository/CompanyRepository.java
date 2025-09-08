@@ -4,7 +4,9 @@ import com.cmms.domain.company.entity.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface CompanyRepository extends JpaRepository<Company, String> {
-    // Basic CRUD methods are inherited from JpaRepository
+    Optional<Company> findCompanyByCompanyId(String companyId);
 }
