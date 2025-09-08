@@ -1,125 +1,73 @@
 /**
- * 프로그램명: CMMS 모듈 구조 및 역할 안내
- * 기능: 각 모듈별 역할, 디렉터리/패키지/템플릿 구성 가이드
+ * 프로그램명: CMMS 모듈 구조 가이드
+ * 기능: 모듈/패키지, 디렉터리, 환경설정, DB, ID/코드, 로그인 처리 정리
  * 생성자: devYULSLAB
- * 생성일: 2025-02-28
- * 변경일: 2025-01-27 (코드 리뷰 반영)
+ * 생성일: 2025-01-27
+ * 변경일: 2025-03-01 (도메인 기반 companyId 주입 제안)
  */
 
-# CMMS 구조 및 역할 안내
+# CMMS 프로젝트 구조 가이드
 
-## 1. 모듈 개요
-- **cmms**: plant, inventory, inspection(+item_id 2자리), workorder, workpermit, memo, **workflow(결재)**, **domain**, config(security config), auth(로그인 처리), common(공통 기능)
-- common은 하위에 file(fileUploadFragment,fileListFragment),code(code type, code id 관리 )
+## 1. 모듈/패키지
+- 루트 그룹: `com.cmms` (예: `com.cmms.workpermit`)
+- 레이어: controller / service / repository / entity / dto / config / mapper
+- 화면 Controller: `@Controller` + `/resources` (Thymeleaf)
+- API Controller: `@RestController` + `/api/v1/resources` (JSON)
+- 공통 디렉터리: `common/{file}` (재사용 컴포넌트)
+- Domain 모듈: `domain`(회사/사이트/부서/사용자/권한/코드 등 기준정보) **독립 모듈**로 운영
 
-## 2. 디렉토리 구조 
+## 2. 디렉토리 구조
+```
 src/main/java/com/cmms/
-  ├─ plant/{controller,service,repository,entity,dto}  
-      ├─ func/    
+  ├─ plant/{controller,service,repository,entity,dto}
+      ├─ func/
   ├─ inventory/{controller,service,repository,entity,dto}
-      ├─ storage/  
+      ├─ storage/
   ├─ inspection/{controller,service,repository,entity,dto}
   ├─ workorder/{controller,service,repository,entity,dto}
   ├─ workpermit/{controller,service,repository,entity,dto}
   ├─ memo/{controller,service,repository,entity,dto}
   ├─ workflow/{controller,service,repository,entity,dto}
-  ├─ domain/    
+  ├─ domain/
       ├─ {company,site,dept,user,role,use_role}
-  ├─ common/    
+  ├─ common/
       ├─ {file, code, codeType}
 src/main/resources/templates
   ├─ auth/Login.html
-  ├─ layout/defaultLayout.hml
+  ├─ layout/defaultLayout.html
   ├─ {plant,inventory...}
 src/main/resources/messages
+```
 
 ## 3. application.yml
-application.yml, -dev.yml, -prod.yml로 구분 
+- `application.yml`, `application-dev.yml`, `application-prod.yml`로 구분
+- 데이터베이스 및 파일 업로드 설정은 환경변수 또는 외부 설정 사용
+- `cmms.default-company-id` 기본값: `${DEFAULT_COMPANY_ID:C0001}`
 
-spring:
-  # 데이터베이스 설정 (환경변수 또는 외부 설정으로 관리)
-  datasource:
-    url: ${DB_URL:jdbc:mariadb://localhost:3306/cmms}
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
-    driver-class-name: org.mariadb.jdbc.Driver
-cmms:
-  default-company-id: ${DEFAULT_COMPANY_ID:C0001}
-# 파일 업로드 설정
-servlet:
-multipart:
-    max-file-size: 50MB
-    max-request-size: 100MB
-# 파일 업로드 설정
-file:
-upload:
-    root-path: uploads
-    max-file-size: 50MB
-    allowed-file-types: jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx,txt
-    max-file-count: 10    
- 
-## 5. 컨트롤러 규약 요약
-- 화면: `list, form, editForm, detail, save, update, delete`
-- API: `/api/v1/<resources>` CRUD 표준, Page 기본
-- 파일 필드: 도메인 엔티티에 **`file_group_id (CHAR(10))`** 참조 보관
+## 4. 데이터베이스 설정
+- MariaDB 사용, 드라이버 `org.mariadb.jdbc.Driver`
+- 초기 스키마 및 시드 데이터: `db/cmms-schema-migration.sql`
 
-## 6. UI 규칙 요약
-- 제목 계층: 페이지 `<h2>` / 섹션 `<h5>`
-- 버튼: 리스트 `py-1 px-2(또는 px-3)` / 폼 `py-2 px-4`, Primary/Secondary/Danger
-- 파일 프래그먼트 배치:
-  - Form(new): 업로드만
-  - Form(edit): 리스트 + 업로드
-  - Detail: 리스트만(보기 전용)
+## 5. ID 정책 및 코드 관리
+- ID 정책 (CHAR(10), 선두자리 prefix)
+  - 0=memo, 1=plant, 2=inventory, 3=inspection, 5=workorder, 7=stock, 8=stock tx, 9=workpermit
+  - 공통 `id_sequence(company_id, prefix, next_val)`에서 **행 잠금** 후 증가값 사용 → **zero-pad** 10자리 생성
+  - 파일 ID
+    - `file_group_id`: 도메인 레코드 1건당 1개, 'FG'+'8자리 숫자:밀리초 기반'
+    - `file_id`: 그룹 내 개별 파일 식별자, 'FI'+'8자리 숫자'
+    - 저장 파일명 `stored_name` 권장: `file_id.ext`
+  - 결재 ID
+    - `approval_Id`: 'WF' + '8자리 숫자:밀리초 기반'
+    - `template_Id`: 'WT' + '8자리 숫자:밀리초 기반'
+- 코드 관리
+  - `code_type(company_id, code_type)` / `code(company_id, code_id)` (code_id=5자리)
+  - 예: JOBTP(작업유형), ASSET(자산유형), DEPRE(감가유형), PERMT(허가유형)
 
-  ## 7. 로그인 처리 
-  - company_Id 는 application.yml의 default-company-code : C0001 (또는 사용자 설정값) 
-  - Login.html에서 companyId를 받지 말고 userId, password 만 받고 default-company-code를 주입하며, 추후 멀티 테넌트 형식으로 변경 가능하도록만 준비
-  (예시)
-    public interface CompanyIdResolver {
-        String resolve(HttpServletRequest request);
-        }
-
-        @Component
-        @RequiredArgsConstructor
-        class DefaultCompanyIdResolver implements CompanyIdResolver {
-            @Value("${app.default-company-code}")
-            private final String defaultCompanyId;
-
-            @Override
-            public String resolve(HttpServletRequest request) {
-                return defaultCompanyId; // 현재는 항상 C0001
-            }
-        }
---추후 서브도메인 방식으로 바꿀 때는 SubdomainCompanyIdResolver를 만들어 빈 교체만 하면 됩니다.
-<form method="post" action="/login">
-  <input type="text" name="userId" placeholder="User ID" required />
-  <input type="password" name="password" placeholder="Password" required />
-  <button type="submit">Login</button>
-</form>
---
-    @Component
-    @RequiredArgsConstructor
-    public class CompanyUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-
-        private final CompanyIdResolver companyIdResolver;
-
-        public CompanyUsernamePasswordAuthenticationFilter(CompanyIdResolver resolver) {
-            super(new AntPathRequestMatcher("/login", "POST"));
-            this.companyIdResolver = resolver;
-        }
-
-        @Override
-        public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
-                throws AuthenticationException, IOException, ServletException {
-
-            String userId   = req.getParameter("userId");
-            String password = req.getParameter("password");
-            if (userId == null || password == null) {
-                throw new BadCredentialsException("Missing credentials");
-            }
-
-            String companyId = companyIdResolver.resolve(req); // ★ 현재는 C0001
-            var authRequest  = new CompanyUsernamePasswordAuthenticationToken(companyId, userId.trim(), password);
-            return this.getAuthenticationManager().authenticate(authRequest);
-        }
-    }
+## 6. 로그인 처리
+- `company_Id`는 `application.yml`의 `default-company-id` (`C0001`) 사용
+- Login.html에서 `companyId`를 받지 않고 `userId`, `password`만 입력받아 기본 회사코드를 주입
+- 추후 멀티 테넌트 확장을 위해 `CompanyIdResolver` 인터페이스 제공, 구현 교체로 대응 가능
+- 도메인별 회사 구분이 필요한 경우:
+  - `Host` 헤더 또는 서브도메인에서 회사 식별자를 추출하는 `DomainCompanyIdResolver` 구현
+  - 매핑 정보는 DB(`domain_company`) 또는 `application.yml`의 `domain-company-map`에 정의 후 캐싱
+  - 로그인 필터나 컨트롤러에서 `CompanyIdResolver`를 주입받아 `companyId` 결정

@@ -1,4 +1,35 @@
-Plant (설비)
+/**
+ * 프로그램명: CMMS UI 컨텐츠 가이드
+ * 기능: Plant/Inventory/Inspection/Workorder/Workpermit/Memo/Workflow/Domain/CodeType/Code UI 필드 정의 및 공통 규칙
+ * 생성자: devYULSLAB
+ * 생성일: 2025-01-27
+ * 변경일: 2025-03-01 (ui-content-guide 통합)
+ */
+
+# CMMS UI 컨텐츠 가이드
+
+모듈별 UI 규격:
+
+- [설비 (Plant)](#plant-설비)
+- [품목 (Inventory)](#inventory-품목)
+- [점검 (Inspection)](#inspection-점검)
+- [작업지시 (Workorder)](#workorder-작업지시)
+- [작업허가 (Workpermit)](#workpermit-작업허가)
+- [게시판 (Memo)](#memo-게시판)
+- [결재 (Workflow)](#workflow-결재)
+- [기준정보 (Domain)](#domain)
+- [코드타입 (CodeType)](#codetype)
+- [코드 (Code)](#code)
+
+## 공통 UI 규칙
+- ID는 자동발번 필드는 Form에서 readonly(생성 시 서버발번 후 바인딩).
+- Select 소스: code/use_yn='Y' 정렬, 부서/기능/유저는 회사(및 사이트) 필터 반영.
+- 파일 업로드: file_group_id 자동 생성 후 바인딩.
+- 상태값: Inspection/Workorder/Workpermit는 T(임시)→C(확정) 전환 시 수정 제한(관리자만 롤백).
+- List 기본 동작: 검색(키워드/기간/상태), 정렬, 페이징, 내보내기(CSV/XLSX) 옵션.
+
+# Plant (설비)
+
 Form/Detail 섹션
 1) Basic information
 
@@ -60,7 +91,8 @@ List 컬럼
 
 회사ID, 사이트, 설비ID, 설비명, 자산유형, 기능위치, 관리부서, 설치일, 예방/PSM/WP 플래그, 수정일
 
-Inventory (품목)
+# Inventory (품목)
+
 Form/Detail 섹션
 1) Basic information
 
@@ -92,7 +124,8 @@ List 컬럼
 
 회사ID, 품목ID, 품목명, 유형, 관리부서, 제조사, 규격, 수정일
 
-Inspection (점검)
+# Inspection (점검)
+
 Form/Detail 섹션
 1) Basic information
 
@@ -146,7 +179,8 @@ List 컬럼
 
 회사ID, 사이트, 점검ID, 점검명, 설비, 작업유형, 계획일시, 실시일시, 상태, 수정일
 
-Workorder (작업지시)
+# Workorder (작업지시)
+
 Form/Detail 섹션
 1) Basic information
 
@@ -202,7 +236,7 @@ List 컬럼
 
 회사ID, 사이트, 작업지시ID, 작업명, 설비, 작업유형, 계획일, 실시일, 상태, 계획/실적비용, 수정일
 
-Workpermit (작업허가)
+# Workpermit (작업허가)
 
 정책: permit_id는 회사 단위 유일(PK: company_id+permit_id)
 
@@ -263,7 +297,8 @@ List 컬럼
 
 회사ID, 사이트, 허가ID, 허가명, 허가유형, 작업지시, 설비, 기간(시작~종료), 상태, 수정일
 
-Memo (게시판)
+# Memo (게시판)
+
 Form/Detail 섹션
 1) Basic information
 
@@ -303,8 +338,9 @@ List 컬럼
 
 회사ID, 메모ID, 제목, 고정여부, 작성자, 조회수, 수정일
 
-Workflow (결재)
-Template (결재템플릿)
+# Workflow (결재)
+
+## Template (결재템플릿)
 Form/Detail 섹션
 1) Basic information
 
@@ -338,7 +374,7 @@ List 컬럼
 
 회사ID, 템플릿ID, 템플릿명, 사용여부, 단계수, 수정일
 
-Request (결재요청)
+## Request (결재요청)
 Form/Detail 섹션
 1) Basic information
 
@@ -380,8 +416,9 @@ List 컬럼
 
 회사ID, 결재ID, 제목, 템플릿, 상신자, 상태, 수정일
 
-Domain
-Company
+# Domain
+
+## Company
 Form/Detail
 
 [company_id] (회사ID / text / PK)
@@ -396,7 +433,7 @@ List
 
 회사ID, 회사명, 사용여부, 수정일
 
-Site
+## Site
 Form/Detail
 
 [company_id] (hidden)
@@ -413,7 +450,7 @@ List
 
 회사ID, 사이트ID, 사이트명, 사용여부, 수정일
 
-Dept
+## Dept
 Form/Detail
 
 [company_id] (hidden)
@@ -430,7 +467,7 @@ List
 
 회사ID, 부서ID, 부서명, 사용여부, 수정일
 
-User
+## User
 Form/Detail
 
 [company_id] (hidden)
@@ -457,7 +494,7 @@ List
 
 회사ID, 사용자ID, 사용자명, 잠금, 실패횟수, 마지막로그인, 수정일
 
-UserRole (사용자-권한)
+## UserRole (사용자-권한)
 Form/Detail
 
 [company_id] (hidden)
@@ -474,7 +511,8 @@ List
 
 회사ID, 사용자ID, 사용자명, 권한ID, 권한명, 부여일
 
-CodeType
+# CodeType
+
 Form/Detail
 
 [company_id] (hidden)
@@ -493,7 +531,8 @@ List
 
 회사ID, 코드타입, 코드타입명, 사용여부, 정렬, 수정일
 
-Code
+# Code
+
 Form/Detail
 
 [company_id] (hidden)
@@ -515,15 +554,3 @@ PK: (company_id, code_id)
 List
 
 회사ID, 코드ID, 코드명, 코드타입, 사용여부, 정렬, 수정일
-
-공통 UI 규칙(요약)
-
-ID는 자동발번 필드는 Form에서 readonly(생성 시 서버발번 후 바인딩).
-
-Select 소스: code/use_yn='Y' 정렬, 부서/기능/유저는 회사(및 사이트) 필터 반영.
-
-파일 업로드: file_group_id 자동 생성 후 바인딩.
-
-상태값: Inspection/Workorder/Workpermit는 T(임시)→C(확정) 전환 시 수정 제한(관리자만 롤백).
-
-List 기본 동작: 검색(키워드/기간/상태), 정렬, 페이징, 내보내기(CSV/XLSX) 옵션.
