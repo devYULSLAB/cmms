@@ -14,6 +14,6 @@ import java.util.List;
 public class InventoryTransactionForm {
 
     private String siteId;
-    private List<StockTx> stockTxList = new ArrayList<>();
+    private List<StockTx> stockTxs = new ArrayList<>();
 
 }
