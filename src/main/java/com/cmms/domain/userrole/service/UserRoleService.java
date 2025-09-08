@@ -1,12 +1,14 @@
 package com.cmms.domain.userrole.service;
 
 import com.cmms.domain.userrole.entity.UserRole;
+import com.cmms.domain.userrole.entity.UserRoleId;
 import com.cmms.domain.userrole.repository.UserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 /**
  * UserRole Service
@@ -38,7 +40,7 @@ public class UserRoleService {
      * 사용자에게 역할 부여
      */
     public UserRole assignRole(String companyId, String userId, String roleId) {
-        UserRole userRole = new UserRole(companyId, userId, roleId);
+        UserRole userRole = new UserRole(companyId, userId, roleId, LocalDateTime.now());
         return userRoleRepository.save(userRole);
     }
 

@@ -1,9 +1,6 @@
 package com.cmms.workpermit.controller;
 
 import com.cmms.auth.dto.CustomUserDetails;
-import com.cmms.common.service.CommonCodeService;
-import com.cmms.domain.service.DeptService;
-import com.cmms.domain.service.SiteService;
 import com.cmms.workpermit.entity.Workpermit;
 import com.cmms.workpermit.entity.WorkpermitId;
 import com.cmms.workpermit.entity.WorkpermitItem;
@@ -34,7 +31,7 @@ public class WorkpermitController {
 
     @GetMapping("/list")
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model, @PageableDefault(size = 10, sort = "permitId") Pageable pageable) {
-        Page<Workpermit> workpermits = workpermitService.findWorkpermits(userDetails.getCompanyId(), pageable);
+        Page<Workpermit> workpermits = workpermitService.getWorkpermitsByCompanyId(userDetails.getCompanyId(), pageable);
         model.addAttribute("workpermits", workpermits);
         return "workpermit/list";
     }
@@ -55,7 +52,7 @@ public class WorkpermitController {
     @GetMapping("/{permitId}/edit")
     public String editForm(@PathVariable String permitId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         WorkpermitId id = new WorkpermitId(userDetails.getCompanyId(), permitId);
-        Workpermit workpermit = workpermitService.findWorkpermitById(id);
+        Workpermit workpermit = workpermitService.getWorkpermitById(id);
         model.addAttribute("workpermit", workpermit);
         // model.addAttribute("sites", siteService.findAllByCompanyId(userDetails.getCompanyId()));
         // model.addAttribute("permitTypes", commonCodeService.findByCodeType(userDetails.getCompanyId(), "PERMT"));
@@ -74,7 +71,7 @@ public class WorkpermitController {
     @GetMapping("/{permitId}")
     public String detail(@PathVariable String permitId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         WorkpermitId id = new WorkpermitId(userDetails.getCompanyId(), permitId);
-        model.addAttribute("workpermit", workpermitService.findWorkpermitById(id));
+        model.addAttribute("workpermit", workpermitService.getWorkpermitById(id));
         return "workpermit/detail";
     }
 

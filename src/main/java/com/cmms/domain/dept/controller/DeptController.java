@@ -20,7 +20,7 @@ public class DeptController {
 
     @GetMapping("/list")
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
-        model.addAttribute("depts", deptService.findAllByCompanyId(userDetails.getCompanyId()));
+        model.addAttribute("depts", deptService.getDeptsByCompanyId(userDetails.getCompanyId()));
         return "domain/dept/list";
     }
 
@@ -33,7 +33,7 @@ public class DeptController {
     @GetMapping("/{deptId}/edit")
     public String editForm(@PathVariable String deptId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         DeptId id = new DeptId(userDetails.getCompanyId(), deptId);
-        model.addAttribute("dept", deptService.findDeptById(id));
+        model.addAttribute("dept", deptService.getDeptById(id));
         return "domain/dept/form";
     }
 

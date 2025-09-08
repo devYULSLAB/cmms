@@ -1,0 +1,280 @@
+<!-- 파일 업로드 프래그먼트 -->
+<div th:fragment="fileUploadFragment(companyId, moduleName, fileGroupId, maxFileCount, maxTotalMb, accept)"
+    th:id="'fileUploadComponent_' + ${fileGroupId}" class="file-upload-component" th:data-max-files="${maxFileCount}"
+    th:data-max-total-mb="${maxTotalMb}" th:data-accept="${accept}">
+
+    <!-- Hidden Fields -->
+    <input type="hidden" th:id="'companyId_' + ${fileGroupId}" th:value="${companyId}" />
+    <input type="hidden" th:id="'moduleName_' + ${fileGroupId}" th:value="${moduleName}" />
+    <input type="hidden" th:id="'fileGroupId_' + ${fileGroupId}" th:value="${fileGroupId != null ? fileGroupId : ''}" />
+
+    <!-- File Upload Button -->
+    <div style="margin-bottom: 15px;">
+        <input type="file" th:id="'fileInput_' + ${fileGroupId}" multiple style="display: none;"
+            th:attr="accept=${accept}" />
+        <button type="button"
+            style="background-color: #007bff; color: white; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.8em; border: none;"
+            th:data-file-group-id="${fileGroupId}" th:disabled="${fileGroupId == null || fileGroupId == ''}"
+            th:style="${fileGroupId == null || fileGroupId == ''} ? 'background-color: #ccc; color: #666; padding: 8px 16px; border-radius: 4px; cursor: not-allowed; font-size: 0.8em; border: none;' : 'background-color: #007bff; color: white; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.8em; border: none;'">
+            파일 첨부
+        </button>
+        <span style="font-size: 0.8em; color: #666; margin-left: 10px;"
+            th:text="'최대 ' + ${maxFileCount} + '개 파일, 총 용량 ' + ${maxTotalMb} + ' 이하'">
+            최대 파일 개수 및 크기 제한</span>
+    </div>
+
+    <!-- File List -->
+    <div th:id="'fileList_' + ${fileGroupId}" style="margin-top: 15px;">
+        <div th:id="'noFiles_' + ${fileGroupId}"
+            style="text-align: center; color: #666; padding: 20px; border: 1px dashed #ccc; border-radius: 4px; background-color: #f9f9f9;">
+            첨부된 파일이 없습니다.
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script th:inline="javascript">
+        // 파일 업로드 관련 JavaScript 함수들
+        function selectFiles(fileGroupId) {
+            if (!fileGroupId || fileGroupId.trim() === '') {
+                alert('먼저 저장 후 파일을 첨부하세요.');
+                return;
+            }
+            document.getElementById('fileInput_' + fileGroupId).click();
+        }
+
+        function handleFileSelect(fileGroupId) {
+            if (!fileGroupId || fileGroupId.trim() === '') {
+                alert('먼저 저장 후 파일을 첨부하세요.');
+                return;
+            }
+
+            const fileInput = document.getElementById('fileInput_' + fileGroupId);
+            const files = fileInput.files;
+
+            if (files.length > 0) {
+                uploadFiles(fileGroupId, files);
+            }
+        }
+
+        function uploadFiles(fileGroupId, files) {
+            if (!fileGroupId || fileGroupId.trim() === '') {
+                alert('먼저 저장 후 파일을 첨부하세요.');
+                return;
+            }
+
+            const moduleName = document.getElementById('moduleName_' + fileGroupId).value;
+            const companyId = document.getElementById('companyId_' + fileGroupId).value;
+            const component = document.getElementById('fileUploadComponent_' + fileGroupId);
+            const maxFiles = parseInt(component.dataset.maxFiles || '0', 10);
+            const maxTotalMb = parseFloat(component.dataset.maxTotalMb || '0');
+
+            const fileList = document.getElementById('fileList_' + fileGroupId);
+            const existingFiles = fileList.querySelectorAll('[data-file-id]');
+
+            if (existingFiles.length + files.length > maxFiles) {
+                alert(`최대 ${maxFiles}개의 파일만 첨부할 수 있습니다.`);
+                return;
+            }
+
+            let currentSize = 0;
+            existingFiles.forEach(item => {
+                currentSize += parseInt(item.getAttribute('data-file-size') || '0', 10);
+            });
+            let newSize = Array.from(files).reduce((sum, f) => sum + f.size, 0);
+            if ((currentSize + newSize) > maxTotalMb * 1024 * 1024) {
+                alert(`총 파일 용량은 ${maxTotalMb}MB를 초과할 수 없습니다.`);
+                return;
+            }
+
+            console.log('Uploading files:', {
+                fileGroupId: fileGroupId,
+                moduleName: moduleName,
+                companyId: companyId,
+                fileCount: files.length
+            });
+
+            Array.from(files).forEach((file) => {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('fileGroupId', fileGroupId);
+                formData.append('moduleName', moduleName);
+
+                console.log('Sending file:', file.name, 'size:', file.size);
+
+                fetch('/file/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error('HTTP ' + response.status + ': ' + text);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Upload success:', data);
+                        if (data.success) {
+                            addFileToList(fileGroupId, data.fileData);
+                        } else {
+                            alert('파일 업로드 실패: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Upload error:', error);
+                        alert('파일 업로드 중 오류가 발생했습니다: ' + error.message);
+                    });
+            });
+        }
+
+        function addFileToList(fileGroupId, fileData) {
+            const fileList = document.getElementById('fileList_' + fileGroupId);
+            const noFilesDiv = document.getElementById('noFiles_' + fileGroupId);
+
+            // "파일이 없습니다" 메시지 숨기기
+            if (noFilesDiv) {
+                noFilesDiv.style.display = 'none';
+            }
+
+            const fileItem = document.createElement('div');
+            fileItem.setAttribute('data-file-id', fileData.fileId);
+            fileItem.setAttribute('data-file-size', fileData.fileSize);
+            fileItem.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin: 5px 0; background-color: white;';
+
+            const fileSize = formatFileSize(fileData.fileSize);
+
+            fileItem.innerHTML = `
+                <div style="flex: 1; margin-right: 10px;">${fileData.originalFileName}</div>
+                <div style="color: #666; font-size: 0.9em; margin-right: 10px;">${fileSize}</div>
+                <div style="display: flex; gap: 5px;">
+                    <button type="button" style="background-color: #28a745; color: white; padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8em;" onclick="downloadFile('${fileData.fileId}')">
+                        다운로드
+                    </button>
+                    <button type="button" style="background-color: #dc3545; color: white; padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8em;" onclick="deleteFile('${fileData.fileId}', '${fileGroupId}')">
+                        삭제
+                    </button>
+                </div>
+            `;
+
+            fileList.appendChild(fileItem);
+        }
+
+        function downloadFile(fileId) {
+            window.open('/file/download/' + fileId, '_blank');
+        }
+
+        function deleteFile(fileId, fileGroupId) {
+            if (confirm('파일을 삭제하시겠습니까?')) {
+                fetch('/file/delete/' + fileId, {
+                    method: 'DELETE'
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            const fileItem = document.querySelector(`[data-file-id="${fileId}"]`);
+                            if (fileItem) {
+                                fileItem.remove();
+
+                                // 파일 목록이 비어있으면 "파일이 없습니다" 메시지 표시
+                                const fileList = document.getElementById('fileList_' + fileGroupId);
+                                const remainingFiles = fileList.querySelectorAll('[data-file-id]');
+                                if (remainingFiles.length === 0) {
+                                    const noFilesDiv = document.getElementById('noFiles_' + fileGroupId);
+                                    if (noFilesDiv) {
+                                        noFilesDiv.style.display = 'block';
+                                    }
+                                }
+                            }
+                        } else {
+                            alert('파일 삭제 실패');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('파일 삭제 중 오류가 발생했습니다.');
+                    });
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function loadExistingFiles(fileGroupId) {
+            if (!fileGroupId || fileGroupId.trim() === '') {
+                return;
+            }
+
+            fetch('/file/list/' + fileGroupId)
+                .then(response => response.json())
+                .then(files => {
+                    if (files && files.length > 0) {
+                        files.forEach(file => {
+                            addFileToList(fileGroupId, file);
+                        });
+                    } else {
+                        // 파일이 없으면 "파일이 없습니다" 메시지 표시
+                        const noFilesDiv = document.getElementById('noFiles_' + fileGroupId);
+                        if (noFilesDiv) {
+                            noFilesDiv.style.display = 'block';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading files:', error);
+                    // 에러 발생 시에도 "파일이 없습니다" 메시지 표시
+                    const noFilesDiv = document.getElementById('noFiles_' + fileGroupId);
+                    if (noFilesDiv) {
+                        noFilesDiv.style.display = 'block';
+                    }
+                });
+        }
+
+        // 파일 입력 이벤트 설정
+        function setupFileInput(fileGroupId) {
+            const fileInput = document.getElementById('fileInput_' + fileGroupId);
+            const component = document.getElementById('fileUploadComponent_' + fileGroupId);
+
+            if (!fileGroupId || fileGroupId.trim() === '') {
+                return;
+            }
+
+            if (component && component.dataset.accept) {
+                fileInput.setAttribute('accept', component.dataset.accept);
+            }
+
+            fileInput.addEventListener('change', function () {
+                handleFileSelect(fileGroupId);
+            });
+        }
+
+        // 페이지 로드 시 파일 입력 설정 및 기존 파일 로드
+        document.addEventListener('DOMContentLoaded', function () {
+            // 모든 파일 업로드 컴포넌트에 대해 파일 입력 설정
+            const fileGroupIds = document.querySelectorAll('[id^="fileGroupId_"]');
+            fileGroupIds.forEach(element => {
+                const fileGroupId = element.value;
+                setupFileInput(fileGroupId);
+
+                // 기존 파일 목록 로드
+                if (fileGroupId && fileGroupId.trim() !== '') {
+                    loadExistingFiles(fileGroupId);
+                }
+            });
+
+            // 파일 첨부 버튼 이벤트 리스너 설정
+            const uploadButtons = document.querySelectorAll('[data-file-group-id]');
+            uploadButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const fileGroupId = this.getAttribute('data-file-group-id');
+                    selectFiles(fileGroupId);
+                });
+            });
+        });
+    </script>
+</div>

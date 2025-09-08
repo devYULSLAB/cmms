@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title th:text="${code.id == null} ? #{code.form.title.create} : #{code.form.title.edit}">Code Form</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <h1 class="text-3xl font-bold text-gray-800 mb-6"
+                th:text="${code.id == null} ? #{code.form.header.create} : #{code.form.header.edit}">
+                Create Code
+            </h1>
+
+            <form th:action="@{/code/save}" th:object="${code}" method="post" class="space-y-8 max-w-lg">
+                <input type="hidden" th:field="*{company_id}" />
+                <input type="hidden" th:field="*{code_type}" />
+
+                <div class="form-section">
+                    <div class="grid grid-cols-1 gap-6">
+                        <div class="form-group">
+                            <label for="code_type_display" class="form-label" th:text="#{code.type.name}">Code Type</label>
+                            <input type="text" id="code_type_display" th:value="*{code_type}" class="form-input bg-gray-100" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label for="id" class="form-label" th:text="#{code.id}">ID</label>
+                            <input type="text" id="id" th:field="*{id}" class="form-input" th:readonly="${code.id != null}" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="name" class="form-label" th:text="#{code.name}">Name</label>
+                            <input type="text" id="name" th:field="*{name}" class="form-input" required />
+                        </div>
+                         <div class="form-group">
+                            <label for="description" class="form-label" th:text="#{code.description}">Description</label>
+                            <textarea id="description" th:field="*{description}" class="form-textarea" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end space-x-4 pt-4 border-t">
+                    <a th:href="@{/code/list(type=*{code_type})}" class="btn-secondary" th:text="#{common.button.cancel}">Cancel</a>
+                    <button type="submit" class="btn-primary" th:text="#{common.button.save}">Save Code</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

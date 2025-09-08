@@ -26,7 +26,7 @@ public class WorkflowController {
     // == Template Views ==
     @GetMapping("/templates")
     public String listTemplates(@AuthenticationPrincipal CustomUserDetails userDetails, Model model, Pageable pageable) {
-        Page<ApprovalTemplate> templates = workflowService.findTemplates(userDetails.getCompanyId(), pageable);
+        Page<ApprovalTemplate> templates = workflowService.getTemplatesByCompanyId(userDetails.getCompanyId(), pageable);
         model.addAttribute("templates", templates);
         return "workflow/template-list";
     }
@@ -47,7 +47,7 @@ public class WorkflowController {
     // == Request Views ==
     @GetMapping("/requests")
     public String listRequests(@AuthenticationPrincipal CustomUserDetails userDetails, Model model, Pageable pageable) {
-        Page<ApprovalRequest> requests = workflowService.findRequests(userDetails.getCompanyId(), pageable);
+        Page<ApprovalRequest> requests = workflowService.getRequestsByCompanyId(userDetails.getCompanyId(), pageable);
         model.addAttribute("requests", requests);
         return "workflow/request-list";
     }
@@ -55,7 +55,7 @@ public class WorkflowController {
     @GetMapping("/request/{approvalId}")
     public String requestDetail(@PathVariable String approvalId, @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         ApprovalRequestId id = new ApprovalRequestId(userDetails.getCompanyId(), approvalId);
-        model.addAttribute("request", workflowService.findRequestById(id));
+        model.addAttribute("request", workflowService.getRequestById(id));
         return "workflow/request-detail";
     }
 }

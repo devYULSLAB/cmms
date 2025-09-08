@@ -33,11 +33,15 @@ public class FileAttachmentController {
     @ResponseBody
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file,
                                         @RequestParam("fileGroupId") String fileGroupId,
-                                        @RequestParam("module") String module,
+                                        @RequestParam("moduleName") String moduleName,
                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
-            FileAttachment attachment = fileAttachmentService.storeFile(file, userDetails.getCompanyId(), fileGroupId, module);
-            return ResponseEntity.ok(Map.of("success", true, "file", attachment));
+            FileAttachment attachment = fileAttachmentService.storeFile(file, userDetails.getCompanyId(), fileGroupId, moduleName);
+            return ResponseEntity.ok(Map.of("success", true, "fileData", Map.of(
+                "fileId", attachment.getId().getFileId(),
+                "originalFileName", attachment.getOriginalName(),
+                "fileSize", attachment.getFileSize()
+            )));
         } catch (IOException e) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Failed to upload file."));
         }
@@ -54,21 +58,20 @@ public class FileAttachmentController {
     @GetMapping("/download/{fileId}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         FileAttachmentId id = new FileAttachmentId(userDetails.getCompanyId(), fileId);
-        // This is a simplified lookup. A proper implementation would find the entity first.
-        // For now, assuming the service can handle this.
-        // FileAttachment fileAttachment = fileAttachmentService.getFileById(id);
-        // Path filePath = Paths.get(fileAttachment.getStoragePath());
-        // try {
-        //     Resource resource = new UrlResource(filePath.toUri());
-        //     if (resource.exists() && resource.isReadable()) {
-        //         return ResponseEntity.ok()
-        //                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileAttachment.getOriginalName() + "\"")
-        //                 .contentType(MediaType.parseMediaType(fileAttachment.getMimeType()))
-        //                 .body(resource);
-        //     }
-        // } catch (MalformedURLException e) {
-        //     // ignore
-        // }
+        try {
+            FileAttachment fileAttachment = fileAttachmentService.getFileById(id);
+            Path filePath = Paths.get(fileAttachment.getStoragePath());
+            Resource resource = new UrlResource(filePath.toUri());
+            
+            if (resource.exists() && resource.isReadable()) {
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileAttachment.getOriginalName() + "\"")
+                        .contentType(MediaType.parseMediaType(fileAttachment.getMimeType()))
+                        .body(resource);
+            }
+        } catch (MalformedURLException e) {
+            // ignore
+        }
         return ResponseEntity.notFound().build();
     }
 

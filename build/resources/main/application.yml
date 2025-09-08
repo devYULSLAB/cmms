@@ -1,0 +1,80 @@
+# ===================================================================
+# Standard Spring Boot properties
+# ===================================================================
+
+# Spring Boot 기본 설정
+spring:
+
+  # JPA / Hibernate
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate # Use 'validate' for production-like environments
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        dialect: ${DB_DIALECT:org.hibernate.dialect.MariaDBDialect}
+        connection.isolation: 2 # READ_COMMITTED
+  
+  # Thymeleaf
+  thymeleaf:
+    cache: false # Disable caching for development
+    mode: HTML
+    encoding: UTF-8
+    servlet:
+      content-type: text/html
+    prefix: classpath:/templates/
+    suffix: .html
+
+  # Messages
+  messages:
+    basename: messages/messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+    default-locale: ko
+  
+  # Web
+  web:
+    locale: ko
+    locale-resolver: fixed
+  
+  # File Upload
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+
+# Server
+server:
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  tomcat:
+    max-http-form-post-size: 100MB
+
+# Logging
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    # org.hibernate.type.descriptor.sql.BasicBinder: TRACE # Uncomment to see bind parameters
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# ===================================================================
+# Custom application properties
+# ===================================================================
+cmms:
+  default-company-id: ${DEFAULT_COMPANY_ID:C0001}
+
+# File Upload Settings
+file:
+  upload:
+    root-path: uploads
+    max-file-size: 50MB
+    allowed-file-types: jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx,txt
+    max-file-count: 10

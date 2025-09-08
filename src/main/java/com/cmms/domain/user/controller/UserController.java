@@ -24,7 +24,7 @@ public class UserController {
 
     @GetMapping("/list")
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
-        model.addAttribute("users", userService.findAllByCompanyId(userDetails.getCompanyId()));
+        model.addAttribute("users", userService.getUsersByCompanyId(userDetails.getCompanyId()));
         return "domain/user/userList";
     }
 
@@ -37,7 +37,7 @@ public class UserController {
     @GetMapping("/{userId}/edit")
     public String editForm(@PathVariable String userId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         UserId id = new UserId(userDetails.getCompanyId(), userId);
-        model.addAttribute("user", userService.findUserById(id));
+        model.addAttribute("user", userService.getUserById(id));
         return "domain/user/userForm";
     }
 

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/defaultLayout}">
+<head>
+    <title>재고 원장</title>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body, .printable-area { background-color: white !important; }
+            .printable-area { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 printable-area">
+
+        <!-- Page Header -->
+        <div class="flex justify-between items-center mb-6 no-print">
+            <h1 class="text-3xl font-bold text-gray-800">재고 원장</h1>
+            <button onclick="window.print()" class="btn-secondary">출력</button>
+        </div>
+
+        <!-- Search Form -->
+        <div class="bg-white shadow-md rounded-lg p-6 mb-6 no-print">
+            <form th:action="@{/inventory/ledger}" method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div class="form-group">
+                    <label for="siteId" class="form-label">사이트</label>
+                    <select id="siteId" name="siteId" class="form-select">
+                        <option value="">전체</option>
+                        <!-- Options to be populated from model -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="storageId" class="form-label">창고</label>
+                    <select id="storageId" name="storageId" class="form-select">
+                        <option value="">전체</option>
+                        <!-- Options to be populated from model -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="inventoryId" class="form-label">품목 ID</label>
+                    <input type="text" id="inventoryId" name="inventoryId" class="form-input" th:value="${param.inventoryId != null ? param.inventoryId[0] : ''}">
+                </div>
+                <div class="form-group">
+                    <label for="startDate" class="form-label">조회 시작일</label>
+                    <input type="date" id="startDate" name="startDate" class="form-input" th:value="${param.startDate != null ? param.startDate[0] : ''}">
+                </div>
+                <div class="form-group">
+                    <label for="endDate" class="form-label">조회 종료일</label>
+                    <input type="date" id="endDate" name="endDate" class="form-input" th:value="${param.endDate != null ? param.endDate[0] : ''}">
+                </div>
+                <div class="md:col-start-4">
+                    <button type="submit" class="btn-primary w-full">조회</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Data Table -->
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="th-style">품목 ID</th>
+                    <th class="th-style">품목명</th>
+                    <th class="th-style text-right">기초 재고</th>
+                    <th class="th-style text-right">입고</th>
+                    <th class="th-style text-right">출고</th>
+                    <th class="th-style text-right">조정</th>
+                    <th class="th-style text-right">기말 재고</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <tr th:each="row : ${ledgerData}">
+                    <td class="td-style" th:text="${row.inventoryId}"></td>
+                    <td class="td-style" th:text="${row.itemName}"></td>
+                    <td class="td-style text-right" th:text="${#numbers.formatDecimal(row.beginningQty,1,'COMMA',3,'POINT')}"></td>
+                    <td class="td-style text-right" th:text="${#numbers.formatDecimal(row.receivedQty,1,'COMMA',3,'POINT')}"></td>
+                    <td class="td-style text-right" th:text="${#numbers.formatDecimal(row.issuedQty,1,'COMMA',3,'POINT')}"></td>
+                    <td class="td-style text-right" th:text="${#numbers.formatDecimal(row.adjustedQty,1,'COMMA',3,'POINT')}"></td>
+                    <td class="td-style text-right" th:text="${#numbers.formatDecimal(row.endingQty,1,'COMMA',3,'POINT')}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(ledgerData)}">
+                    <td colspan="7" class="text-center py-4">조회된 데이터가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

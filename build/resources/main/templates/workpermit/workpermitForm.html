@@ -1,0 +1,159 @@
+<!-- workPermitForm.html -->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title th:text="${workpermit.permit_id == null} ? #{workpermit.form.title.create} : #{workpermit.form.title.edit}">Work Permit Form</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <h1 class="text-3xl font-bold text-gray-800 mb-6"
+                th:text="${workpermit.permit_id == null} ? #{workpermit.form.header.create} : #{workpermit.form.header.edit}">
+                Create Work Permit
+            </h1>
+
+            <form th:action="@{/workpermit/save}" th:object="${workpermit}" method="post" class="space-y-8" onsubmit="return collectAllFormData()">
+                <input type="hidden" th:field="*{company_id}" />
+                <input type="hidden" th:field="*{permit_id}" />
+
+                <!-- Main Details Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{workpermit.form.section.details}">Permit Details</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="form-group">
+                            <label for="permit_name" class="form-label" th:text="#{workpermit.name}">Permit Name</label>
+                            <input type="text" id="permit_name" th:field="*{permit_name}" class="form-input" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="plant_id" class="form-label" th:text="#{workpermit.plantId}">Plant</label>
+                             <select id="plant_id" th:field="*{plant_id}" class="form-select" required>
+                                <option value="" th:text="#{common.select.placeholder}">Select a plant...</option>
+                                <option th:each="plant : ${plants}" th:value="${plant.plant_id}" th:text="${plant.plant_name}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="permit_type" class="form-label" th:text="#{workpermit.permitType}">Permit Type</label>
+                            <select id="permit_type" th:field="*{permit_type}" class="form-select" required>
+                                <option value="" th:text="#{common.select.placeholder}">Select a type...</option>
+                                <option th:each="pt : ${permitTypes}" th:value="${pt.id}" th:text="${pt.name}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="start_date" class="form-label" th:text="#{workpermit.startDate}">Start Date</label>
+                            <input type="date" id="start_date" th:field="*{start_date}" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label for="end_date" class="form-label" th:text="#{workpermit.endDate}">End Date</label>
+                            <input type="date" id="end_date" th:field="*{end_date}" class="form-input" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{workpermit.form.section.description}">Description</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group">
+                            <label for="work_desc" class="form-label" th:text="#{workpermit.workDesc}">Work Description</label>
+                            <textarea id="work_desc" th:field="*{work_desc}" class="form-textarea" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="safety_measure" class="form-label" th:text="#{workpermit.safetyMeasure}">Safety Measures</label>
+                            <textarea id="safety_measure" th:field="*{safety_measure}" class="form-textarea" rows="4"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Signatures Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{workpermit.form.section.signatures}">Signatures</h2>
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="th-style w-16" th:text="#{workpermit.item.order}">Order</th>
+                                <th class="th-style" th:text="#{workpermit.item.signerName}">Signer Name</th>
+                                <th class="th-style w-80" th:text="#{workpermit.item.signature}">Signature</th>
+                                <th class="th-style w-32 no-print" th:text="#{common.action}">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="signatures-tbody">
+                            <tr th:each="item, iterStat : *{items}">
+                                <td class="td-style text-center" th:text="${iterStat.count}"></td>
+                                <td class="td-style"><input type="text" th:field="*{items[__${iterStat.index}__].signer_name}" class="form-input-sm" required /></td>
+                                <td class="td-style"><canvas class="signature-canvas" width="250" height="80"></canvas><input type="hidden" th:field="*{items[__${iterStat.index}__].signature}" /></td>
+                                <td class="td-style no-print"><button type="button" class="btn-danger-outline" onclick="this.closest('tr').remove()">Remove</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="flex justify-start mt-4 no-print">
+                        <button type="button" onclick="addSignerRow()" class="btn-secondary" th:text="#{common.button.addRow}">Add Signer</button>
+                    </div>
+                </div>
+
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end space-x-4 pt-4 border-t">
+                    <a th:href="@{/workpermit/list}" class="btn-secondary" th:text="#{common.button.cancel}">Cancel</a>
+                    <button type="submit" class="btn-primary" th:text="#{common.button.save}">Save Work Permit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <th:block layout:fragment="page-js">
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const signatureTbody = document.getElementById('signatures-tbody');
+
+                // Initialize existing signature pads
+                signatureTbody.querySelectorAll('.signature-canvas').forEach(initSignaturePad);
+            });
+
+            function addSignerRow() {
+                const tbody = document.getElementById('signatures-tbody');
+                const index = tbody.rows.length;
+                const newRow = tbody.insertRow();
+                newRow.innerHTML = `
+                    <td class="td-style text-center">${index + 1}</td>
+                    <td class="td-style"><input type="text" name="items[${index}].signer_name" class="form-input-sm" required /></td>
+                    <td class="td-style"><canvas class="signature-canvas" width="250" height="80"></canvas><input type="hidden" name="items[${index}].signature" /></td>
+                    <td class="td-style no-print"><button type="button" class="btn-danger-outline" onclick="this.closest('tr').remove()">Remove</button></td>
+                `;
+                initSignaturePad(newRow.querySelector('.signature-canvas'));
+            }
+
+            function initSignaturePad(canvas) {
+                // Simplified signature pad logic for brevity
+                const ctx = canvas.getContext('2d');
+                let drawing = false;
+                canvas.addEventListener('mousedown', () => drawing = true);
+                canvas.addEventListener('mouseup', () => drawing = false);
+                canvas.addEventListener('mousemove', (e) => {
+                    if (!drawing) return;
+                    ctx.lineWidth = 2;
+                    ctx.lineCap = 'round';
+                    ctx.lineTo(e.offsetX, e.offsetY);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(e.offsetX, e.offsetY);
+                });
+            }
+
+            function collectAllFormData() {
+                // Collect signature data
+                document.querySelectorAll('.signature-canvas').forEach((canvas, index) => {
+                    const hiddenInput = canvas.nextElementSibling;
+                    if (hiddenInput) {
+                        hiddenInput.value = canvas.toDataURL('image/png');
+                    }
+                });
+
+                return true; // Allow form submission
+            }
+        </script>
+    </th:block>
+</body>
+</html>

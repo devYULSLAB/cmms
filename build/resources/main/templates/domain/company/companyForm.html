@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title th:text="${company.id == null} ? #{company.form.title.create} : #{company.form.title.edit}">Company Form</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <h1 class="text-3xl font-bold text-gray-800 mb-6"
+                th:text="${company.id == null} ? #{company.form.header.create} : #{company.form.header.edit}">
+                Create Company
+            </h1>
+
+            <form th:action="@{/domain/company/save}" th:object="${company}" method="post" class="space-y-8 max-w-lg">
+
+                <div class="form-section">
+                     <div class="grid grid-cols-1 gap-6">
+                        <div class="form-group">
+                            <label for="id" class="form-label" th:text="#{company.id}">ID</label>
+                            <input type="text" id="id" th:field="*{id}" class="form-input" th:readonly="${company.id != null}" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="name" class="form-label" th:text="#{company.name}">Name</label>
+                            <input type="text" id="name" th:field="*{name}" class="form-input" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="address" class="form-label" th:text="#{company.address}">Address</label>
+                            <textarea id="address" th:field="*{address}" class="form-textarea" rows="3"></textarea>
+                        </div>
+                         <div class="form-group">
+                            <label for="note" class="form-label" th:text="#{company.note}">Note</label>
+                            <textarea id="note" th:field="*{note}" class="form-textarea" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end space-x-4 pt-4 border-t">
+                    <a th:href="@{/domain/company/list}" class="btn-secondary" th:text="#{common.button.cancel}">Cancel</a>
+                    <button type="submit" class="btn-primary" th:text="#{common.button.save}">Save Company</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

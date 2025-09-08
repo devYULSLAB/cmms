@@ -21,6 +21,9 @@ public class FileAttachment {
     @EmbeddedId
     private FileAttachmentId id;
 
+    @Column(name = "company_id", length = 5, nullable = false, insertable = false, updatable = false)
+    private String companyId;
+
     @Column(name = "file_group_id", length = 10, nullable = false)
     private String fileGroupId;
 

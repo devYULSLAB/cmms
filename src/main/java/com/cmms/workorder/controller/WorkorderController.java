@@ -1,9 +1,6 @@
 package com.cmms.workorder.controller;
 
 import com.cmms.auth.dto.CustomUserDetails;
-import com.cmms.common.service.CommonCodeService;
-import com.cmms.domain.service.DeptService;
-import com.cmms.domain.service.SiteService;
 import com.cmms.workorder.entity.Workorder;
 import com.cmms.workorder.entity.WorkorderId;
 import com.cmms.workorder.entity.WorkorderItem;
@@ -27,14 +24,10 @@ import java.util.List;
 public class WorkorderController {
 
     private final WorkorderService workorderService;
-    // Assuming other services will be refactored and injected
-    // private final SiteService siteService;
-    // private final DeptService deptService;
-    // private final CommonCodeService commonCodeService;
 
     @GetMapping("/list")
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model, @PageableDefault(size = 10, sort = "workorderId") Pageable pageable) {
-        Page<Workorder> workorders = workorderService.findWorkorders(userDetails.getCompanyId(), pageable);
+        Page<Workorder> workorders = workorderService.getWorkordersByCompanyId(userDetails.getCompanyId(), pageable);
         model.addAttribute("workorders", workorders);
         return "workorder/list";
     }
@@ -55,7 +48,7 @@ public class WorkorderController {
     @GetMapping("/{workorderId}/edit")
     public String editForm(@PathVariable String workorderId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         WorkorderId id = new WorkorderId(userDetails.getCompanyId(), workorderId);
-        Workorder workorder = workorderService.findWorkorderById(id);
+        Workorder workorder = workorderService.getWorkorderById(id);
         model.addAttribute("workorder", workorder);
         // model.addAttribute("sites", siteService.findAllByCompanyId(userDetails.getCompanyId()));
         // model.addAttribute("jobTypes", commonCodeService.findByCodeType(userDetails.getCompanyId(), "JOBTP"));
@@ -74,7 +67,7 @@ public class WorkorderController {
     @GetMapping("/{workorderId}")
     public String detail(@PathVariable String workorderId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         WorkorderId id = new WorkorderId(userDetails.getCompanyId(), workorderId);
-        model.addAttribute("workorder", workorderService.findWorkorderById(id));
+        model.addAttribute("workorder", workorderService.getWorkorderById(id));
         return "workorder/detail";
     }
 

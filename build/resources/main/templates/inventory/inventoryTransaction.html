@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title th:text="#{inventoryTransaction}">재고 거래</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 py-8">
+            <h2 class="text-2xl font-bold mb-4" th:text="#{inventoryTransaction}">재고 거래</h2>
+
+            <!-- 메시지 표시 -->
+            <div th:if="${successMessage}" class="p-3 mb-4 text-green-800 bg-green-100 rounded">
+                <span th:text="${successMessage}"></span>
+            </div>
+            <div th:if="${errorMessage}" class="p-3 mb-4 text-red-800 bg-red-100 rounded">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- 탭 네비게이션 -->
+            <div class="mb-6">
+                <nav class="flex space-x-1 bg-white p-1 rounded-lg">
+                    <button
+                        class="tab-button px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 active"
+                        data-tab="inbound">입고</button>
+                    <button class="tab-button px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                        data-tab="outbound">출고</button>
+                    <button class="tab-button px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                        data-tab="movement">이동</button>
+                    <button class="tab-button px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                        data-tab="adjustment">조정</button>
+                </nav>
+            </div>
+
+            <!-- 사이트 선택 -->
+            <div class="mb-6">
+                <label for="siteId" class="block text-sm font-medium text-gray-700 mb-2">사이트</label>
+                <select id="siteId" name="siteId"
+                    class="w-full max-w-xs border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="" th:text="#{select}">-- 선택 --</option>
+                    <option th:each="site : ${sites}" th:value="${site.siteId}" th:text="${site.siteName}">사이트명</option>
+                </select>
+            </div>
+
+            <!-- 입고 탭 -->
+            <div id="inbound-tab" class="tab-content">
+                <form th:action="@{/inventory/stock/IN}" method="post" class="space-y-6">
+                    <input type="hidden" name="siteId" class="site-id-hidden" />
+                    <div class="bg-white shadow-md rounded-lg p-6">
+                        <h3 class="text-xl font-semibold mb-4" th:text="#{inventory.tx.inboundTitle}">Stock Inbound</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="th-style w-12"><input type="checkbox" class="select-all-checkbox" data-table="inboundTableBody" /></th>
+                                        <th class="th-style" th:text="#{inventory.id}">Item ID</th>
+                                        <th class="th-style" th:text="#{inventory.name}">Item Name</th>
+                                        <th class="th-style" th:text="#{inventory.tx.toLocation}">To Storage</th>
+                                        <th class="th-style" th:text="#{inventory.qty}">Quantity</th>
+                                        <th class="th-style" th:text="#{inventory.price}">Unit Price</th>
+                                        <th class="th-style" th:text="#{inventory.tx.total}">Total</th>
+                                        <th class="th-style" th:text="#{inventory.note}">Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inboundTableBody" class="divide-y divide-gray-200">
+                                    <!-- Rows added dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="flex justify-between mt-4">
+                            <button type="button" onclick="addRow('inbound')" class="btn-secondary" th:text="#{common.button.addRow}">Add Row</button>
+                            <button type="button" onclick="deleteSelectedRows('inboundTableBody')" class="btn-danger-outline" th:text="#{common.button.deleteSelected}">Delete Selected</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-4 pt-4 border-t">
+                        <a th:href="@{/inventory/list}" class="btn-secondary" th:text="#{common.button.cancel}">Cancel</a>
+                        <button type="submit" class="btn-primary" th:text="#{common.button.save}">Save Inbound</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 출고 탭 -->
+            <div id="outbound-tab" class="tab-content hidden">
+                <form th:action="@{/inventory/stock/OUT}" method="post" class="space-y-6">
+                    <input type="hidden" name="siteId" class="site-id-hidden" />
+                    <div class="bg-white shadow-md rounded-lg p-6">
+                        <h3 class="text-xl font-semibold mb-4" th:text="#{inventory.tx.outboundTitle}">Stock Outbound</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="th-style w-12"><input type="checkbox" class="select-all-checkbox" data-table="outboundTableBody" /></th>
+                                        <th class="th-style" th:text="#{inventory.id}">Item ID</th>
+                                        <th class="th-style" th:text="#{inventory.name}">Item Name</th>
+                                        <th class="th-style" th:text="#{inventory.tx.fromLocation}">From Storage</th>
+                                        <th class="th-style" th:text="#{inventory.qty}">Quantity</th>
+                                        <th class="th-style" th:text="#{inventory.price}">Unit Price</th>
+                                        <th class="th-style" th:text="#{inventory.tx.total}">Total</th>
+                                        <th class="th-style" th:text="#{inventory.note}">Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="outboundTableBody" class="divide-y divide-gray-200">
+                                    <!-- Rows added dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="flex justify-between mt-4">
+                            <button type="button" onclick="addRow('outbound')" class="btn-secondary" th:text="#{common.button.addRow}">Add Row</button>
+                            <button type="button" onclick="deleteSelectedRows('outboundTableBody')" class="btn-danger-outline" th:text="#{common.button.deleteSelected}">Delete Selected</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-4 pt-4 border-t">
+                        <a th:href="@{/inventory/list}" class="btn-secondary" th:text="#{common.button.cancel}">Cancel</a>
+                        <button type="submit" class="btn-primary" th:text="#{common.button.save}">Save Outbound</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 이동 탭 -->
+            <div id="movement-tab" class="tab-content hidden">
+                <form th:action="@{/inventory/stock/MOVE}" method="post" class="space-y-6">
+                    <input type="hidden" name="siteId" class="site-id-hidden" />
+                    <div class="bg-white shadow-md rounded-lg p-6">
+                        <h3 class="text-xl font-semibold mb-4" th:text="#{inventory.tx.movementTitle}">Stock Movement</h3>
+                         <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="th-style w-12"><input type="checkbox" class="select-all-checkbox" data-table="movementTableBody" /></th>
+                                        <th class="th-style" th:text="#{inventory.id}">Item ID</th>
+                                        <th class="th-style" th:text="#{inventory.name}">Item Name</th>
+                                        <th class="th-style" th:text="#{inventory.tx.fromLocation}">From Storage</th>
+                                        <th class="th-style" th:text="#{inventory.tx.toLocation}">To Storage</th>
+                                        <th class="th-style" th:text="#{inventory.qty}">Quantity</th>
+                                        <th class="th-style" th:text="#{inventory.note}">Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="movementTableBody" class="divide-y divide-gray-200">
+                                    <!-- Rows added dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="flex justify-between mt-4">
+                            <button type="button" onclick="addRow('movement')" class="btn-secondary" th:text="#{common.button.addRow}">Add Row</button>
+                            <button type="button" onclick="deleteSelectedRows('movementTableBody')" class="btn-danger-outline" th:text="#{common.button.deleteSelected}">Delete Selected</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-4 pt-4 border-t">
+                        <a th:href="@{/inventory/list}" class="btn-secondary" th:text="#{common.button.cancel}">Cancel</a>
+                        <button type="submit" class="btn-primary" th:text="#{common.button.save}">Save Movement</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 조정 탭 -->
+            <div id="adjustment-tab" class="tab-content hidden">
+                <form th:action="@{/inventory/stock/ADJUST}" method="post" class="space-y-6">
+                    <input type="hidden" name="siteId" class="site-id-hidden" />
+                     <div class="bg-white shadow-md rounded-lg p-6">
+                        <h3 class="text-xl font-semibold mb-4" th:text="#{inventory.tx.adjustmentTitle}">Stock Adjustment</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="th-style w-12"><input type="checkbox" class="select-all-checkbox" data-table="adjustmentTableBody" /></th>
+                                        <th class="th-style" th:text="#{inventory.id}">Item ID</th>
+                                        <th class="th-style" th:text="#{inventory.name}">Item Name</th>
+                                        <th class="th-style" th:text="#{inventory.storageId}">Storage</th>
+                                        <th class="th-style" th:text="#{inventory.tx.adjQty}">Adjustment Quantity</th>
+                                        <th class="th-style" th:text="#{inventory.note}">Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adjustmentTableBody" class="divide-y divide-gray-200">
+                                    <!-- Rows added dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="flex justify-between mt-4">
+                            <button type="button" onclick="addRow('adjustment')" class="btn-secondary" th:text="#{common.button.addRow}">Add Row</button>
+                            <button type="button" onclick="deleteSelectedRows('adjustmentTableBody')" class="btn-danger-outline" th:text="#{common.button.deleteSelected}">Delete Selected</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-4 pt-4 border-t">
+                        <a th:href="@{/inventory/list}" class="btn-secondary" th:text="#{common.button.cancel}">Cancel</a>
+                        <button type="submit" class="btn-primary" th:text="#{common.button.save}">Save Adjustment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 페이지별 JavaScript -->
+    <th:block layout:fragment="page-js">
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', function () {
+                let storageLocations = []; // Cache for location options per site
+                const siteIdElement = document.getElementById('siteId');
+
+                // --- Event Listeners ---
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    button.addEventListener('click', () => switchTab(button.dataset.tab));
+                });
+
+                siteIdElement.addEventListener('change', async (e) => {
+                    const siteId = e.target.value;
+                    document.querySelectorAll('.site-id-hidden').forEach(input => input.value = siteId);
+                    storageLocations = await fetchAndCacheStorageLocations(siteId);
+                    // Repopulate selects in all visible tables
+                    document.querySelectorAll('.location-select').forEach(select => populateLocationOptions(select, storageLocations));
+                });
+
+                document.querySelectorAll('.select-all-checkbox').forEach(el => {
+                    el.addEventListener('change', (e) => {
+                        const tableBodyId = e.target.dataset.table;
+                        document.querySelectorAll(`#${tableBodyId} .row-checkbox`).forEach(c => c.checked = e.target.checked);
+                    });
+                });
+
+                // --- Initial Load ---
+                (async () => {
+                    switchTab('inbound');
+                    if (siteIdElement.value) {
+                        document.querySelectorAll('.site-id-hidden').forEach(input => input.value = siteIdElement.value);
+                        storageLocations = await fetchAndCacheStorageLocations(siteIdElement.value);
+                        initializeTable('inbound');
+                    }
+                })();
+            });
+
+            // --- Core UI Functions ---
+            function switchTab(tabName) {
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.classList.remove('bg-blue-500');
+                    btn.classList.remove('text-white');
+                });
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+
+                const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+                activeButton.classList.add('active','bg-blue-500', 'text-white');
+                document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+
+                initializeTable(tabName);
+            }
+
+            function initializeTable(tabName) {
+                const tbody = document.getElementById(`${tabName}TableBody`);
+                if (tbody.children.length === 0) {
+                    addRow(tabName);
+                }
+            }
+
+            function addRow(tabName) {
+                const tbody = document.getElementById(`${tabName}TableBody`);
+                const rowCount = tbody.children.length;
+                const row = tbody.insertRow();
+                row.className = 'hover:bg-gray-50';
+
+                const rowHtml = getRowHtml(tabName, rowCount);
+                if(rowHtml) {
+                    row.innerHTML = rowHtml;
+                    setupRowEventListeners(row);
+                    row.querySelectorAll('.location-select').forEach(populateLocationOptions);
+                }
+            }
+
+            function deleteSelectedRows(tableBodyId) {
+                document.querySelectorAll(`#${tableBodyId} .row-checkbox:checked`).forEach(checkbox => {
+                    checkbox.closest('tr').remove();
+                });
+            }
+
+            // --- Row HTML Generators ---
+            function getRowHtml(tabName, rowCount) {
+                 const templates = {
+                    inbound: (i) => `
+                        <td class="td-style text-center"><input type="checkbox" class="row-checkbox" /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].inventoryId" class="form-input-sm inventory-id" required /></td>
+                        <td class="td-style"><input type="text" class="form-input-sm bg-gray-100 inventory-name" readonly /></td>
+                        <td class="td-style"><select name="stockTxs[${i}].dstStorageId" class="form-select-sm location-select" required></select></td>
+                        <td class="td-style"><input type="number" name="stockTxs[${i}].qtyChange" class="form-input-sm text-right qty" value="0" required /></td>
+                        <td class="td-style"><input type="number" name="stockTxs[${i}].unitPrice" class="form-input-sm text-right unit-price" value="0.00" step="0.01" required /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].amountChange" class="form-input-sm bg-gray-100 text-right amount-change" readonly /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].notes" class="form-input-sm" /></td>`,
+                    outbound: (i) => `
+                        <td class="td-style text-center"><input type="checkbox" class="row-checkbox" /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].inventoryId" class="form-input-sm inventory-id" required /></td>
+                        <td class="td-style"><input type="text" class="form-input-sm bg-gray-100 inventory-name" readonly /></td>
+                        <td class="td-style"><select name="stockTxs[${i}].srcStorageId" class="form-select-sm location-select" required></select></td>
+                        <td class="td-style"><input type="number" name="stockTxs[${i}].qtyChange" class="form-input-sm text-right qty" value="0" required /></td>
+                        <td class="td-style"><input type="number" name="stockTxs[${i}].unitPrice" class="form-input-sm text-right unit-price" value="0.00" step="0.01" readonly /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].amountChange" class="form-input-sm bg-gray-100 text-right amount-change" readonly /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].notes" class="form-input-sm" /></td>`,
+                    movement: (i) => `
+                        <td class="td-style text-center"><input type="checkbox" class="row-checkbox" /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].inventoryId" class="form-input-sm inventory-id" required /></td>
+                        <td class="td-style"><input type="text" class="form-input-sm bg-gray-100 inventory-name" readonly /></td>
+                        <td class="td-style"><select name="stockTxs[${i}].srcStorageId" class="form-select-sm location-select" required></select></td>
+                        <td class="td-style"><select name="stockTxs[${i}].dstStorageId" class="form-select-sm location-select" required></select></td>
+                        <td class="td-style"><input type="number" name="stockTxs[${i}].qtyChange" class="form-input-sm text-right qty" value="0" required /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].notes" class="form-input-sm" /></td>`,
+                    adjustment: (i) => `
+                        <td class="td-style text-center"><input type="checkbox" class="row-checkbox" /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].inventoryId" class="form-input-sm inventory-id" required /></td>
+                        <td class="td-style"><input type="text" class="form-input-sm bg-gray-100 inventory-name" readonly /></td>
+                        <td class="td-style"><select name="stockTxs[${i}].dstStorageId" class="form-select-sm location-select" required></select></td>
+                        <td class="td-style"><input type="number" name="stockTxs[${i}].qtyChange" class="form-input-sm text-right qty" placeholder="Adj Qty (+/-)" required /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].notes" class="form-input-sm" placeholder="Reason" required /></td>`
+                };
+                return templates[tabName] ? templates[tabName](rowCount) : '';
+            }
+
+            // --- Event Setup & Handlers for New Rows ---
+            function setupRowEventListeners(row) {
+                row.querySelector('.inventory-id')?.addEventListener('blur', handleInventoryIdBlur);
+                row.querySelectorAll('.qty, .unit-price').forEach(input => {
+                    input.addEventListener('input', () => calculateTotal(row));
+                });
+            }
+
+            async function handleInventoryIdBlur(event) {
+                const row = event.target.closest('tr');
+                const inventoryId = event.target.value;
+                const nameInput = row.querySelector('.inventory-name');
+                const priceInput = row.querySelector('.unit-price');
+
+                if (!inventoryId || !nameInput) return;
+
+                try {
+                    const item = await fetchInventoryItem(inventoryId);
+                    nameInput.value = item.item_name;
+                    if (priceInput && priceInput.readOnly) { // Price is read-only for outbound/move
+                         const storageId = row.querySelector('.location-select[name*="srcStorageId"]')?.value || row.querySelector('.location-select')?.value;
+                         if(storageId) {
+                            const stock = await fetchStockInfo(inventoryId, storageId);
+                            priceInput.value = stock.unit_price || '0.00';
+                         }
+                    } else if (priceInput) {
+                        priceInput.value = item.unit_price || '0.00';
+                    }
+                    calculateTotal(row);
+                } catch (error) {
+                    nameInput.value = 'Item not found';
+                }
+            }
+
+            function calculateTotal(row) {
+                const qty = parseFloat(row.querySelector('.qty')?.value) || 0;
+                const price = parseFloat(row.querySelector('.unit-price')?.value) || 0;
+                const totalInput = row.querySelector('.amount-change');
+                if(totalInput) totalInput.value = (qty * price).toFixed(2);
+            }
+
+            // --- API Calls & Data Handling ---
+            async function fetchAndCacheStorageLocations(siteId) {
+                if (!siteId) return [];
+                try {
+                    const response = await fetch(`/api/v1/storage?siteId=${siteId}`);
+                    if (!response.ok) throw new Error('Failed to fetch storage locations');
+                    return response.json();
+                } catch (error) {
+                    console.error(error);
+                    return [];
+                }
+            }
+
+            async function fetchInventoryItem(inventoryId) {
+                const response = await fetch(`/api/v1/inventory/${inventoryId}`);
+                if (!response.ok) throw new Error('Failed to fetch inventory item');
+                return response.json();
+            }
+
+            async function fetchStockInfo(inventoryId, storageId) {
+                const response = await fetch(`/api/v1/stock?inventoryId=${inventoryId}&storageId=${storageId}`);
+                if (!response.ok) throw new Error('Failed to fetch stock info');
+                return response.json();
+            }
+
+            function populateLocationOptions(selectElement, locations) {
+                if (!selectElement) return;
+                const currentLocations = locations || storageLocations;
+                const currentValue = selectElement.value;
+                let optionsHtml = '<option value="">Select...</option>';
+                currentLocations.forEach(loc => {
+                    optionsHtml += `<option value="${loc.id}">${loc.name}</option>`;
+                });
+                selectElement.innerHTML = optionsHtml;
+                selectElement.value = currentValue;
+            }
+        </script>
+    </th:block>
+</body>
+
+</html>

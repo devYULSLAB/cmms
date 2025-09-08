@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title>Company List</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800" th:text="#{company.list.title}">Companies</h1>
+                <a th:href="@{/domain/company/form}" class="btn-primary" th:text="#{common.button.add}">New Company</a>
+            </div>
+
+            <!-- Data Table -->
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="th-style" th:text="#{company.id}">ID</th>
+                            <th scope="col" class="th-style" th:text="#{company.name}">Name</th>
+                            <th scope="col" class="th-style" th:text="#{company.address}">Address</th>
+                            <th scope="col" class="th-style" th:text="#{common.action}">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="company : ${companies}" class="hover:bg-gray-50">
+                            <td class="td-style" th:text="${company.id}"></td>
+                            <td class="td-style" th:text="${company.name}"></td>
+                            <td class="td-style" th:text="${company.address}"></td>
+                            <td class="td-style space-x-2">
+                                <a th:href="@{/domain/company/form/{id}(id=${company.id})}" class="btn-secondary" th:text="#{common.button.edit}">Edit</a>
+                                <form th:action="@{/domain/company/delete/{id}(id=${company.id})}" method="post" class="inline-block" onsubmit="return confirm('Are you sure?');">
+                                    <button type="submit" class="btn-danger" th:text="#{common.button.delete}">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                         <tr th:if="${#lists.isEmpty(companies)}">
+                            <td colspan="4" class="text-center py-4" th:text="#{common.table.noData}">No companies found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -20,7 +20,7 @@ public class StorageController {
 
     @GetMapping("/list")
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
-        model.addAttribute("storages", storageService.findAllByCompanyId(userDetails.getCompanyId()));
+        model.addAttribute("storages", storageService.getStoragesByCompanyId(userDetails.getCompanyId()));
         return "storage/list";
     }
 
@@ -33,7 +33,7 @@ public class StorageController {
     @GetMapping("/{storageId}/edit")
     public String editForm(@PathVariable String storageId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         StorageId id = new StorageId(userDetails.getCompanyId(), storageId);
-        model.addAttribute("storage", storageService.findStorageById(id));
+        model.addAttribute("storage", storageService.getStorageById(id));
         return "storage/form";
     }
 

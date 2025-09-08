@@ -14,6 +14,10 @@ import java.util.List;
 public interface StockTxRepository extends JpaRepository<StockTx, StockTxId> {
 
     List<StockTx> findByCompanyIdAndInventoryIdOrderByCreatedAtDesc(String companyId, String inventoryId);
+    
+    List<StockTx> findByCompanyIdOrderByCreatedAtDesc(String companyId);
+    
+    List<StockTx> findByCompanyIdAndSiteIdAndDstStorageIdOrderByCreatedAtDesc(String companyId, String siteId, String storageId);
 
     @Query(value = """
         WITH BeginningBalance AS (

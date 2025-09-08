@@ -2,8 +2,8 @@ package com.cmms.plant.controller;
 
 import com.cmms.plant.entity.Plant;
 import com.cmms.plant.service.PlantService;
-import com.cmms.domain.site.service.SiteService;
 import com.cmms.func.service.FuncService;
+import com.cmms.domain.site.service.SiteService;
 import com.cmms.domain.dept.service.DeptService;
 import com.cmms.common.code.service.CodeService;
 import com.cmms.common.file.service.FileAttachmentService;
@@ -54,7 +54,7 @@ public class PlantController {
         plant.setCompanyId(companyId);
 
         // fileGroupId 자동 생성 (10자리, 밀리초 기반)
-        String fileGroupId = fileAttachmentService.generateFileGroupId();
+        String fileGroupId = fileAttachmentService.createFieGroup(companyId);
         plant.setFileGroupId(fileGroupId);
 
         model.addAttribute("plant", plant);
@@ -80,7 +80,7 @@ public class PlantController {
         // 세션에서 사용자 정보 가져오기
         String companyId = (String) session.getAttribute("companyId");
 
-        Plant plant = plantService.getPlantById(new com.cmms.plant.entity.PlantId(companyId, siteId, plantId));
+        Plant plant = plantService.getPlantById(new com.cmms.plant.entity.PlantId(companyId, plantId));
 
         // Select box 데이터 추가
         model.addAttribute("plant", plant);
@@ -104,7 +104,6 @@ public class PlantController {
             RedirectAttributes redirectAttributes) {
         // 세션에서 사용자 정보 가져오기
         String companyId = (String) session.getAttribute("companyId");
-        String username = (String) session.getAttribute("username");
 
         plant.setCompanyId(companyId);
 
@@ -133,7 +132,7 @@ public class PlantController {
         // 세션에서 사용자 정보 가져오기
         String companyId = (String) session.getAttribute("companyId");
 
-        Plant plant = plantService.getPlantById(new com.cmms.plant.entity.PlantId(companyId, siteId, plantId));
+        Plant plant = plantService.getPlantById(new com.cmms.plant.entity.PlantId(companyId, plantId));
         model.addAttribute("plant", plant);
 
         return "plant/plantDetail";
@@ -146,10 +145,9 @@ public class PlantController {
 
         // 세션에서 사용자 정보 가져오기
         String companyId = (String) session.getAttribute("companyId");
-        String username = (String) session.getAttribute("username");
 
         try {
-            plantService.deletePlant(new com.cmms.plant.entity.PlantId(companyId, siteId, plantId));
+            plantService.deletePlant(new com.cmms.plant.entity.PlantId(companyId, plantId));
         } catch (Exception e) {
             throw new RuntimeException("삭제 중 오류 발생: " + e.getMessage());
         }

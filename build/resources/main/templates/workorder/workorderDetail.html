@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title th:text="#{workorder.detail.title} + ' - ' + ${workorder.workorder_name}">Workorder Details</title>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: white; }
+            .printable-area { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+        }
+        .detail-group { padding: 1rem; border-bottom: 1px solid #e5e7eb; }
+        .detail-group:last-child { border-bottom: none; }
+        .detail-label { font-weight: 500; color: #4b5563; }
+        .detail-value { color: #1f2937; }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-6 no-print">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800" th:text="${workorder.workorder_name}">Workorder Name</h1>
+                    <p class="text-sm text-gray-500" th:text="'ID: ' + ${workorder.workorder_id}"></p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <a th:href="@{/workorder/list}" class="btn-secondary" th:text="#{common.button.toList}">Back to List</a>
+                    <a th:href="@{/workorder/form/{id}(id=${workorder.workorder_id})}" class="btn-primary" th:text="#{common.button.edit}">Edit</a>
+                    <button onclick="printContent()" class="btn-secondary"><i class="fas fa-print mr-2"></i><span th:text="#{common.button.print}">Print</span></button>
+                    <form th:action="@{/workorder/delete/{id}(id=${workorder.workorder_id})}" method="post" class="inline-block" onsubmit="return confirm('Are you sure?');">
+                        <button type="submit" class="btn-danger" th:text="#{common.button.delete}">Delete</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="bg-white shadow-md rounded-lg overflow-hidden printable-area">
+
+                <!-- Basic Information -->
+                <div class="detail-group">
+                    <h2 class="form-section-title" th:text="#{workorder.form.section.details}">Workorder Details</h2>
+                    <dl class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-6 mt-4">
+                        <div><dt class="detail-label" th:text="#{workorder.name}">Name</dt><dd class="detail-value" th:text="${workorder.workorder_name}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{workorder.plantId}">Plant</dt><dd class="detail-value" th:text="${workorder.plant_id}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{workorder.jobType}">Job Type</dt><dd class="detail-value" th:text="${workorder.job_type}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{workorder.status}">Status</dt><dd class="detail-value" th:text="${workorder.status}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{workorder.startDate}">Start Date</dt><dd class="detail-value" th:text="${#dates.format(workorder.start_date, 'yyyy-MM-dd')}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{workorder.endDate}">End Date</dt><dd class="detail-value" th:text="${#dates.format(workorder.end_date, 'yyyy-MM-dd')}"></dd></div>
+                    </dl>
+                    <div class="mt-4"><dt class="detail-label" th:text="#{workorder.note}">Note</dt><dd class="detail-value" th:text="${workorder.note}"></dd></div>
+                </div>
+
+                <!-- Workorder Items -->
+                <div class="detail-group">
+                    <h2 class="form-section-title" th:text="#{workorder.form.section.items}">Workorder Items</h2>
+                    <div class="overflow-x-auto mt-4">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="th-style" th:text="#{workorder.item.name}">Item Name</th>
+                                    <th class="th-style" th:text="#{workorder.item.method}">Method</th>
+                                    <th class="th-style" th:text="#{workorder.item.result}">Result</th>
+                                    <th class="th-style" th:text="#{workorder.item.note}">Note</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr th:each="item : ${workorder.items}" class="hover:bg-gray-50">
+                                    <td class="td-style" th:text="${item.item_name}"></td>
+                                    <td class="td-style" th:text="${item.item_method}"></td>
+                                    <td class="td-style" th:text="${item.item_result}"></td>
+                                    <td class="td-style" th:text="${item.note}"></td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(workorder.items)}">
+                                    <td colspan="4" class="text-center py-4" th:text="#{common.table.noData}">No items for this workorder.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- /printable-area -->
+        </div>
+    </div>
+    <th:block layout:fragment="page-js">
+        <script>
+            function printContent() {
+                const content = document.querySelector('.printable-area').innerHTML;
+                const printWindow = window.open('', '', 'height=800,width=800');
+                document.querySelectorAll('link[rel="stylesheet"]').forEach(link => printWindow.document.write(link.outerHTML));
+                printWindow.document.write('<body>' + content + '</body>');
+                printWindow.document.close();
+                printWindow.focus();
+                printWindow.print();
+                printWindow.close();
+            }
+        </script>
+    </th:block>
+</body>
+</html>

@@ -22,7 +22,7 @@ public class CodeController {
     @GetMapping("/list")
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         String companyId = userDetails.getCompanyId();
-        model.addAttribute("codeTypes", codeService.findCodeTypesByCompany(companyId));
+        model.addAttribute("codeTypes", codeService.getCodeTypesByCompany(companyId));
         // You might want to display codes for the first type by default
         // model.addAttribute("codes", codeService.findCodesByCompanyAndType(companyId, "FIRST_TYPE"));
         return "common/code/list";
@@ -45,7 +45,7 @@ public class CodeController {
     @GetMapping("/form")
     public String codeForm(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         model.addAttribute("code", new Code());
-        model.addAttribute("codeTypes", codeService.findCodeTypesByCompany(userDetails.getCompanyId()));
+        model.addAttribute("codeTypes", codeService.getCodeTypesByCompany(userDetails.getCompanyId()));
         return "common/code/form";
     }
 

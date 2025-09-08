@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import java.util.Optional;
 
 @Repository
 public interface WorkpermitRepository extends JpaRepository<Workpermit, WorkpermitId> {
@@ -14,4 +15,6 @@ public interface WorkpermitRepository extends JpaRepository<Workpermit, Workperm
     Page<Workpermit> findWorkpermitsByCompanyIdAndSiteId(String companyId, String siteId, Pageable pageable);
     Page<Workpermit> findWorkpermitsByCompanyIdAndPlantId(String companyId, String plantId, Pageable pageable);
     Page<Workpermit> findWorkpermitsByCompanyIdAndPermitNameContaining(String companyId, String permitName, Pageable pageable);
+
+    Optional<Workpermit> findWorkpermitByCompanyIdAndPermitId(String companyId, String permitId);
 }

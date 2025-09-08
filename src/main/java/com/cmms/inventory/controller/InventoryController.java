@@ -96,7 +96,7 @@ public class InventoryController {
     @GetMapping("/transaction")
     public String transactionForm(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         model.addAttribute("form", new InventoryTransactionForm());
-        model.addAttribute("sites", siteService.findAllByCompanyId(userDetails.getCompanyId()));
+        model.addAttribute("sites", siteService.getSitesByCompanyId(userDetails.getCompanyId()));
         return "inventory/inventoryTransaction";
     }
 
@@ -149,9 +149,9 @@ public class InventoryController {
                 userDetails.getCompanyId(), siteId, storageId, inventoryId, startDate, endDate);
 
         model.addAttribute("ledgerData", ledgerData);
-        model.addAttribute("sites", siteService.findAllByCompanyId(userDetails.getCompanyId()));
+        model.addAttribute("sites", siteService.getSitesByCompanyId(userDetails.getCompanyId()));
         // TODO: Add a way to get storages by site
-        model.addAttribute("storages", storageService.findAllByCompanyId(userDetails.getCompanyId()));
+        model.addAttribute("storages", storageService.getStoragesByCompanyId(userDetails.getCompanyId()));
 
         // Pass search params back to the view
         model.addAttribute("siteId", siteId);
@@ -166,8 +166,8 @@ public class InventoryController {
     @GetMapping("/closing")
     public String closingForm(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         // Populate the form with necessary data
-        model.addAttribute("sites", siteService.findAllByCompanyId(userDetails.getCompanyId()));
-        model.addAttribute("storages", storageService.findAllByCompanyId(userDetails.getCompanyId()));
+        model.addAttribute("sites", siteService.getSitesByCompanyId(userDetails.getCompanyId()));
+        model.addAttribute("storages", storageService.getStoragesByCompanyId(userDetails.getCompanyId()));
         // Populate closing history
         model.addAttribute("closingHistory", inventoryService.getClosingHistory(userDetails.getCompanyId()));
         return "inventory/inventoryStockByMonth";

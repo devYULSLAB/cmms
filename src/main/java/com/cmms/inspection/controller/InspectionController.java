@@ -1,9 +1,6 @@
 package com.cmms.inspection.controller;
 
 import com.cmms.auth.dto.CustomUserDetails;
-import com.cmms.common.service.CommonCodeService;
-import com.cmms.domain.service.DeptService;
-import com.cmms.domain.service.SiteService;
 import com.cmms.inspection.entity.Inspection;
 import com.cmms.inspection.entity.InspectionId;
 import com.cmms.inspection.entity.InspectionItem;
@@ -34,7 +31,7 @@ public class InspectionController {
 
     @GetMapping("/list")
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model, @PageableDefault(size = 10, sort = "inspectionId") Pageable pageable) {
-        Page<Inspection> inspections = inspectionService.findInspections(userDetails.getCompanyId(), pageable);
+        Page<Inspection> inspections = inspectionService.getInspectionsByCompanyId(userDetails.getCompanyId(), pageable);
         model.addAttribute("inspections", inspections);
         return "inspection/list";
     }
@@ -57,7 +54,7 @@ public class InspectionController {
     @GetMapping("/{inspectionId}/edit")
     public String editForm(@PathVariable String inspectionId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         InspectionId id = new InspectionId(userDetails.getCompanyId(), inspectionId);
-        Inspection inspection = inspectionService.findInspectionById(id);
+        Inspection inspection = inspectionService.getInspectionById(id);
         model.addAttribute("inspection", inspection);
         // model.addAttribute("sites", siteService.findAllByCompanyId(userDetails.getCompanyId()));
         // model.addAttribute("jobTypes", commonCodeService.findByCodeType(userDetails.getCompanyId(), "JOBTP"));
@@ -76,7 +73,7 @@ public class InspectionController {
     @GetMapping("/{inspectionId}")
     public String detail(@PathVariable String inspectionId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         InspectionId id = new InspectionId(userDetails.getCompanyId(), inspectionId);
-        model.addAttribute("inspection", inspectionService.findInspectionById(id));
+        model.addAttribute("inspection", inspectionService.getInspectionById(id));
         return "inspection/detail";
     }
 

@@ -71,6 +71,12 @@ public class FileAttachmentService {
         return fileAttachmentRepository.findByCompanyIdAndFileGroupId(companyId, fileGroupId);
     }
 
+    @Transactional(readOnly = true)
+    public FileAttachment getFileById(FileAttachmentId id) {
+        return fileAttachmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("File not found"));
+    }
+
     public void deleteFile(FileAttachmentId id) throws IOException {
         FileAttachment attachment = fileAttachmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("File not found"));

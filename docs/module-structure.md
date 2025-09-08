@@ -64,6 +64,7 @@ src/main/resources/messages
   - 예: JOBTP(작업유형), ASSET(자산유형), DEPRE(감가유형), PERMT(허가유형)
 
 ## 6. 로그인 처리
+- 로기인 페이지는 layout을 포함하지 않는 독립적인 단독 페이지 
 - `company_Id`는 `application.yml`의 `default-company-id` (`C0001`) 사용
 - Login.html에서 `companyId`를 받지 않고 `userId`, `password`만 입력받아 기본 회사코드를 주입
 - 추후 멀티 테넌트 확장을 위해 `CompanyIdResolver` 인터페이스 제공, 구현 교체로 대응 가능

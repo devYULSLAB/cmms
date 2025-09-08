@@ -21,8 +21,9 @@ public class CodeService {
     private final CodeTypeRepository codeTypeRepository;
 
     // == Code Methods ==
+
     @Transactional(readOnly = true)
-    public List<Code> getCodesByCompanyAndCodeType(String companyId, String codeType) {
+    public List<Code> getCodesByCompanyIdAndCodeType(String companyId, String codeType) {
         return codeRepository.findByCompanyIdAndCodeType(companyId, codeType);
     }
 

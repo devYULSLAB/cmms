@@ -20,7 +20,7 @@ public class FuncController {
 
     @GetMapping("/list")
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
-        model.addAttribute("funcs", funcService.findAllByCompanyId(userDetails.getCompanyId()));
+        model.addAttribute("funcs", funcService.getFuncsByCompanyId(userDetails.getCompanyId()));
         return "func/list";
     }
 
@@ -33,7 +33,7 @@ public class FuncController {
     @GetMapping("/{funcId}/edit")
     public String editForm(@PathVariable String funcId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         FuncId id = new FuncId(userDetails.getCompanyId(), funcId);
-        model.addAttribute("func", funcService.findFuncById(id));
+        model.addAttribute("func", funcService.getFuncById(id));
         return "func/form";
     }
 

@@ -20,7 +20,7 @@ public class RoleController {
 
     @GetMapping("/list")
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
-        model.addAttribute("roles", roleService.findAllRolesByCompanyId(userDetails.getCompanyId()));
+        model.addAttribute("roles", roleService.getRolesByCompanyId(userDetails.getCompanyId()));
         return "domain/role/list";
     }
 
@@ -33,7 +33,7 @@ public class RoleController {
     @GetMapping("/{roleId}/edit")
     public String editForm(@PathVariable String roleId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         RoleId id = new RoleId(userDetails.getCompanyId(), roleId);
-        model.addAttribute("role", roleService.findRoleById(id));
+        model.addAttribute("role", roleService.getRoleById(id));
         return "domain/role/form";
     }
 

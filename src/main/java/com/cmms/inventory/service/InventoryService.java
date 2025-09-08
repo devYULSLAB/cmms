@@ -4,9 +4,10 @@ import com.cmms.common.id.IdGeneratorService;
 import com.cmms.inventory.dto.InventoryLedgerDto;
 import com.cmms.inventory.entity.Inventory;
 import com.cmms.inventory.entity.InventoryId;
-import com.cmms.inventory.entity.InventoryStockByMonth;
+import com.cmms.inventory.entity.StockByMonth;
+import com.cmms.inventory.entity.StockTx;
 import com.cmms.inventory.repository.InventoryRepository;
-import com.cmms.inventory.repository.InventoryStockByMonthRepository;
+import com.cmms.inventory.repository.StockByMonthRepository;
 import com.cmms.inventory.repository.StockTxRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,8 +27,8 @@ public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private final StockTxRepository stockTxRepository;
+    private final StockByMonthRepository stockByMonthRepository;
     private final IdGeneratorService idGeneratorService;
-    private final InventoryStockByMonthRepository inventoryStockByMonthRepository;
 
     @Transactional(readOnly = true)
     public Page<Inventory> getInventoriesByCompanyId(String companyId, Pageable pageable) {
@@ -81,9 +82,9 @@ public class InventoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<InventoryStockByMonth> getClosingHistory(String companyId) {
+    public List<StockTx> getClosingHistory(String companyId) {
         // This should be paginated in a real application
-        return inventoryStockByMonthRepository.findByCompanyIdOrderByYyyymmDesc(companyId);
+        return stockTxRepository.findByCompanyIdOrderByCreatedAtDesc(companyId);
     }
 
     @Transactional
@@ -96,18 +97,18 @@ public class InventoryService {
         java.time.LocalDateTime targetMonthStartDt = targetMonthStart.atStartOfDay();
         java.time.LocalDateTime targetMonthEndDt = targetMonthStart.plusMonths(1).atStartOfDay();
 
-        List<InventoryStockByMonth> existingClosings = inventoryStockByMonthRepository.findByScope(companyId, yyyymm, siteId, storageId);
+        List<StockByMonth> existingClosings = stockByMonthRepository.findByCompanyIdAndSiteIdAndStorageIdAndYyyymm(companyId, siteId, storageId, yyyymm);
         if (!existingClosings.isEmpty()) {
             throw new IllegalStateException("The stock for " + yyyymm + " in the selected scope has already been closed.");
         }
 
         // 2. --- Data Fetching ---
         String previousYyyymm = targetMonthStart.minusMonths(1).format(java.time.format.DateTimeFormatter.ofPattern("yyyyMM"));
-        List<InventoryStockByMonth> beginningBalances = inventoryStockByMonthRepository.findByScope(companyId, previousYyyymm, siteId, storageId);
+        List<StockByMonth> beginningBalances = stockByMonthRepository.findByCompanyIdAndSiteIdAndStorageIdAndYyyymm(companyId, siteId, storageId, previousYyyymm);
         java.util.Map<String, BigDecimal> beginningBalanceMap = beginningBalances.stream()
                 .collect(java.util.stream.Collectors.toMap(
                         b -> b.getInventoryId() + ":" + b.getStorageId(),
-                        InventoryStockByMonth::getClosingQty
+                        StockByMonth::getClosingQty
                 ));
 
         List<Object[]> movements = stockTxRepository.getMonthlyMovements(companyId, siteId, storageId, targetMonthStartDt, targetMonthEndDt);
@@ -122,7 +123,7 @@ public class InventoryService {
         movementMap.keySet().forEach(allKeys::add);
 
         // 3. --- Calculation & Persistence ---
-        List<InventoryStockByMonth> newClosings = new java.util.ArrayList<>();
+        List<StockByMonth> newClosings = new java.util.ArrayList<>();
         for (String key : allKeys) {
             String[] parts = key.split(":");
             String invId = parts[0];
@@ -132,7 +133,7 @@ public class InventoryService {
             BigDecimal movementQty = movementMap.getOrDefault(key, BigDecimal.ZERO);
             BigDecimal endingQty = beginningQty.add(movementQty);
 
-            InventoryStockByMonth newClosing = new InventoryStockByMonth();
+            StockByMonth newClosing = new StockByMonth();
             newClosing.setCompanyId(companyId);
             newClosing.setSiteId(siteId);
             newClosing.setStorageId(storId);
@@ -143,7 +144,7 @@ public class InventoryService {
         }
 
         if (!newClosings.isEmpty()) {
-            inventoryStockByMonthRepository.saveAll(newClosings);
+            stockByMonthRepository.saveAll(newClosings);
         }
     }
 }

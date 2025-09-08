@@ -26,7 +26,7 @@ public class MemoController {
 
     @GetMapping("/list")
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model, @PageableDefault(size = 10, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<Memo> memos = memoService.findMemos(userDetails.getCompanyId(), pageable);
+        Page<Memo> memos = memoService.getMemosByCompanyId(userDetails.getCompanyId(), pageable);
         model.addAttribute("memos", memos);
         return "memo/list";
     }
@@ -40,7 +40,7 @@ public class MemoController {
     @GetMapping("/{memoId}/edit")
     public String editForm(@PathVariable String memoId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         MemoId id = new MemoId(userDetails.getCompanyId(), memoId);
-        Memo memo = memoService.findMemoByIdAndIncrementViewCount(id); // Using same method to get data
+        Memo memo = memoService.getMemoByIdAndIncrementViewCount(id); // Using same method to get data
         model.addAttribute("memo", memo);
         return "memo/form";
     }
@@ -48,7 +48,7 @@ public class MemoController {
     @PostMapping("/save")
     public String save(@ModelAttribute Memo memo, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
         memo.setCompanyId(userDetails.getCompanyId());
-        memo.setAuthorId(userDetails.getUserId());
+        memo.setAuthorId(userDetails.getUsername());
         memoService.saveMemo(memo);
         redirectAttributes.addFlashAttribute("message", "Memo saved successfully.");
         return "redirect:/memo/list";
@@ -57,9 +57,9 @@ public class MemoController {
     @GetMapping("/{memoId}")
     public String detail(@PathVariable String memoId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         MemoId id = new MemoId(userDetails.getCompanyId(), memoId);
-        Memo memo = memoService.findMemoByIdAndIncrementViewCount(id);
+        Memo memo = memoService.getMemoByIdAndIncrementViewCount(id);
         model.addAttribute("memo", memo);
-        model.addAttribute("comments", memoService.findMemoComments(id.getCompanyId(), id.getMemoId()));
+        model.addAttribute("comments", memoService.getMemoCommentsByCompanyAndMemoId(id.getCompanyId(), id.getMemoId()));
         return "memo/detail";
     }
 
@@ -75,7 +75,7 @@ public class MemoController {
     public String saveComment(@ModelAttribute MemoComment comment, @RequestParam String memoId, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
         comment.setCompanyId(userDetails.getCompanyId());
         comment.setMemoId(memoId);
-        comment.setAuthorId(userDetails.getUserId());
+        comment.setAuthorId(userDetails.getUsername());
         memoService.saveMemoComment(comment);
         return "redirect:/memo/" + memoId;
     }
