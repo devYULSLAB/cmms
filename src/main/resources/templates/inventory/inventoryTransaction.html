@@ -46,7 +46,8 @@
 
             <!-- 입고 탭 -->
             <div id="inbound-tab" class="tab-content">
-                <form th:action="@{/inventory/stock/inbound}" method="post" class="space-y-6">
+                <form th:action="@{/inventory/stock/IN}" method="post" class="space-y-6">
+                    <input type="hidden" name="siteId" class="site-id-hidden" />
                     <div class="bg-white shadow-md rounded-lg p-6">
                         <h3 class="text-xl font-semibold mb-4" th:text="#{inventory.tx.inboundTitle}">Stock Inbound</h3>
                         <div class="overflow-x-auto">
@@ -82,7 +83,8 @@
 
             <!-- 출고 탭 -->
             <div id="outbound-tab" class="tab-content hidden">
-                <form th:action="@{/inventory/stock/outbound}" method="post" class="space-y-6">
+                <form th:action="@{/inventory/stock/OUT}" method="post" class="space-y-6">
+                    <input type="hidden" name="siteId" class="site-id-hidden" />
                     <div class="bg-white shadow-md rounded-lg p-6">
                         <h3 class="text-xl font-semibold mb-4" th:text="#{inventory.tx.outboundTitle}">Stock Outbound</h3>
                         <div class="overflow-x-auto">
@@ -118,7 +120,8 @@
 
             <!-- 이동 탭 -->
             <div id="movement-tab" class="tab-content hidden">
-                <form th:action="@{/inventory/stock/movement}" method="post" class="space-y-6">
+                <form th:action="@{/inventory/stock/MOVE}" method="post" class="space-y-6">
+                    <input type="hidden" name="siteId" class="site-id-hidden" />
                     <div class="bg-white shadow-md rounded-lg p-6">
                         <h3 class="text-xl font-semibold mb-4" th:text="#{inventory.tx.movementTitle}">Stock Movement</h3>
                          <div class="overflow-x-auto">
@@ -153,7 +156,8 @@
 
             <!-- 조정 탭 -->
             <div id="adjustment-tab" class="tab-content hidden">
-                <form th:action="@{/inventory/stock/adjustment}" method="post" class="space-y-6">
+                <form th:action="@{/inventory/stock/ADJUST}" method="post" class="space-y-6">
+                    <input type="hidden" name="siteId" class="site-id-hidden" />
                      <div class="bg-white shadow-md rounded-lg p-6">
                         <h3 class="text-xl font-semibold mb-4" th:text="#{inventory.tx.adjustmentTitle}">Stock Adjustment</h3>
                         <div class="overflow-x-auto">
@@ -201,9 +205,10 @@
 
                 siteIdElement.addEventListener('change', async (e) => {
                     const siteId = e.target.value;
+                    document.querySelectorAll('.site-id-hidden').forEach(input => input.value = siteId);
                     storageLocations = await fetchAndCacheStorageLocations(siteId);
                     // Repopulate selects in all visible tables
-                     document.querySelectorAll('.location-select').forEach(select => populateLocationOptions(select, storageLocations));
+                    document.querySelectorAll('.location-select').forEach(select => populateLocationOptions(select, storageLocations));
                 });
 
                 document.querySelectorAll('.select-all-checkbox').forEach(el => {
@@ -217,6 +222,7 @@
                 (async () => {
                     switchTab('inbound');
                     if (siteIdElement.value) {
+                        document.querySelectorAll('.site-id-hidden').forEach(input => input.value = siteIdElement.value);
                         storageLocations = await fetchAndCacheStorageLocations(siteIdElement.value);
                         initializeTable('inbound');
                     }
@@ -271,37 +277,37 @@
                  const templates = {
                     inbound: (i) => `
                         <td class="td-style text-center"><input type="checkbox" class="row-checkbox" /></td>
-                        <td class="td-style"><input type="text" name="stock_txs[${i}].inventory_id" class="form-input-sm inventory-id" required /><input type="hidden" name="stock_txs[${i}].tx_type" value="INBOUND" /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].inventoryId" class="form-input-sm inventory-id" required /></td>
                         <td class="td-style"><input type="text" class="form-input-sm bg-gray-100 inventory-name" readonly /></td>
-                        <td class="td-style"><select name="stock_txs[${i}].storage_id" class="form-select-sm location-select" required></select></td>
-                        <td class="td-style"><input type="number" name="stock_txs[${i}].tx_qty" class="form-input-sm text-right qty" value="0" required /></td>
-                        <td class="td-style"><input type="number" name="stock_txs[${i}].unit_price" class="form-input-sm text-right unit-price" value="0.00" step="0.01" required /></td>
-                        <td class="td-style"><input type="text" class="form-input-sm bg-gray-100 text-right total-value" readonly /></td>
-                        <td class="td-style"><input type="text" name="stock_txs[${i}].note" class="form-input-sm" /></td>`,
+                        <td class="td-style"><select name="stockTxs[${i}].dstStorageId" class="form-select-sm location-select" required></select></td>
+                        <td class="td-style"><input type="number" name="stockTxs[${i}].qtyChange" class="form-input-sm text-right qty" value="0" required /></td>
+                        <td class="td-style"><input type="number" name="stockTxs[${i}].unitPrice" class="form-input-sm text-right unit-price" value="0.00" step="0.01" required /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].amountChange" class="form-input-sm bg-gray-100 text-right amount-change" readonly /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].notes" class="form-input-sm" /></td>`,
                     outbound: (i) => `
                         <td class="td-style text-center"><input type="checkbox" class="row-checkbox" /></td>
-                        <td class="td-style"><input type="text" name="stock_txs[${i}].inventory_id" class="form-input-sm inventory-id" required /><input type="hidden" name="stock_txs[${i}].tx_type" value="OUTBOUND" /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].inventoryId" class="form-input-sm inventory-id" required /></td>
                         <td class="td-style"><input type="text" class="form-input-sm bg-gray-100 inventory-name" readonly /></td>
-                        <td class="td-style"><select name="stock_txs[${i}].storage_id" class="form-select-sm location-select" required></select></td>
-                        <td class="td-style"><input type="number" name="stock_txs[${i}].tx_qty" class="form-input-sm text-right qty" value="0" required /></td>
-                        <td class="td-style"><input type="number" name="stock_txs[${i}].unit_price" class="form-input-sm text-right unit-price" value="0.00" step="0.01" readonly /></td>
-                        <td class="td-style"><input type="text" class="form-input-sm bg-gray-100 text-right total-value" readonly /></td>
-                        <td class="td-style"><input type="text" name="stock_txs[${i}].note" class="form-input-sm" /></td>`,
+                        <td class="td-style"><select name="stockTxs[${i}].srcStorageId" class="form-select-sm location-select" required></select></td>
+                        <td class="td-style"><input type="number" name="stockTxs[${i}].qtyChange" class="form-input-sm text-right qty" value="0" required /></td>
+                        <td class="td-style"><input type="number" name="stockTxs[${i}].unitPrice" class="form-input-sm text-right unit-price" value="0.00" step="0.01" readonly /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].amountChange" class="form-input-sm bg-gray-100 text-right amount-change" readonly /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].notes" class="form-input-sm" /></td>`,
                     movement: (i) => `
                         <td class="td-style text-center"><input type="checkbox" class="row-checkbox" /></td>
-                        <td class="td-style"><input type="text" name="stock_txs[${i}].inventory_id" class="form-input-sm inventory-id" required /><input type="hidden" name="stock_txs[${i}].tx_type" value="MOVE" /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].inventoryId" class="form-input-sm inventory-id" required /></td>
                         <td class="td-style"><input type="text" class="form-input-sm bg-gray-100 inventory-name" readonly /></td>
-                        <td class="td-style"><select name="stock_txs[${i}].from_storage_id" class="form-select-sm location-select" required></select></td>
-                        <td class="td-style"><select name="stock_txs[${i}].to_storage_id" class="form-select-sm location-select" required></select></td>
-                        <td class="td-style"><input type="number" name="stock_txs[${i}].tx_qty" class="form-input-sm text-right qty" value="0" required /></td>
-                        <td class="td-style"><input type="text" name="stock_txs[${i}].note" class="form-input-sm" /></td>`,
+                        <td class="td-style"><select name="stockTxs[${i}].srcStorageId" class="form-select-sm location-select" required></select></td>
+                        <td class="td-style"><select name="stockTxs[${i}].dstStorageId" class="form-select-sm location-select" required></select></td>
+                        <td class="td-style"><input type="number" name="stockTxs[${i}].qtyChange" class="form-input-sm text-right qty" value="0" required /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].notes" class="form-input-sm" /></td>`,
                     adjustment: (i) => `
                         <td class="td-style text-center"><input type="checkbox" class="row-checkbox" /></td>
-                        <td class="td-style"><input type="text" name="stock_txs[${i}].inventory_id" class="form-input-sm inventory-id" required /><input type="hidden" name="stock_txs[${i}].tx_type" value="ADJUST" /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].inventoryId" class="form-input-sm inventory-id" required /></td>
                         <td class="td-style"><input type="text" class="form-input-sm bg-gray-100 inventory-name" readonly /></td>
-                        <td class="td-style"><select name="stock_txs[${i}].storage_id" class="form-select-sm location-select" required></select></td>
-                        <td class="td-style"><input type="number" name="stock_txs[${i}].tx_qty" class="form-input-sm text-right qty" placeholder="Adj Qty (+/-)" required /></td>
-                        <td class="td-style"><input type="text" name="stock_txs[${i}].note" class="form-input-sm" placeholder="Reason" required /></td>`
+                        <td class="td-style"><select name="stockTxs[${i}].dstStorageId" class="form-select-sm location-select" required></select></td>
+                        <td class="td-style"><input type="number" name="stockTxs[${i}].qtyChange" class="form-input-sm text-right qty" placeholder="Adj Qty (+/-)" required /></td>
+                        <td class="td-style"><input type="text" name="stockTxs[${i}].notes" class="form-input-sm" placeholder="Reason" required /></td>`
                 };
                 return templates[tabName] ? templates[tabName](rowCount) : '';
             }
@@ -326,7 +332,7 @@
                     const item = await fetchInventoryItem(inventoryId);
                     nameInput.value = item.item_name;
                     if (priceInput && priceInput.readOnly) { // Price is read-only for outbound/move
-                         const storageId = row.querySelector('.location-select[name*="from_storage_id"]')?.value || row.querySelector('.location-select')?.value;
+                         const storageId = row.querySelector('.location-select[name*="srcStorageId"]')?.value || row.querySelector('.location-select')?.value;
                          if(storageId) {
                             const stock = await fetchStockInfo(inventoryId, storageId);
                             priceInput.value = stock.unit_price || '0.00';
@@ -343,7 +349,7 @@
             function calculateTotal(row) {
                 const qty = parseFloat(row.querySelector('.qty')?.value) || 0;
                 const price = parseFloat(row.querySelector('.unit-price')?.value) || 0;
-                const totalInput = row.querySelector('.total-value');
+                const totalInput = row.querySelector('.amount-change');
                 if(totalInput) totalInput.value = (qty * price).toFixed(2);
             }
 

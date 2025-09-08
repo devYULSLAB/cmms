@@ -71,7 +71,15 @@
                 </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                <!-- Data rows to be populated from model -->
+                <tr th:each="row : ${ledgerData}">
+                    <td class="td-style" th:text="${row.inventoryId}"></td>
+                    <td class="td-style" th:text="${row.itemName}"></td>
+                    <td class="td-style text-right" th:text="${#numbers.formatDecimal(row.beginningQty,1,'COMMA',3,'POINT')}"></td>
+                    <td class="td-style text-right" th:text="${#numbers.formatDecimal(row.receivedQty,1,'COMMA',3,'POINT')}"></td>
+                    <td class="td-style text-right" th:text="${#numbers.formatDecimal(row.issuedQty,1,'COMMA',3,'POINT')}"></td>
+                    <td class="td-style text-right" th:text="${#numbers.formatDecimal(row.adjustedQty,1,'COMMA',3,'POINT')}"></td>
+                    <td class="td-style text-right" th:text="${#numbers.formatDecimal(row.endingQty,1,'COMMA',3,'POINT')}"></td>
+                </tr>
                 <tr th:if="${#lists.isEmpty(ledgerData)}">
                     <td colspan="7" class="text-center py-4">조회된 데이터가 없습니다.</td>
                 </tr>

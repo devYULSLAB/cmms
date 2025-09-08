@@ -41,7 +41,7 @@ public class InventoryController {
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model, @PageableDefault(size = 10, sort = "inventoryId") Pageable pageable) {
         Page<Inventory> inventories = inventoryService.getInventoriesByCompanyId(userDetails.getCompanyId(), pageable);
         model.addAttribute("inventories", inventories);
-        return "inventory/list";
+        return "inventory/inventoryList";
     }
 
     @GetMapping("/form")
@@ -50,7 +50,7 @@ public class InventoryController {
         // Populate model with necessary data for select boxes
         // model.addAttribute("depts", deptService.findAllByCompanyId(userDetails.getCompanyId()));
         // model.addAttribute("assetTypes", commonCodeService.findByCodeType(userDetails.getCompanyId(), "ASSET"));
-        return "inventory/form";
+        return "inventory/inventoryForm";
     }
 
     @GetMapping("/{inventoryId}/edit")
@@ -61,7 +61,7 @@ public class InventoryController {
         // Populate model with necessary data for select boxes
         // model.addAttribute("depts", deptService.findAllByCompanyId(userDetails.getCompanyId()));
         // model.addAttribute("assetTypes", commonCodeService.findByCodeType(userDetails.getCompanyId(), "ASSET"));
-        return "inventory/form";
+        return "inventory/inventoryForm";
     }
 
     @PostMapping("/save")
@@ -76,7 +76,7 @@ public class InventoryController {
     public String detail(@PathVariable String inventoryId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         InventoryId id = new InventoryId(userDetails.getCompanyId(), inventoryId);
         model.addAttribute("inventory", inventoryService.getInventoryById(id));
-        return "inventory/detail";
+        return "inventory/inventoryDetail";
     }
 
     @PostMapping("/{inventoryId}/delete")
@@ -96,19 +96,18 @@ public class InventoryController {
     @GetMapping("/transaction")
     public String transactionForm(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         model.addAttribute("form", new InventoryTransactionForm());
-        // model.addAttribute("sites", siteService.findAllByCompanyId(userDetails.getCompanyId()));
-        return "inventory/transaction";
+        model.addAttribute("sites", siteService.findAllByCompanyId(userDetails.getCompanyId()));
+        return "inventory/inventoryTransaction";
     }
 
-    @PostMapping("/transaction/save")
-    public String saveTransaction(@RequestParam String actionType, @ModelAttribute InventoryTransactionForm form, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
-        List<StockTx> transactions = form.getStockTxList().stream()
+    @PostMapping("/stock/{actionType}")
+    public String saveTransaction(@PathVariable String actionType, @ModelAttribute InventoryTransactionForm form, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
+        List<StockTx> transactions = form.getStockTxs().stream()
                 .filter(tx -> tx.getInventoryId() != null && !tx.getInventoryId().isEmpty() && tx.getQtyChange() != null)
                 .peek(tx -> {
                     tx.setCompanyId(userDetails.getCompanyId());
                     tx.setSiteId(form.getSiteId());
                     tx.setActionType(actionType);
-                    // tx.setCreatedAt(LocalDateTime.now()); // Service layer might handle this
                 }).collect(Collectors.toList());
 
         if (transactions.isEmpty()) {

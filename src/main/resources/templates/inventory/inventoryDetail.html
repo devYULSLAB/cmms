@@ -45,7 +45,7 @@
                 <div class="flex items-center space-x-2">
                     <a th:href="@{/inventory/list}" class="btn-secondary" th:text="'목록'">Back to List</a>
                     <a th:href="@{/inventory/form/{id}(id=${inventory.inventory_id})}" class="btn-primary" th:text="#{common.button.edit}">Edit</a>
-                    <button onclick="window.print()" class="btn-secondary" th:text="'출력'">Print</button>
+                    <button onclick="printContent()" class="btn-secondary" th:text="'출력'">Print</button>
                     <form th:action="@{/inventory/delete/{id}(id=${inventory.inventory_id})}" method="post" class="inline-block" onsubmit="return confirm('Are you sure?');">
                         <button type="submit" class="btn-danger" th:text="#{common.button.delete}">Delete</button>
                     </form>
@@ -101,5 +101,19 @@
             </div> <!-- /printable-area -->
         </div>
     </div>
+    <th:block layout:fragment="page-js">
+        <script>
+            function printContent() {
+                const content = document.querySelector('.printable-area').innerHTML;
+                const printWindow = window.open('', '', 'height=800,width=800');
+                document.querySelectorAll('link[rel="stylesheet"]').forEach(link => printWindow.document.write(link.outerHTML));
+                printWindow.document.write('<body>' + content + '</body>');
+                printWindow.document.close();
+                printWindow.focus();
+                printWindow.print();
+                printWindow.close();
+            }
+        </script>
+    </th:block>
 </body>
 </html>
