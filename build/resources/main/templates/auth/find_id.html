@@ -31,7 +31,7 @@
     <div class="flex items-center justify-center min-h-screen">
         <div class="w-full max-w-md">
             <div class="bg-white shadow-lg rounded-lg p-8">
-                <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">아이디 조회</h2>
+                <h2 class="text-3xl font-bold text-center text-white mb-6 p-2 rounded-md bg-blue-500 border">아이디 조회</h2>
 
                 <div th:if="${message}" class="alert-info mb-4" role="alert" th:text="${message}"></div>
 
@@ -45,7 +45,9 @@
                         <input type="text" id="userId" name="userId" required class="form-input" placeholder="사용자 ID를 입력하세요" th:value="${param.userId != null ? param.userId[0] : ''}" />
                     </div>
 
-                    <button type="submit" class="btn-primary w-full">조회하기</button>
+                    <div class="text-center">
+                        <button type="submit" class="btn-primary border border-blue-700">조회하기</button>
+                    </div>
 
                     <div class="text-center mt-4">
                         <a th:href="@{/login}" class="text-sm text-blue-600 hover:underline">로그인으로 돌아가기</a>

@@ -45,7 +45,7 @@
     <div class="flex items-center justify-center min-h-screen">
         <div class="w-full max-w-md">
             <div class="bg-white shadow-lg rounded-lg p-8">
-                <h2 class="text-3xl font-bold text-center text-gray-800 mb-6" th:text="#{login.title}">Login</h2>
+                <h2 class="text-3xl font-bold text-center text-white mb-6 p-2 rounded-md bg-blue-500 border" th:text="#{login.title}">Login</h2>
 
                 <div th:if="${param.error}" class="alert-danger mb-4" role="alert">
                     <span th:text="#{login.error}">Invalid username or password.</span>
@@ -68,12 +68,18 @@
                            class="form-input" th:placeholder="#{login.password.placeholder}" value="admin"/>
 
                     <div></div>
-                    <button type="submit" class="btn-primary w-full" th:text="#{login.submitButton}">
-                        Login
-                    </button>
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-900">다음 로그인 시 저장</label>
+                    </div>
 
-                    <div></div>
-                    <div class="text-center">
+                    <div class="col-span-2 text-center pt-4">
+                        <button type="submit" class="btn-primary border border-blue-700" th:text="#{login.submitButton}">
+                            Login
+                        </button>
+                    </div>
+
+                    <div class="col-span-2 text-center pt-2">
                         <button type="button" onclick="openSignupPopup()" class="text-sm text-blue-600 hover:underline">회원가입</button>
                         <span class="mx-2 text-gray-400">|</span>
                         <button type="button" onclick="openFindIdPopup()" class="text-sm text-blue-600 hover:underline">아이디 조회</button>
@@ -156,10 +162,63 @@
     </div>
 
     <script>
+        // Cookie helper functions
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        function eraseCookie(name) {
+            document.cookie = name + '=; Max-Age=-99999999;';
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
+            // Load saved info from cookies
+            const rememberedCompanyId = getCookie("rememberedCompanyId");
+            const rememberedUserId = getCookie("rememberedUserId");
+            const rememberMeCheckbox = document.getElementById('remember-me');
+
+            if (getCookie("rememberMe") !== 'false' && rememberedCompanyId && rememberedUserId) {
+                document.getElementById('company_id').value = rememberedCompanyId;
+                document.getElementById('username').value = rememberedUserId;
+                rememberMeCheckbox.checked = true;
+            } else {
+                rememberMeCheckbox.checked = false;
+            }
+
             const form = document.getElementById('login-form');
             form.addEventListener('submit', function(e) {
+                // Handle remember me checkbox
+                const rememberMe = rememberMeCheckbox.checked;
                 const companyId = document.getElementById('company_id').value;
+                const userId = document.getElementById('username').value;
+
+                if (rememberMe) {
+                    setCookie("rememberedCompanyId", companyId, 30); // Remember for 30 days
+                    setCookie("rememberedUserId", userId, 30);
+                    setCookie("rememberMe", "true", 30);
+                } else {
+                    eraseCookie("rememberedCompanyId");
+                    eraseCookie("rememberedUserId");
+                    setCookie("rememberMe", "false", 30);
+                }
+
                 if (companyId) {
                     // Store the company ID in localStorage to be used by other pages
                     localStorage.setItem('X-Company-Id', companyId);
