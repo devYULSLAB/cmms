@@ -162,6 +162,13 @@
     </div>
 
     <script>
+        /**
+         * Client-side script for login page enhancements.
+         * Note: The "Remember Me" functionality implemented here is a client-side convenience
+         * to pre-fill user and company IDs from cookies. It does NOT implement a persistent
+         * server-side session (i.e., it is not Spring Security's "remember-me" feature).
+         */
+
         // Cookie helper functions
         function setCookie(name, value, days) {
             let expires = "";

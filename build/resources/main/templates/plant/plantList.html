@@ -13,8 +13,10 @@
             <!-- Page Header -->
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800" th:text="#{plant.list.title}">Plant List</h1>
-                <a th:href="@{/plant/form}"
-                    class="btn-primary" th:text="#{common.button.add}">Add New</a>
+                <div>
+                    <a th:href="@{/plant/download/excel}" class="btn-secondary">Excel Download</a>
+                    <a th:href="@{/plant/form}" class="btn-primary" th:text="#{common.button.add}">Add New</a>
+                </div>
             </div>
 
             <!-- Flash Messages -->

@@ -74,4 +74,9 @@ public class InspectionService {
     public List<InspectionItem> getInspectionItemsByCompanyAndInspectionId(String companyId, String inspectionId) {
         return inspectionItemRepository.findByCompanyIdAndInspectionIdOrderByItemIdAsc(companyId, inspectionId);
     }
+
+    @Transactional(readOnly = true)
+    public List<Inspection> getRecentInspectionsByPlant(String companyId, String plantId) {
+        return inspectionRepository.findTop5ByCompanyIdAndPlantIdOrderByPlannedDateDesc(companyId, plantId);
+    }
 }

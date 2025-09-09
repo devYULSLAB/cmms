@@ -36,6 +36,11 @@ public class InventoryService {
     }
 
     @Transactional(readOnly = true)
+    public List<Inventory> getAllInventoriesByCompanyId(String companyId) {
+        return inventoryRepository.findInventoriesByCompanyId(companyId);
+    }
+
+    @Transactional(readOnly = true)
     public Inventory getInventoryById(InventoryId inventoryId) {
         return inventoryRepository.findById(inventoryId)
                 .orElseThrow(() -> new RuntimeException("Inventory not found: " + inventoryId));

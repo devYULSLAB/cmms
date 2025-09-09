@@ -1,6 +1,7 @@
 package com.cmms.inventory.controller;
 
 import com.cmms.auth.dto.CustomUserDetails;
+import com.cmms.common.excel.ExcelService;
 import com.cmms.domain.site.service.SiteService;
 import com.cmms.inventory.dto.InventoryLedgerDto;
 import com.cmms.inventory.dto.InventoryTransactionForm;
@@ -10,7 +11,9 @@ import com.cmms.inventory.entity.StockTx;
 import com.cmms.inventory.service.InventoryService;
 import com.cmms.inventory.service.StockService;
 import com.cmms.storage.service.StorageService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -21,6 +24,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +38,7 @@ public class InventoryController {
     private final StockService stockService;
     private final SiteService siteService;
     private final StorageService storageService;
+    private final ExcelService excelService;
 
     // ========== Inventory Master CRUD ==========
 
@@ -203,5 +208,22 @@ public class InventoryController {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    @GetMapping("/download/excel")
+    public void downloadExcel(@AuthenticationPrincipal CustomUserDetails userDetails, HttpServletResponse response) throws IOException {
+        String companyId = userDetails.getCompanyId();
+        List<Inventory> inventories = inventoryService.getAllInventoriesByCompanyId(companyId);
+
+        String[] headers = {"Item ID", "Item Name", "Type", "Dept ID", "Manufacturer", "Specification"};
+        String[] fieldNames = {"inventoryId", "inventoryName", "masterType", "deptId", "makerName", "spec"};
+
+        Workbook workbook = excelService.createWorkbook(inventories, headers, fieldNames);
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=inventories.xlsx");
+
+        workbook.write(response.getOutputStream());
+        workbook.close();
     }
 }

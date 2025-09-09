@@ -27,6 +27,7 @@
             <div class="flex justify-between items-center mb-6 no-print">
                 <h1 class="text-3xl font-bold text-gray-800" th:text="#{inventory.list.title}">Inventory List</h1>
                 <div>
+                    <a th:href="@{/inventory/download/excel}" class="btn-secondary">Excel Download</a>
                     <a th:href="@{/inventory/form}" class="btn-primary" th:text="'신규'">New Item</a>
                     <button onclick="window.print()" class="btn-secondary" th:text="'출력'">Print</button>
                 </div>

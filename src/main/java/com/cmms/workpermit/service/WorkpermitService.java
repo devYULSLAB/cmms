@@ -80,4 +80,9 @@ public class WorkpermitService {
     public void deleteWorkpermitItem(WorkpermitItemId itemId) {
         workpermitItemRepository.deleteById(itemId);
     }
+
+    @Transactional(readOnly = true)
+    public List<Workpermit> getRecentWorkpermitsByPlant(String companyId, String plantId) {
+        return workpermitRepository.findTop5ByCompanyIdAndPlantIdOrderByStartDateDesc(companyId, plantId);
+    }
 }

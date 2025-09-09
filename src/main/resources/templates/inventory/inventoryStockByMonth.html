@@ -3,6 +3,39 @@
       layout:decorate="~{layout/defaultLayout}">
 <head>
     <title>월별 재고 마감</title>
+    <style>
+        @media print {
+            .no-print, .mb-6, .bg-white.shadow-md.rounded-lg.p-6.mb-6 {
+                display: none !important;
+            }
+            div[layout:fragment="content"] {
+                display: block !important;
+            }
+            body, .container {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100%;
+                font-size: 10pt;
+            }
+            .bg-white.shadow-md.rounded-lg.overflow-hidden {
+                box-shadow: none !important;
+                border: 1px solid #ccc;
+            }
+            h1, p { display: none; } /* Hide original header texts */
+            .container::before {
+                content: '월별 재고 마감 이력';
+                display: block;
+                text-align: center;
+                font-size: 16pt;
+                font-weight: bold;
+                margin-bottom: 1.5rem;
+            }
+        }
+        @page {
+            size: A4;
+            margin: 0.75in;
+        }
+    </style>
 </head>
 <body>
 <div layout:fragment="content">

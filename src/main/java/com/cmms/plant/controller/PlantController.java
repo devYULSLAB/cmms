@@ -1,5 +1,7 @@
 package com.cmms.plant.controller;
 
+import com.cmms.common.excel.ExcelService;
+import com.cmms.inspection.service.InspectionService;
 import com.cmms.plant.entity.Plant;
 import com.cmms.plant.service.PlantService;
 import com.cmms.func.service.FuncService;
@@ -7,8 +9,12 @@ import com.cmms.domain.site.service.SiteService;
 import com.cmms.domain.dept.service.DeptService;
 import com.cmms.common.code.service.CodeService;
 import com.cmms.common.file.service.FileAttachmentService;
+import com.cmms.workorder.service.WorkorderService;
+import com.cmms.workpermit.service.WorkpermitService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +23,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * 프로그램명: CMMS 설비 관리 컨트롤러
@@ -36,6 +45,10 @@ public class PlantController {
     private final DeptService deptService;
     private final CodeService codeService;
     private final FileAttachmentService fileAttachmentService;
+    private final InspectionService inspectionService;
+    private final WorkorderService workorderService;
+    private final WorkpermitService workpermitService;
+    private final ExcelService excelService;
 
     @Value("${file.upload.max-file-count:10}")
     private int maxFileCount;
@@ -152,5 +165,42 @@ public class PlantController {
             throw new RuntimeException("삭제 중 오류 발생: " + e.getMessage());
         }
         return "redirect:/plant/list";
+    }
+
+    @GetMapping("/sections/{plantId}")
+    public String sections(@PathVariable String plantId, HttpSession session, Model model) {
+        String companyId = (String) session.getAttribute("companyId");
+
+        // 설비 기본 정보
+        Plant plant = plantService.getPlantById(new com.cmms.plant.entity.PlantId(companyId, plantId));
+        model.addAttribute("plant", plant);
+
+        // 점검 이력
+        model.addAttribute("inspections", inspectionService.getRecentInspectionsByPlant(companyId, plantId));
+
+        // 작업지시 이력
+        model.addAttribute("workorders", workorderService.getRecentWorkordersByPlant(companyId, plantId));
+
+        // 작업허가 이력
+        model.addAttribute("workpermits", workpermitService.getRecentWorkpermitsByPlant(companyId, plantId));
+
+        return "plant/plantDetailSections";
+    }
+
+    @GetMapping("/download/excel")
+    public void downloadExcel(HttpSession session, HttpServletResponse response) throws IOException {
+        String companyId = (String) session.getAttribute("companyId");
+        List<Plant> plants = plantService.getAllPlantsByCompanyId(companyId);
+
+        String[] headers = {"Plant ID", "Plant Name", "Site ID", "Install Date"};
+        String[] fieldNames = {"plantId", "plantName", "siteId", "installDate"};
+
+        Workbook workbook = excelService.createWorkbook(plants, headers, fieldNames);
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=plants.xlsx");
+
+        workbook.write(response.getOutputStream());
+        workbook.close();
     }
 }
