@@ -79,4 +79,9 @@ public class WorkorderService {
     public void deleteWorkorderItem(WorkorderItemId itemId) {
         workorderItemRepository.deleteById(itemId);
     }
+
+    @Transactional(readOnly = true)
+    public List<Workorder> getRecentWorkordersByPlant(String companyId, String plantId) {
+        return workorderRepository.findTop5ByCompanyIdAndPlantIdOrderByPlannedDateDesc(companyId, plantId);
+    }
 }

@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * 프로그램명: CMMS 설비 관리 서비스
  * 기능: 설비 등록, 조회, 수정, 삭제 및 ID 생성 관리
@@ -28,6 +30,11 @@ public class PlantService {
     @Transactional(readOnly = true)
     public Page<Plant> getPlantsByCompanyId(String companyId, Pageable pageable) {
         return plantRepository.findPlantsByCompanyId(companyId, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Plant> getAllPlantsByCompanyId(String companyId) {
+        return plantRepository.findPlantsByCompanyId(companyId);
     }
 
     @Transactional(readOnly = true)

@@ -5,9 +5,35 @@
     <title>재고 원장</title>
     <style>
         @media print {
+            /* Hide all non-printable elements */
             .no-print { display: none !important; }
-            body, .printable-area { background-color: white !important; }
-            .printable-area { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+
+            /* Reset body and container for printing */
+            body, .container {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100%;
+                font-size: 10pt;
+                background-color: white !important;
+            }
+            .printable-area, .bg-white.shadow-md.rounded-lg.overflow-hidden {
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            /* Add a page title for the printout */
+            .printable-area::before {
+                content: '재고 원장';
+                display: block;
+                text-align: center;
+                font-size: 16pt;
+                font-weight: bold;
+                margin-bottom: 1.5rem;
+            }
+        }
+        @page {
+            size: A4;
+            margin: 0.75in;
         }
     </style>
 </head>
