@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title th:text="#{plant.sections.title} + ' - ' + ${plant.plant_name}">Plant Section Details</title>
+    <style>
+        .card {
+            @apply bg-white shadow-md rounded-lg overflow-hidden mb-6;
+        }
+        .card-header {
+            @apply bg-gray-50 border-b border-gray-200 px-6 py-4;
+        }
+        .card-title {
+            @apply text-lg font-semibold text-gray-700;
+        }
+        .card-body {
+            @apply p-6;
+        }
+        .table-custom {
+            @apply min-w-full divide-y divide-gray-200;
+        }
+        .table-custom th {
+            @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+        }
+        .table-custom td {
+            @apply px-6 py-4 whitespace-nowrap text-sm text-gray-800;
+        }
+        .btn-info {
+             @apply bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800" th:text="${plant.plant_name}">Plant Name</h1>
+                    <p class="text-sm text-gray-500" th:text="'ID: ' + ${plant.plant_id}">ID: P-2401-0001</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <a th:href="@{/plant/detail/{siteId}/{plantId}(siteId=${plant.site_id}, plantId=${plant.plant_id})}" class="btn-secondary">기본정보로 돌아가기</a>
+                </div>
+            </div>
+
+            <!-- Basic Info Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">기본 정보</h2>
+                </div>
+                <div class="card-body">
+                    <dl class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-6">
+                        <div><dt class="detail-label">설비명</dt><dd class="detail-value" th:text="${plant.plant_name}"></dd></div>
+                        <div><dt class="detail-label">사이트</dt><dd class="detail-value" th:text="${plant.site_id}"></dd></div>
+                        <div><dt class="detail-label">위치</dt><dd class="detail-value" th:text="${plant.location}"></dd></div>
+                        <div><dt class="detail-label">설치일</dt><dd class="detail-value" th:text="${#dates.format(plant.install_date, 'yyyy-MM-dd')}"></dd></div>
+                        <div><dt class="detail-label">관리부서</dt><dd class="detail-value" th:text="${plant.dept_id}"></dd></div>
+                        <div><dt class="detail-label">기능위치</dt><dd class="detail-value" th:text="${plant.func_id}"></dd></div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Inspection History Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">점검 이력 (최신 5개)</h2>
+                </div>
+                <div class="card-body">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>점검 ID</th>
+                                <th>점검명</th>
+                                <th>계획일</th>
+                                <th>상태</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="inspection : ${inspections}">
+                                <td th:text="${inspection.inspectionId}"></td>
+                                <td th:text="${inspection.inspectionName}"></td>
+                                <td th:text="${#temporals.format(inspection.plannedDate, 'yyyy-MM-dd HH:mm')}"></td>
+                                <td th:text="${inspection.status}"></td>
+                                <td><a th:href="@{/inspection/detail/{inspectionId}(inspectionId=${inspection.inspectionId})}" class="text-blue-600 hover:underline">상세보기</a></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(inspections)}">
+                                <td colspan="5" class="text-center py-4">점검 이력이 없습니다.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Workorder History Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">작업지시 이력 (최신 5개)</h2>
+                </div>
+                <div class="card-body">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>작업지시 ID</th>
+                                <th>작업명</th>
+                                <th>계획일</th>
+                                <th>상태</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="workorder : ${workorders}">
+                                <td th:text="${workorder.workorderId}"></td>
+                                <td th:text="${workorder.workorderName}"></td>
+                                <td th:text="${#temporals.format(workorder.plannedDate, 'yyyy-MM-dd')}"></td>
+                                <td th:text="${workorder.status}"></td>
+                                <td><a th:href="@{/workorder/detail/{workorderId}(workorderId=${workorder.workorderId})}" class="text-blue-600 hover:underline">상세보기</a></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(workorders)}">
+                                <td colspan="5" class="text-center py-4">작업지시 이력이 없습니다.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Workpermit History Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">작업허가 이력 (최신 5개)</h2>
+                </div>
+                <div class="card-body">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>작업허가 ID</th>
+                                <th>허가명</th>
+                                <th>시작일</th>
+                                <th>종료일</th>
+                                <th>상태</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="workpermit : ${workpermits}">
+                                <td th:text="${workpermit.permitId}"></td>
+                                <td th:text="${workpermit.permitName}"></td>
+                                <td th:text="${#temporals.format(workpermit.startDate, 'yyyy-MM-dd')}"></td>
+                                <td th:text="${#temporals.format(workpermit.endDate, 'yyyy-MM-dd')}"></td>
+                                <td th:text="${workpermit.status}"></td>
+                                <td><a th:href="@{/workpermit/detail/{permitId}(permitId=${workpermit.permitId})}" class="text-blue-600 hover:underline">상세보기</a></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(workpermits)}">
+                                <td colspan="6" class="text-center py-4">작업허가 이력이 없습니다.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

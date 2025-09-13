@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/defaultLayout}">
+<head>
+    <title>월별 재고 마감</title>
+    <style>
+        @media print {
+            .no-print, .mb-6, .bg-white.shadow-md.rounded-lg.p-6.mb-6 {
+                display: none !important;
+            }
+            div[layout:fragment="content"] {
+                display: block !important;
+            }
+            body, .container {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100%;
+                font-size: 10pt;
+            }
+            .bg-white.shadow-md.rounded-lg.overflow-hidden {
+                box-shadow: none !important;
+                border: 1px solid #ccc;
+            }
+            h1, p { display: none; } /* Hide original header texts */
+            .container::before {
+                content: '월별 재고 마감 이력';
+                display: block;
+                text-align: center;
+                font-size: 16pt;
+                font-weight: bold;
+                margin-bottom: 1.5rem;
+            }
+        }
+        @page {
+            size: A4;
+            margin: 0.75in;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Page Header -->
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">월별 재고 마감</h1>
+            <p class="text-gray-600 mt-1">선택한 년월의 재고를 마감하고 데이터를 확정합니다.</p>
+        </div>
+
+        <!-- Flash Messages -->
+        <div th:if="${successMessage}" class="alert-success mb-4" role="alert" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert-danger mb-4" role="alert" th:text="${errorMessage}"></div>
+
+        <!-- Closing Form -->
+        <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+            <h2 class="form-section-title mb-4">마감 실행</h2>
+            <form th:action="@{/inventory/closing}" method="post" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div class="form-group">
+                    <label for="yyyymm" class="form-label">마감 년월 (YYYYMM)</label>
+                    <input type="text" id="yyyymm" name="yyyymm" class="form-input" placeholder="예: 202509" required
+                           pattern="\\d{6}" title="YYYYMM 형식으로 6자리 숫자를 입력하세요.">
+                </div>
+                <div class="form-group">
+                    <label for="siteId" class="form-label">사이트</label>
+                    <select id="siteId" name="siteId" class="form-select" required>
+                        <option value="">사이트 선택...</option>
+                        <option th:each="site : ${sites}" th:value="${site.siteId}" th:text="${site.siteName}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="storageId" class="form-label">창고 (선택)</label>
+                    <select id="storageId" name="storageId" class="form-select">
+                        <option value="">전체 창고</option>
+                        <option th:each="storage : ${storages}" th:value="${storage.storageId}" th:text="${storage.storageName}"></option>
+                    </select>
+                </div>
+                <div class="md:col-start-4">
+                    <button type="submit" class="btn-danger w-full"
+                            onclick="return confirm('마감을 실행하면 해당 월의 재고 데이터가 확정되며 되돌릴 수 없습니다. 계속하시겠습니까?');">
+                        마감 확정
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Closing History -->
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <h2 class="form-section-title p-6">마감 이력</h2>
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="th-style">마감 년월</th>
+                    <th class="th-style">사이트</th>
+                    <th class="th-style">창고</th>
+                    <th class="th-style">품목</th>
+                    <th class="th-style text-right">마감 수량</th>
+                    <th class="th-style">마감 일시</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <tr th:each="history : ${closingHistory}">
+                    <td class="td-style" th:text="${history.yyyymm}"></td>
+                    <td class="td-style" th:text="${history.siteId}"></td>
+                    <td class="td-style" th:text="${history.storageId}"></td>
+                    <td class="td-style" th:text="${history.inventoryId}"></td>
+                    <td class="td-style text-right" th:text="${#numbers.formatDecimal(history.closingQty, 1, 'COMMA', 3, 'POINT')}"></td>
+                    <td class="td-style" th:text="${#temporals.format(history.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(closingHistory)}">
+                    <td colspan="6" class="text-center py-4">마감 이력이 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title th:text="${memo.memo_id == null} ? #{memo.form.title.create} : #{memo.form.title.edit}">Memo Form</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <h1 class="text-3xl font-bold text-gray-800 mb-6"
+                th:text="${memo.memo_id == null} ? #{memo.form.header.create} : #{memo.form.header.edit}">
+                Create Memo
+            </h1>
+
+            <form th:action="@{/memo/save}" th:object="${memo}" method="post" class="space-y-8">
+                <input type="hidden" th:field="*{company_id}" />
+                <input type="hidden" th:field="*{memo_id}" />
+                <input type="hidden" th:field="*{view_cnt}" />
+
+                <div class="form-section">
+                     <div class="grid grid-cols-1 gap-6">
+                        <div class="form-group">
+                            <label for="memo_name" class="form-label" th:text="#{memo.name}">Title</label>
+                            <input type="text" id="memo_name" th:field="*{memo_name}" class="form-input" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="note" class="form-label" th:text="#{memo.note}">Content</label>
+                            <textarea id="note" th:field="*{note}" class="form-textarea" rows="10"></textarea>
+                        </div>
+                        <div class="form-group-checkbox">
+                            <input type="checkbox" id="is_pinned" th:field="*{is_pinned}" th:value="Y" class="form-checkbox" />
+                             <label for="is_pinned" class="form-label-checkbox" th:text="#{memo.pinned}">Pin to top</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end space-x-4 pt-4 border-t">
+                    <a th:href="@{/memo/list}" class="btn-secondary" th:text="#{common.button.cancel}">Cancel</a>
+                    <button type="submit" class="btn-primary" th:text="#{common.button.save}">Save Memo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
