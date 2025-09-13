@@ -21,7 +21,7 @@ public class CompanyService {
     }
 
     @Transactional(readOnly = true)
-    public Company findCompanyById(String companyId) {
+    public Company getCompanyById(String companyId) {
         return companyRepository.findById(companyId)
                 .orElseThrow(() -> new RuntimeException("Company not found: " + companyId));
     }

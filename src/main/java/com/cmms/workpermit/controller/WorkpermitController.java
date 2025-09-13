@@ -29,14 +29,14 @@ public class WorkpermitController {
     // private final DeptService deptService;
     // private final CommonCodeService commonCodeService;
 
-    @GetMapping("/list")
+    @GetMapping
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model, @PageableDefault(size = 10, sort = "permitId") Pageable pageable) {
         Page<Workpermit> workpermits = workpermitService.getWorkpermitsByCompanyId(userDetails.getCompanyId(), pageable);
         model.addAttribute("workpermits", workpermits);
         return "workpermit/list";
     }
 
-    @GetMapping("/form")
+    @GetMapping("/new")
     public String form(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         Workpermit workpermit = new Workpermit();
         List<WorkpermitItem> items = new ArrayList<>();
@@ -47,6 +47,21 @@ public class WorkpermitController {
         // model.addAttribute("permitTypes", commonCodeService.findByCodeType(userDetails.getCompanyId(), "PERMT"));
         // model.addAttribute("depts", deptService.findAllByCompanyId(userDetails.getCompanyId()));
         return "workpermit/form";
+    }
+
+    @PostMapping
+    public String save(@ModelAttribute Workpermit workpermit, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
+        workpermit.setCompanyId(userDetails.getCompanyId());
+        workpermitService.saveWorkpermit(workpermit);
+        redirectAttributes.addFlashAttribute("message", "Work permit saved successfully.");
+        return "redirect:/workpermit";
+    }
+
+    @GetMapping("/{permitId}")
+    public String detail(@PathVariable String permitId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        WorkpermitId id = new WorkpermitId(userDetails.getCompanyId(), permitId);
+        model.addAttribute("workpermit", workpermitService.getWorkpermitById(id));
+        return "workpermit/detail";
     }
 
     @GetMapping("/{permitId}/edit")
@@ -60,19 +75,13 @@ public class WorkpermitController {
         return "workpermit/form";
     }
 
-    @PostMapping("/save")
-    public String save(@ModelAttribute Workpermit workpermit, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
+    @PostMapping("/{permitId}")
+    public String update(@PathVariable String permitId, @ModelAttribute Workpermit workpermit, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
         workpermit.setCompanyId(userDetails.getCompanyId());
+        workpermit.setPermitId(permitId);
         workpermitService.saveWorkpermit(workpermit);
-        redirectAttributes.addFlashAttribute("message", "Work permit saved successfully.");
-        return "redirect:/workpermit/list";
-    }
-
-    @GetMapping("/{permitId}")
-    public String detail(@PathVariable String permitId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        WorkpermitId id = new WorkpermitId(userDetails.getCompanyId(), permitId);
-        model.addAttribute("workpermit", workpermitService.getWorkpermitById(id));
-        return "workpermit/detail";
+        redirectAttributes.addFlashAttribute("message", "Work permit updated successfully.");
+        return "redirect:/workpermit";
     }
 
     @PostMapping("/{permitId}/delete")
@@ -84,6 +93,6 @@ public class WorkpermitController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting work permit: " + e.getMessage());
         }
-        return "redirect:/workpermit/list";
+        return "redirect:/workpermit";
     }
 }

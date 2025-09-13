@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title th:text="${storage.storageId == null} ? #{storage.form.title.create} : #{storage.form.title.edit}">Storage Form</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <h1 class="text-3xl font-bold text-gray-800 mb-6"
+                th:text="${storage.storageId == null} ? #{storage.form.header.create} : #{storage.form.header.edit}">
+                Create Storage
+            </h1>
+
+            <form th:action="@{/storage}" th:object="${storage}" method="post" class="space-y-8 max-w-lg">
+                <input type="hidden" th:field="*{companyId}" />
+
+                <div class="form-section">
+                     <div class="grid grid-cols-1 gap-6">
+                        <div class="form-group">
+                            <label for="storageId" class="form-label" th:text="#{storage.id}">ID</label>
+                            <input type="text" id="storageId" th:field="*{storageId}" class="form-input" th:readonly="${storage.storageId != null}" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="storageName" class="form-label" th:text="#{storage.name}">Name</label>
+                            <input type="text" id="storageName" th:field="*{storageName}" class="form-input" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="useYn" class="form-label" th:text="#{storage.useYn}">Use</label>
+                            <select id="useYn" th:field="*{useYn}" class="form-select" required>
+                                <option value="Y" th:text="#{common.yes}">Yes</option>
+                                <option value="N" th:text="#{common.no}">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sortOrder" class="form-label" th:text="#{storage.sortOrder}">Sort Order</label>
+                            <input type="number" id="sortOrder" th:field="*{sortOrder}" class="form-input" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="parentStorageId" class="form-label" th:text="#{storage.parentId}">Parent Storage</label>
+                             <select id="parentStorageId" th:field="*{parentStorageId}" class="form-select">
+                                <option value="" th:text="#{common.select.placeholder}">Select a parent...</option>
+                                <option th:each="s : ${storages}" th:value="${s.storageId}" th:text="${s.storageName}"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end space-x-4 pt-4 border-t">
+                    <a th:href="@{/storage}" class="btn-secondary" th:text="#{common.button.cancel}">Cancel</a>
+                    <button type="submit" class="btn-primary" th:text="#{common.button.save}">Save Storage</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

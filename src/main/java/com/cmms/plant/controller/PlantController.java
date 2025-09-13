@@ -59,7 +59,20 @@ public class PlantController {
     @Value("${file.upload.accept:*/*}")
     private String fileAccept;
 
-    @GetMapping("/form")
+    @GetMapping
+    public String list(Model model,
+            HttpSession session,
+            @PageableDefault(size = 10, sort = "plantId") Pageable pageable) {
+        // 세션에서 사용자 정보 가져오기
+        String companyId = (String) session.getAttribute("companyId");
+
+        Page<Plant> plants = plantService.getPlantsByCompanyId(companyId, pageable);
+        model.addAttribute("plants", plants);
+
+        return "plant/list";
+    }
+
+    @GetMapping("/new")
     public String form(Model model, HttpSession session) {
         String companyId = (String) session.getAttribute("companyId");
 
@@ -83,10 +96,37 @@ public class PlantController {
         model.addAttribute("maxFileSize", maxFileSize);
         model.addAttribute("fileAccept", fileAccept);
 
-        return "plant/plantForm";
+        return "plant/form";
     }
 
-    @GetMapping("/form/{siteId}/{plantId}")
+    @PostMapping
+    public String save(@ModelAttribute Plant plant,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        // 세션에서 사용자 정보 가져오기
+        String companyId = (String) session.getAttribute("companyId");
+
+        plant.setCompanyId(companyId);
+
+        plantService.savePlant(plant);
+
+        return "redirect:/plant";
+    }
+
+    @GetMapping("/{siteId}/{plantId}")
+    public String detail(@PathVariable String siteId, @PathVariable String plantId,
+            HttpSession session,
+            Model model) {
+        // 세션에서 사용자 정보 가져오기
+        String companyId = (String) session.getAttribute("companyId");
+
+        Plant plant = plantService.getPlantById(new com.cmms.plant.entity.PlantId(companyId, plantId));
+        model.addAttribute("plant", plant);
+
+        return "plant/detail";
+    }
+
+    @GetMapping("/{siteId}/{plantId}/edit")
     public String editForm(@PathVariable String siteId, @PathVariable String plantId,
             Model model,
             HttpSession session) {
@@ -108,50 +148,26 @@ public class PlantController {
         model.addAttribute("maxFileSize", maxFileSize);
         model.addAttribute("fileAccept", fileAccept);
 
-        return "plant/plantForm";
+        return "plant/form";
     }
 
-    @PostMapping("/save")
-    public String save(@ModelAttribute Plant plant,
+    @PostMapping("/{siteId}/{plantId}")
+    public String update(@PathVariable String siteId, @PathVariable String plantId,
+            @ModelAttribute Plant plant,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
         // 세션에서 사용자 정보 가져오기
         String companyId = (String) session.getAttribute("companyId");
 
         plant.setCompanyId(companyId);
+        plant.setPlantId(plantId);
 
         plantService.savePlant(plant);
 
-        return "redirect:/plant/list";
+        return "redirect:/plant";
     }
 
-    @GetMapping("/list")
-    public String list(Model model,
-            HttpSession session,
-            @PageableDefault(size = 10, sort = "plantId") Pageable pageable) {
-        // 세션에서 사용자 정보 가져오기
-        String companyId = (String) session.getAttribute("companyId");
-
-        Page<Plant> plants = plantService.getPlantsByCompanyId(companyId, pageable);
-        model.addAttribute("plants", plants);
-
-        return "plant/plantList";
-    }
-
-    @GetMapping("/detail/{siteId}/{plantId}")
-    public String detail(@PathVariable String siteId, @PathVariable String plantId,
-            HttpSession session,
-            Model model) {
-        // 세션에서 사용자 정보 가져오기
-        String companyId = (String) session.getAttribute("companyId");
-
-        Plant plant = plantService.getPlantById(new com.cmms.plant.entity.PlantId(companyId, plantId));
-        model.addAttribute("plant", plant);
-
-        return "plant/plantDetail";
-    }
-
-    @PostMapping("/delete/{siteId}/{plantId}")
+    @PostMapping("/{siteId}/{plantId}/delete")
     public String delete(@PathVariable String siteId, @PathVariable String plantId,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
@@ -164,7 +180,7 @@ public class PlantController {
         } catch (Exception e) {
             throw new RuntimeException("삭제 중 오류 발생: " + e.getMessage());
         }
-        return "redirect:/plant/list";
+        return "redirect:/plant";
     }
 
     @GetMapping("/sections/{plantId}")
@@ -184,7 +200,7 @@ public class PlantController {
         // 작업허가 이력
         model.addAttribute("workpermits", workpermitService.getRecentWorkpermitsByPlant(companyId, plantId));
 
-        return "plant/plantDetailSections";
+        return "plant/sections";
     }
 
     @GetMapping("/download/excel")

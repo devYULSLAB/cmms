@@ -18,16 +18,36 @@ public class StorageController {
 
     private final StorageService storageService;
 
-    @GetMapping("/list")
+    @GetMapping
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         model.addAttribute("storages", storageService.getStoragesByCompanyId(userDetails.getCompanyId()));
         return "storage/list";
     }
 
-    @GetMapping("/form")
+    @GetMapping("/new")
     public String form(Model model) {
         model.addAttribute("storage", new Storage());
         return "storage/form";
+    }
+
+    @PostMapping
+    public String save(@ModelAttribute Storage storage, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
+        storage.setCompanyId(userDetails.getCompanyId());
+        try {
+            storageService.saveStorage(storage);
+            redirectAttributes.addFlashAttribute("message", "Storage location saved successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error saving storage location: " + e.getMessage());
+            return "redirect:/storage/new";
+        }
+        return "redirect:/storage";
+    }
+
+    @GetMapping("/{storageId}")
+    public String detail(@PathVariable String storageId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        StorageId id = new StorageId(userDetails.getCompanyId(), storageId);
+        model.addAttribute("storage", storageService.getStorageById(id));
+        return "storage/detail";
     }
 
     @GetMapping("/{storageId}/edit")
@@ -37,17 +57,18 @@ public class StorageController {
         return "storage/form";
     }
 
-    @PostMapping("/save")
-    public String save(@ModelAttribute Storage storage, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
+    @PostMapping("/{storageId}")
+    public String update(@PathVariable String storageId, @ModelAttribute Storage storage, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
         storage.setCompanyId(userDetails.getCompanyId());
+        storage.setStorageId(storageId);
         try {
             storageService.saveStorage(storage);
-            redirectAttributes.addFlashAttribute("message", "Storage location saved successfully.");
+            redirectAttributes.addFlashAttribute("message", "Storage location updated successfully.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error saving storage location: " + e.getMessage());
-            return "redirect:/storage/form";
+            redirectAttributes.addFlashAttribute("errorMessage", "Error updating storage location: " + e.getMessage());
+            return "redirect:/storage/" + storageId + "/edit";
         }
-        return "redirect:/storage/list";
+        return "redirect:/storage";
     }
 
     @PostMapping("/{storageId}/delete")
@@ -59,6 +80,6 @@ public class StorageController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting storage location: " + e.getMessage());
         }
-        return "redirect:/storage/list";
+        return "redirect:/storage";
     }
 }

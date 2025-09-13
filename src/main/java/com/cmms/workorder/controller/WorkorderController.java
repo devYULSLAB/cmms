@@ -25,14 +25,14 @@ public class WorkorderController {
 
     private final WorkorderService workorderService;
 
-    @GetMapping("/list")
+    @GetMapping
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model, @PageableDefault(size = 10, sort = "workorderId") Pageable pageable) {
         Page<Workorder> workorders = workorderService.getWorkordersByCompanyId(userDetails.getCompanyId(), pageable);
         model.addAttribute("workorders", workorders);
         return "workorder/list";
     }
 
-    @GetMapping("/form")
+    @GetMapping("/new")
     public String form(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         Workorder workorder = new Workorder();
         List<WorkorderItem> items = new ArrayList<>();
@@ -43,6 +43,21 @@ public class WorkorderController {
         // model.addAttribute("jobTypes", commonCodeService.findByCodeType(userDetails.getCompanyId(), "JOBTP"));
         // model.addAttribute("depts", deptService.findAllByCompanyId(userDetails.getCompanyId()));
         return "workorder/form";
+    }
+
+    @PostMapping
+    public String save(@ModelAttribute Workorder workorder, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
+        workorder.setCompanyId(userDetails.getCompanyId());
+        workorderService.saveWorkorder(workorder);
+        redirectAttributes.addFlashAttribute("message", "Workorder saved successfully.");
+        return "redirect:/workorder";
+    }
+
+    @GetMapping("/{workorderId}")
+    public String detail(@PathVariable String workorderId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        WorkorderId id = new WorkorderId(userDetails.getCompanyId(), workorderId);
+        model.addAttribute("workorder", workorderService.getWorkorderById(id));
+        return "workorder/detail";
     }
 
     @GetMapping("/{workorderId}/edit")
@@ -56,19 +71,13 @@ public class WorkorderController {
         return "workorder/form";
     }
 
-    @PostMapping("/save")
-    public String save(@ModelAttribute Workorder workorder, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
+    @PostMapping("/{workorderId}")
+    public String update(@PathVariable String workorderId, @ModelAttribute Workorder workorder, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
         workorder.setCompanyId(userDetails.getCompanyId());
+        workorder.setWorkorderId(workorderId);
         workorderService.saveWorkorder(workorder);
-        redirectAttributes.addFlashAttribute("message", "Workorder saved successfully.");
-        return "redirect:/workorder/list";
-    }
-
-    @GetMapping("/{workorderId}")
-    public String detail(@PathVariable String workorderId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        WorkorderId id = new WorkorderId(userDetails.getCompanyId(), workorderId);
-        model.addAttribute("workorder", workorderService.getWorkorderById(id));
-        return "workorder/detail";
+        redirectAttributes.addFlashAttribute("message", "Workorder updated successfully.");
+        return "redirect:/workorder";
     }
 
     @PostMapping("/{workorderId}/delete")
@@ -80,6 +89,6 @@ public class WorkorderController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting workorder: " + e.getMessage());
         }
-        return "redirect:/workorder/list";
+        return "redirect:/workorder";
     }
 }

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title>Inventory List</title>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: white; }
+            .printable-area {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .pagination-container { display: none !important; }
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 printable-area">
+
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-6 no-print">
+                <h1 class="text-3xl font-bold text-gray-800" th:text="#{inventory.list.title}">Inventory List</h1>
+                <div>
+                    <a th:href="@{/inventory/download/excel}" class="btn-secondary">Excel Download</a>
+                    <a th:href="@{/inventory/new}" class="btn-primary" th:text="'신규'">New Item</a>
+                    <button onclick="window.print()" class="btn-secondary" th:text="'출력'">Print</button>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            <div th:if="${successMessage}" class="alert-success" role="alert" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert-danger" role="alert" th:text="${errorMessage}"></div>
+
+            <!-- Data Table -->
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="th-style" th:text="#{inventory.id}">Item ID</th>
+                            <th scope="col" class="th-style" th:text="#{inventory.name}">Item Name</th>
+                            <th scope="col" class="th-style" th:text="#{inventory.spec}">Specification</th>
+                            <th scope="col" class="th-style" th:text="#{inventory.unit}">Unit</th>
+                            <th scope="col" class="th-style" th:text="#{inventory.qty}">Quantity</th>
+                            <th scope="col" class="th-style" th:text="#{inventory.storageId}">Storage</th>
+                            <th scope="col" class="th-style" th:text="#{common.action}">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="item : ${inventories.content}" class="hover:bg-gray-50">
+                            <td class="td-style">
+                                <a th:href="@{/inventory/{inventoryId}(inventoryId=${item.inventoryId})}"
+                                   class="text-blue-600 hover:underline" th:text="${item.inventoryId}"></a>
+                            </td>
+                            <td class="td-style" th:text="${item.inventoryName}"></td>
+                            <td class="td-style" th:text="${item.spec}"></td>
+                            <td class="td-style" th:text="${item.uom}"></td>
+                            <td class="td-style text-right" th:text="${item.qty}"></td>
+                            <td class="td-style" th:text="${item.storageId}"></td>
+                            <td class="td-style space-x-2">
+                                <a th:href="@{/inventory/{inventoryId}/edit(inventoryId=${item.inventoryId})}" class="btn-secondary" th:text="#{common.button.edit}">Edit</a>
+                                <form th:action="@{/inventory/{inventoryId}/delete(inventoryId=${item.inventoryId})}" method="post" class="inline-block" onsubmit="return confirm('Are you sure?');">
+                                    <button type="submit" class="btn-danger" th:text="#{common.button.delete}">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${inventories.empty}">
+                            <td colspan="7" class="text-center py-4" th:text="#{common.table.noData}">No data available</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav th:if="${inventories.totalPages > 1}" class="pagination-container" aria-label="Pagination">
+                <ul class="pagination">
+                    <li th:classappend="${inventories.first} ? 'disabled' : ''">
+                        <a th:href="@{/inventory(page=${inventories.number - 1}, size=${inventories.size})}" class="pagination-link" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li th:each="i : ${#numbers.sequence(0, inventories.totalPages - 1)}" th:classappend="${i == inventories.number} ? 'active' : ''">
+                        <a th:href="@{/inventory(page=${i}, size=${inventories.size})}" class="pagination-link" th:text="${i + 1}"></a>
+                    </li>
+                    <li th:classappend="${inventories.last} ? 'disabled' : ''">
+                        <a th:href="@{/inventory(page=${inventories.number + 1}, size=${inventories.size})}" class="pagination-link" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title>Workpermit List</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800" th:text="#{workpermit.list.title}">Work Permit List</h1>
+                <a th:href="@{/workpermit/new}" class="btn-primary" th:text="#{common.button.add}">New Work Permit</a>
+            </div>
+
+            <!-- Data Table -->
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="th-style" th:text="#{workpermit.id}">Permit ID</th>
+                            <th scope="col" class="th-style" th:text="#{workpermit.name}">Permit Name</th>
+                            <th scope="col" class="th-style" th:text="#{workpermit.plantId}">Plant</th>
+                            <th scope="col" class="th-style" th:text="#{workpermit.startDate}">Start Date</th>
+                            <th scope="col" class="th-style" th:text="#{workpermit.endDate}">End Date</th>
+                            <th scope="col" class="th-style" th:text="#{workpermit.status}">Status</th>
+                            <th scope="col" class="th-style" th:text="#{common.action}">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="wp : ${workpermits.content}" class="hover:bg-gray-50">
+                            <td class="td-style">
+                                <a th:href="@{/workpermit/{permitId}(permitId=${wp.permitId})}"
+                                   class="text-blue-600 hover:underline" th:text="${wp.permitId}"></a>
+                            </td>
+                            <td class="td-style" th:text="${wp.permitName}"></td>
+                            <td class="td-style" th:text="${wp.plantId}"></td>
+                            <td class="td-style" th:text="${#dates.format(wp.startDate, 'yyyy-MM-dd')}"></td>
+                            <td class="td-style" th:text="${#dates.format(wp.endDate, 'yyyy-MM-dd')}"></td>
+                            <td class="td-style" th:text="${wp.status}"></td>
+                            <td class="td-style space-x-2">
+                                <a th:href="@{/workpermit/{permitId}/edit(permitId=${wp.permitId})}" class="btn-secondary" th:text="#{common.button.edit}">Edit</a>
+                                <form th:action="@{/workpermit/{permitId}/delete(permitId=${wp.permitId})}" method="post" class="inline-block" onsubmit="return confirm('Are you sure?');">
+                                    <button type="submit" class="btn-danger" th:text="#{common.button.delete}">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${workpermits.empty}">
+                            <td colspan="7" class="text-center py-4" th:text="#{common.table.noData}">No data available</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav th:if="${workpermits.totalPages > 1}" class="pagination-container" aria-label="Pagination">
+                <ul class="pagination">
+                    <li th:classappend="${workpermits.first} ? 'disabled' : ''">
+                        <a th:href="@{/workpermit(page=${workpermits.number - 1}, size=${workpermits.size})}" class="pagination-link" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li th:each="i : ${#numbers.sequence(0, workpermits.totalPages - 1)}" th:classappend="${i == workpermits.number} ? 'active' : ''">
+                        <a th:href="@{/workpermit(page=${i}, size=${workpermits.size})}" class="pagination-link" th:text="${i + 1}"></a>
+                    </li>
+                    <li th:classappend="${workpermits.last} ? 'disabled' : ''">
+                        <a th:href="@{/workpermit(page=${workpermits.number + 1}, size=${workpermits.size})}" class="pagination-link" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</body>
+</html>

@@ -42,20 +42,35 @@ public class InventoryController {
 
     // ========== Inventory Master CRUD ==========
 
-    @GetMapping("/list")
+    @GetMapping
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model, @PageableDefault(size = 10, sort = "inventoryId") Pageable pageable) {
         Page<Inventory> inventories = inventoryService.getInventoriesByCompanyId(userDetails.getCompanyId(), pageable);
         model.addAttribute("inventories", inventories);
-        return "inventory/inventoryList";
+        return "inventory/list";
     }
 
-    @GetMapping("/form")
+    @GetMapping("/new")
     public String form(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         model.addAttribute("inventory", new Inventory());
         // Populate model with necessary data for select boxes
         // model.addAttribute("depts", deptService.findAllByCompanyId(userDetails.getCompanyId()));
         // model.addAttribute("assetTypes", commonCodeService.findByCodeType(userDetails.getCompanyId(), "ASSET"));
-        return "inventory/inventoryForm";
+        return "inventory/form";
+    }
+
+    @PostMapping
+    public String save(@ModelAttribute Inventory inventory, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
+        inventory.setCompanyId(userDetails.getCompanyId());
+        inventoryService.saveInventory(inventory);
+        redirectAttributes.addFlashAttribute("message", "Inventory saved successfully.");
+        return "redirect:/inventory";
+    }
+
+    @GetMapping("/{inventoryId}")
+    public String detail(@PathVariable String inventoryId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        InventoryId id = new InventoryId(userDetails.getCompanyId(), inventoryId);
+        model.addAttribute("inventory", inventoryService.getInventoryById(id));
+        return "inventory/detail";
     }
 
     @GetMapping("/{inventoryId}/edit")
@@ -66,22 +81,16 @@ public class InventoryController {
         // Populate model with necessary data for select boxes
         // model.addAttribute("depts", deptService.findAllByCompanyId(userDetails.getCompanyId()));
         // model.addAttribute("assetTypes", commonCodeService.findByCodeType(userDetails.getCompanyId(), "ASSET"));
-        return "inventory/inventoryForm";
+        return "inventory/form";
     }
 
-    @PostMapping("/save")
-    public String save(@ModelAttribute Inventory inventory, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
+    @PostMapping("/{inventoryId}")
+    public String update(@PathVariable String inventoryId, @ModelAttribute Inventory inventory, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
         inventory.setCompanyId(userDetails.getCompanyId());
+        inventory.setInventoryId(inventoryId);
         inventoryService.saveInventory(inventory);
-        redirectAttributes.addFlashAttribute("message", "Inventory saved successfully.");
-        return "redirect:/inventory/list";
-    }
-
-    @GetMapping("/{inventoryId}")
-    public String detail(@PathVariable String inventoryId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        InventoryId id = new InventoryId(userDetails.getCompanyId(), inventoryId);
-        model.addAttribute("inventory", inventoryService.getInventoryById(id));
-        return "inventory/inventoryDetail";
+        redirectAttributes.addFlashAttribute("message", "Inventory updated successfully.");
+        return "redirect:/inventory";
     }
 
     @PostMapping("/{inventoryId}/delete")
@@ -93,7 +102,7 @@ public class InventoryController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting inventory: " + e.getMessage());
         }
-        return "redirect:/inventory/list";
+        return "redirect:/inventory";
     }
 
     // ========== Stock Transaction ==========

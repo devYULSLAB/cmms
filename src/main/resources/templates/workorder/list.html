@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title>Workorder List</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800" th:text="#{workorder.list.title}">Workorder List</h1>
+                <a th:href="@{/workorder/new}" class="btn-primary" th:text="#{common.button.add}">New Workorder</a>
+            </div>
+
+            <!-- Search Form -->
+            <form th:action="@{/workorder}" method="get" class="p-4 bg-gray-50 rounded-lg mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" name="plantName" th:value="${param.plantName}" th:placeholder="#{workorder.search.plantName}" class="form-input-sm" />
+                    <input type="text" name="workorderName" th:value="${param.workorderName}" th:placeholder="#{workorder.search.workorderName}" class="form-input-sm" />
+                    <div>
+                        <button type="submit" class="btn-secondary" th:text="#{common.button.search}">Search</button>
+                        <a th:href="@{/workorder}" class="btn-secondary-outline" th:text="#{common.button.reset}">Reset</a>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Data Table -->
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="th-style" th:text="#{workorder.id}">Order ID</th>
+                            <th scope="col" class="th-style" th:text="#{workorder.name}">Name</th>
+                            <th scope="col" class="th-style" th:text="#{workorder.plantId}">Plant</th>
+                            <th scope="col" class="th-style" th:text="#{workorder.jobType}">Job Type</th>
+                            <th scope="col" class="th-style" th:text="#{workorder.status}">Status</th>
+                            <th scope="col" class="th-style" th:text="#{workorder.startDate}">Start Date</th>
+                            <th scope="col" class="th-style" th:text="#{common.action}">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="wo : ${workorders.content}" class="hover:bg-gray-50">
+                            <td class="td-style">
+                                <a th:href="@{/workorder/{workorderId}(workorderId=${wo.workorderId})}"
+                                   class="text-blue-600 hover:underline" th:text="${wo.workorderId}"></a>
+                            </td>
+                            <td class="td-style" th:text="${wo.workorderName}"></td>
+                            <td class="td-style" th:text="${wo.plantId}"></td>
+                            <td class="td-style" th:text="${wo.jobType}"></td>
+                            <td class="td-style" th:text="${wo.status}"></td>
+                            <td class="td-style" th:text="${#dates.format(wo.plannedDate, 'yyyy-MM-dd')}"></td>
+                            <td class="td-style space-x-2">
+                                <a th:href="@{/workorder/{workorderId}/edit(workorderId=${wo.workorderId})}" class="btn-secondary" th:text="#{common.button.edit}">Edit</a>
+                                <form th:action="@{/workorder/{workorderId}/delete(workorderId=${wo.workorderId})}" method="post" class="inline-block" onsubmit="return confirm('Are you sure?');">
+                                    <button type="submit" class="btn-danger" th:text="#{common.button.delete}">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${workorders.empty}">
+                            <td colspan="7" class="text-center py-4" th:text="#{common.table.noData}">No data available</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav th:if="${workorders.totalPages > 1}" class="pagination-container" aria-label="Pagination">
+                <ul class="pagination">
+                    <li th:classappend="${workorders.first} ? 'disabled' : ''">
+                        <a th:href="@{/workorder(page=${workorders.number - 1}, size=${workorders.size})}" class="pagination-link" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li th:each="i : ${#numbers.sequence(0, workorders.totalPages - 1)}" th:classappend="${i == workorders.number} ? 'active' : ''">
+                        <a th:href="@{/workorder(page=${i}, size=${workorders.size})}" class="pagination-link" th:text="${i + 1}"></a>
+                    </li>
+                    <li th:classappend="${workorders.last} ? 'disabled' : ''">
+                        <a th:href="@{/workorder(page=${workorders.number + 1}, size=${workorders.size})}" class="pagination-link" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+        </div>
+    </div>
+</body>
+</html>

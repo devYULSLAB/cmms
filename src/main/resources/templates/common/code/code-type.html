@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title th:text="${codeType.codeType == null} ? #{code.type.form.title.create} : #{code.type.form.title.edit}">Code Type Form</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <h1 class="text-3xl font-bold text-gray-800 mb-6"
+                th:text="${codeType.codeType == null} ? #{code.type.form.header.create} : #{code.type.form.header.edit}">
+                Create Code Type
+            </h1>
+
+            <form th:action="@{/common/code/type}" th:object="${codeType}" method="post" class="space-y-8 max-w-lg">
+                <input type="hidden" th:field="*{companyId}" />
+
+                <div class="form-section">
+                     <div class="grid grid-cols-1 gap-6">
+                        <div class="form-group">
+                            <label for="codeType" class="form-label" th:text="#{code.type.id}">ID</label>
+                            <input type="text" id="codeType" th:field="*{codeType}" class="form-input" th:readonly="${codeType.codeType != null}" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="codeTypeName" class="form-label" th:text="#{code.type.name}">Name</label>
+                            <input type="text" id="codeTypeName" th:field="*{codeTypeName}" class="form-input" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="useYn" class="form-label" th:text="#{code.type.useYn}">Use Y/N</label>
+                            <select id="useYn" th:field="*{useYn}" class="form-select" required>
+                                <option value="Y">Y</option>
+                                <option value="N">N</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sortOrder" class="form-label" th:text="#{code.type.sortOrder}">Sort Order</label>
+                            <input type="number" id="sortOrder" th:field="*{sortOrder}" class="form-input" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end space-x-4 pt-4 border-t">
+                    <a th:href="@{/common/code}" class="btn-secondary" th:text="#{common.button.cancel}">Cancel</a>
+                    <button type="submit" class="btn-primary" th:text="#{common.button.save}">Save Type</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

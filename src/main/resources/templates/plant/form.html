@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title th:text="${plant.plantId == null} ? #{plant.form.title.create} : #{plant.form.title.edit}">Plant Form</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- Page Header -->
+            <h1 class="text-3xl font-bold text-gray-800 mb-6"
+                th:text="${plant.plantId == null} ? #{plant.form.header.create} : #{plant.form.header.edit}">
+                Create Plant
+            </h1>
+
+            <form th:action="@{/plant}" th:object="${plant}" method="post" class="space-y-8">
+                <!-- Hidden fields for companyId and plantId (if editing) -->
+                <input type="hidden" th:field="*{companyId}" />
+                <input type="hidden" th:field="*{plantId}" />
+                <input type="hidden" th:field="*{fileGroupId}" />
+
+                <!-- Basic Information Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{plant.form.section.basic}">Basic Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group">
+                            <label for="plantName" class="form-label" th:text="#{plant.name}">Plant Name</label>
+                            <input type="text" id="plantName" th:field="*{plantName}" class="form-input" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="siteId" class="form-label" th:text="#{plant.siteId}">Site</label>
+                            <select id="siteId" th:field="*{siteId}" class="form-select" required>
+                                <option value="" th:text="#{common.select.placeholder}">Select a site...</option>
+                                <option th:each="site : ${sites}" th:value="${site.siteId}" th:text="${site.siteName}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="funcId" class="form-label" th:text="#{plant.funcId}">Functional Location</label>
+                            <select id="funcId" th:field="*{funcId}" class="form-select">
+                                <option value="" th:text="#{common.select.placeholder}">Select a functional location...</option>
+                                <option th:each="func : ${funcs}" th:value="${func.funcId}" th:text="${func.funcName}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="installDate" class="form-label" th:text="#{plant.installDate}">Install Date</label>
+                            <input type="date" id="installDate" th:field="*{installDate}" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label for="deptId" class="form-label" th:text="#{plant.respDept}">Responsible Dept.</label>
+                            <select id="deptId" th:field="*{deptId}" class="form-select">
+                                <option value="" th:text="#{common.select.placeholder}">Select a department...</option>
+                                <option th:each="dept : ${depts}" th:value="${dept.deptId}" th:text="${dept.deptName}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="masterType" class="form-label" th:text="#{plant.assetType}">Asset Type</label>
+                            <select id="masterType" th:field="*{masterType}" class="form-select">
+                                <option value="" th:text="#{common.select.placeholder}">Select an asset type...</option>
+                                <option th:each="assetType : ${assetTypes}" th:value="${assetType.codeId}" th:text="${assetType.codeName}"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Information Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{plant.form.section.financial}">Financial Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="form-group">
+                            <label for="asset_type" class="form-label" th:text="#{plant.assetType}">Asset Type</label>
+                            <select id="asset_type" th:field="*{asset_type}" class="form-select">
+                                <option value="" th:text="#{common.select.placeholder}">Select a type...</option>
+                                <option th:each="assetType : ${assetTypes}" th:value="${assetType.id}" th:text="${assetType.name}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="depreType" class="form-label" th:text="#{plant.depreMethod}">Depreciation</label>
+                            <select id="depreType" th:field="*{depreType}" class="form-select">
+                                <option value="" th:text="#{common.select.placeholder}">Select a method...</option>
+                                <option th:each="depreMethod : ${depreMethods}" th:value="${depreMethod.codeId}" th:text="${depreMethod.codeName}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="acquireCost" class="form-label" th:text="#{plant.acquisitionValue}">Acquisition Value</label>
+                            <input type="number" id="acquireCost" th:field="*{acquireCost}" class="form-input" step="0.01" />
+                        </div>
+                        <div class="form-group">
+                            <label for="residualValue" class="form-label" th:text="#{plant.residualValue}">Residual Value</label>
+                            <input type="number" id="residualValue" th:field="*{residualValue}" class="form-input" step="0.01" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manufacturer Information Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{plant.form.section.manufacturer}">Manufacturer Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="form-group">
+                            <label for="makerName" class="form-label" th:text="#{plant.manufacturer}">Manufacturer</label>
+                            <input type="text" id="makerName" th:field="*{makerName}" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label for="modelNo" class="form-label" th:text="#{plant.manufacturerModel}">Model</label>
+                            <input type="text" id="modelNo" th:field="*{modelNo}" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label for="serialNo" class="form-label" th:text="#{plant.manufacturerSN}">Serial No.</label>
+                            <input type="text" id="serialNo" th:field="*{serialNo}" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label for="spec" class="form-label" th:text="#{plant.manufacturerSpec}">Specification</label>
+                            <input type="text" id="spec" th:field="*{spec}" class="form-input" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Operational Flags Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{plant.form.section.operational}">Operational Flags</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="form-group-checkbox">
+                            <input type="checkbox" id="preventiveYn" th:field="*{preventiveYn}" class="form-checkbox" />
+                            <label for="preventiveYn" class="form-label-checkbox" th:text="#{plant.inspectionYN}">Enable Inspection</label>
+                        </div>
+                        <div class="form-group-checkbox">
+                            <input type="checkbox" id="preventiveYn" th:field="*{preventiveYn}" class="form-checkbox" />
+                            <label for="preventiveYn" class="form-label-checkbox" th:text="#{plant.plannedMaintenanceYN}">Enable PM</label>
+                        </div>
+                        <div class="form-group-checkbox">
+                            <input type="checkbox" id="psmYn" th:field="*{psmYn}" class="form-checkbox" />
+                            <label for="psmYn" class="form-label-checkbox" th:text="#{plant.psmYN}">PSM Target</label>
+                        </div>
+                        <div class="form-group-checkbox">
+                            <input type="checkbox" id="wpTargetYn" th:field="*{wpTargetYn}" class="form-checkbox" />
+                            <label for="wpTargetYn" class="form-label-checkbox" th:text="#{plant.tagYN}">Enable Tagging</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Note Section -->
+                <div class="form-section">
+                     <h2 class="form-section-title" th:text="#{plant.form.section.notes}">Notes</h2>
+                    <div class="form-group">
+                        <label for="notes" class="form-label" th:text="#{plant.note}">Note</label>
+                        <textarea id="notes" th:field="*{notes}" class="form-textarea" rows="4"></textarea>
+                    </div>
+                </div>
+
+                <!-- File Attachment Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{common.file.attachments}">File Attachments</h2>
+                    <div th:replace="~{common/file/uploadFragment :: fileUploadFragment(docType='plant', fileGroupId=*{fileGroupId})}"></div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end space-x-4 pt-4 border-t">
+                    <a th:href="@{/plant}" class="btn-secondary" th:text="#{common.button.cancel}">Cancel</a>
+                    <button type="submit" class="btn-primary" th:text="#{common.button.save}">Save Plant</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

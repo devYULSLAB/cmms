@@ -24,34 +24,26 @@ public class MemoController {
 
     private final MemoService memoService;
 
-    @GetMapping("/list")
+    @GetMapping
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model, @PageableDefault(size = 10, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<Memo> memos = memoService.getMemosByCompanyId(userDetails.getCompanyId(), pageable);
         model.addAttribute("memos", memos);
         return "memo/list";
     }
 
-    @GetMapping("/form")
+    @GetMapping("/new")
     public String form(Model model) {
         model.addAttribute("memo", new Memo());
         return "memo/form";
     }
 
-    @GetMapping("/{memoId}/edit")
-    public String editForm(@PathVariable String memoId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        MemoId id = new MemoId(userDetails.getCompanyId(), memoId);
-        Memo memo = memoService.getMemoByIdAndIncrementViewCount(id); // Using same method to get data
-        model.addAttribute("memo", memo);
-        return "memo/form";
-    }
-
-    @PostMapping("/save")
+    @PostMapping
     public String save(@ModelAttribute Memo memo, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
         memo.setCompanyId(userDetails.getCompanyId());
         memo.setAuthorId(userDetails.getUsername());
         memoService.saveMemo(memo);
         redirectAttributes.addFlashAttribute("message", "Memo saved successfully.");
-        return "redirect:/memo/list";
+        return "redirect:/memo";
     }
 
     @GetMapping("/{memoId}")
@@ -63,12 +55,30 @@ public class MemoController {
         return "memo/detail";
     }
 
+    @GetMapping("/{memoId}/edit")
+    public String editForm(@PathVariable String memoId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        MemoId id = new MemoId(userDetails.getCompanyId(), memoId);
+        Memo memo = memoService.getMemoByIdAndIncrementViewCount(id); // Using same method to get data
+        model.addAttribute("memo", memo);
+        return "memo/form";
+    }
+
+    @PostMapping("/{memoId}")
+    public String update(@PathVariable String memoId, @ModelAttribute Memo memo, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
+        memo.setCompanyId(userDetails.getCompanyId());
+        memo.setMemoId(memoId);
+        memo.setAuthorId(userDetails.getUsername());
+        memoService.saveMemo(memo);
+        redirectAttributes.addFlashAttribute("message", "Memo updated successfully.");
+        return "redirect:/memo";
+    }
+
     @PostMapping("/{memoId}/delete")
     public String delete(@PathVariable String memoId, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
         MemoId id = new MemoId(userDetails.getCompanyId(), memoId);
         memoService.deleteMemo(id);
         redirectAttributes.addFlashAttribute("message", "Memo deleted successfully.");
-        return "redirect:/memo/list";
+        return "redirect:/memo";
     }
 
     @PostMapping("/comment/save")

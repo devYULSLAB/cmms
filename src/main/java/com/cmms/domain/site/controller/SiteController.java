@@ -18,26 +18,19 @@ public class SiteController {
 
     private final SiteService siteService;
 
-    @GetMapping("/list")
+    @GetMapping
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         model.addAttribute("sites", siteService.getSitesByCompanyId(userDetails.getCompanyId()));
         return "domain/site/list";
     }
 
-    @GetMapping("/form")
+    @GetMapping("/new")
     public String form(Model model) {
         model.addAttribute("site", new Site());
         return "domain/site/form";
     }
 
-    @GetMapping("/{siteId}/edit")
-    public String editForm(@PathVariable String siteId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        SiteId id = new SiteId(userDetails.getCompanyId(), siteId);
-        model.addAttribute("site", siteService.getSiteById(id));
-        return "domain/site/form";
-    }
-
-    @PostMapping("/save")
+    @PostMapping
     public String save(@ModelAttribute Site site, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
         site.setCompanyId(userDetails.getCompanyId());
         try {
@@ -45,20 +38,48 @@ public class SiteController {
             redirectAttributes.addFlashAttribute("message", "Site saved successfully.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error saving site: " + e.getMessage());
-            return "redirect:/domain/site/form";
+            return "redirect:/domain/site/new";
         }
-        return "redirect:/domain/site/list";
+        return "redirect:/domain/site";
     }
 
-    @PostMapping("/{siteId}/delete")
-    public String delete(@PathVariable String siteId, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
-        SiteId id = new SiteId(userDetails.getCompanyId(), siteId);
+    @GetMapping("/{companyId}/{siteId}")
+    public String detail(@PathVariable String companyId, @PathVariable String siteId, Model model) {
+        SiteId id = new SiteId(companyId, siteId);
+        model.addAttribute("site", siteService.getSiteById(id));
+        return "domain/site/detail";
+    }
+
+    @GetMapping("/{companyId}/{siteId}/edit")
+    public String editForm(@PathVariable String companyId, @PathVariable String siteId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        SiteId id = new SiteId(companyId, siteId);
+        model.addAttribute("site", siteService.getSiteById(id));
+        return "domain/site/form";
+    }
+
+    @PostMapping("/{companyId}/{siteId}")
+    public String update(@PathVariable String companyId, @PathVariable String siteId, @ModelAttribute Site site, RedirectAttributes redirectAttributes) {
+        site.setCompanyId(companyId);
+        site.setSiteId(siteId);
+        try {
+            siteService.saveSite(site);
+            redirectAttributes.addFlashAttribute("message", "Site updated successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error updating site: " + e.getMessage());
+            return "redirect:/domain/site/" + companyId + "/" + siteId + "/edit";
+        }
+        return "redirect:/domain/site";
+    }
+
+    @PostMapping("/{companyId}/{siteId}/delete")
+    public String delete(@PathVariable String companyId, @PathVariable String siteId, RedirectAttributes redirectAttributes) {
+        SiteId id = new SiteId(companyId, siteId);
         try {
             siteService.deleteSite(id);
             redirectAttributes.addFlashAttribute("message", "Site deleted successfully.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting site: " + e.getMessage());
         }
-        return "redirect:/domain/site/list";
+        return "redirect:/domain/site";
     }
 }

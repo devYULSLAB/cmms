@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title th:text="${inspection.inspectionId == null} ? #{inspection.form.title.create} : #{inspection.form.title.edit}">Inspection Form</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <h1 class="text-3xl font-bold text-gray-800 mb-6"
+                th:text="${inspection.inspectionId == null} ? #{inspection.form.header.create} : #{inspection.form.header.edit}">
+                Create Inspection
+            </h1>
+
+            <form th:action="@{/inspection}" th:object="${inspection}" method="post" class="space-y-8">
+                <input type="hidden" th:field="*{companyId}" />
+                <input type="hidden" th:field="*{inspectionId}" />
+
+                <!-- Main Details Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{inspection.form.section.details}">Inspection Details</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="form-group">
+                            <label for="inspectionName" class="form-label" th:text="#{inspection.name}">Name</label>
+                            <input type="text" id="inspectionName" th:field="*{inspectionName}" class="form-input" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="plant_id" class="form-label" th:text="#{inspection.plantId}">Plant</label>
+                             <select id="plantId" th:field="*{plantId}" class="form-select" required>
+                                <option value="" th:text="#{common.select.placeholder}">Select a plant...</option>
+                                <option th:each="plant : ${plants}" th:value="${plant.plantId}" th:text="${plant.plantName}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="job_type" class="form-label" th:text="#{inspection.jobType}">Job Type</label>
+                            <select id="jobType" th:field="*{jobType}" class="form-select" required>
+                                <option value="" th:text="#{common.select.placeholder}">Select a type...</option>
+                                <option th:each="jt : ${jobTypes}" th:value="${jt.codeId}" th:text="${jt.codeName}"></option>
+                            </select>
+                        </div>
+                    </div>
+                     <div class="form-group mt-6">
+                        <label for="notes" class="form-label" th:text="#{inspection.note}">Note</label>
+                        <textarea id="notes" th:field="*{notes}" class="form-textarea" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- Inspection Items Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{inspection.form.section.items}">Inspection Items</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="th-style" th:text="#{inspection.item.name}">Item Name</th>
+                                    <th class="th-style" th:text="#{inspection.item.method}">Method</th>
+                                    <th class="th-style" th:text="#{inspection.item.unit}">Unit</th>
+                                    <th class="th-style" th:text="#{inspection.item.lower}">Lower</th>
+                                    <th class="th-style" th:text="#{inspection.item.upper}">Upper</th>
+                                    <th class="th-style" th:text="#{inspection.item.standard}">Standard</th>
+                                    <th class="th-style" th:text="#{inspection.item.result}">Result</th>
+                                </tr>
+                            </thead>
+                            <tbody id="items-tbody">
+                                <tr th:each="item, iterStat : *{items}">
+                                    <td class="td-style"><input type="text" th:field="*{items[__${iterStat.index}__].itemName}" class="form-input-sm" /></td>
+                                    <td class="td-style"><input type="text" th:field="*{items[__${iterStat.index}__].method}" class="form-input-sm" /></td>
+                                    <td class="td-style"><input type="text" th:field="*{items[__${iterStat.index}__].unit}" class="form-input-sm" /></td>
+                                    <td class="td-style"><input type="number" th:field="*{items[__${iterStat.index}__].minVal}" class="form-input-sm" step="any" /></td>
+                                    <td class="td-style"><input type="number" th:field="*{items[__${iterStat.index}__].maxVal}" class="form-input-sm" step="any" /></td>
+                                    <td class="td-style"><input type="number" th:field="*{items[__${iterStat.index}__].stdVal}" class="form-input-sm" step="any" /></td>
+                                    <td class="td-style"><input type="number" th:field="*{items[__${iterStat.index}__].resultVal}" class="form-input-sm" step="any" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="flex justify-start space-x-2 mt-4">
+                        <button type="button" onclick="addItemRow()" class="btn-secondary" th:text="#{common.button.addRow}">Add Item</button>
+                        <button type="button" onclick="removeItemRow()" class="btn-secondary-outline" th:text="#{common.button.removeLast}">Remove Last</button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end space-x-4 pt-4 border-t">
+                    <a th:href="@{/inspection}" class="btn-secondary" th:text="#{common.button.cancel}">Cancel</a>
+                    <button type="submit" class="btn-primary" th:text="#{common.button.save}">Save Inspection</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <th:block layout:fragment="page-js">
+        <script>
+            function addItemRow() {
+                const tbody = document.getElementById('items-tbody');
+                const index = tbody.rows.length;
+                const newRow = tbody.insertRow();
+                newRow.innerHTML = `
+                    <td class="td-style"><input type="text" name="items[${index}].itemName" class="form-input-sm" /></td>
+                    <td class="td-style"><input type="text" name="items[${index}].method" class="form-input-sm" /></td>
+                    <td class="td-style"><input type="text" name="items[${index}].unit" class="form-input-sm" /></td>
+                    <td class="td-style"><input type="number" name="items[${index}].minVal" class="form-input-sm" step="any" /></td>
+                    <td class="td-style"><input type="number" name="items[${index}].maxVal" class="form-input-sm" step="any" /></td>
+                    <td class="td-style"><input type="number" name="items[${index}].stdVal" class="form-input-sm" step="any" /></td>
+                    <td class="td-style"><input type="number" name="items[${index}].resultVal" class="form-input-sm" step="any" /></td>
+                `;
+            }
+
+            function removeItemRow() {
+                const tbody = document.getElementById('items-tbody');
+                if (tbody.rows.length > 0) {
+                    tbody.deleteRow(-1);
+                }
+            }
+        </script>
+    </th:block>
+</body>
+</html>

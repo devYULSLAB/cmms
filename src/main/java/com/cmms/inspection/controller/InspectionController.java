@@ -29,14 +29,14 @@ public class InspectionController {
     // private final DeptService deptService;
     // private final CommonCodeService commonCodeService;
 
-    @GetMapping("/list")
+    @GetMapping
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model, @PageableDefault(size = 10, sort = "inspectionId") Pageable pageable) {
         Page<Inspection> inspections = inspectionService.getInspectionsByCompanyId(userDetails.getCompanyId(), pageable);
         model.addAttribute("inspections", inspections);
         return "inspection/list";
     }
 
-    @GetMapping("/form")
+    @GetMapping("/new")
     public String form(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         Inspection inspection = new Inspection();
         List<InspectionItem> items = new ArrayList<>();
@@ -51,6 +51,21 @@ public class InspectionController {
         return "inspection/form";
     }
 
+    @PostMapping
+    public String save(@ModelAttribute Inspection inspection, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
+        inspection.setCompanyId(userDetails.getCompanyId());
+        inspectionService.saveInspection(inspection);
+        redirectAttributes.addFlashAttribute("message", "Inspection saved successfully.");
+        return "redirect:/inspection";
+    }
+
+    @GetMapping("/{inspectionId}")
+    public String detail(@PathVariable String inspectionId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        InspectionId id = new InspectionId(userDetails.getCompanyId(), inspectionId);
+        model.addAttribute("inspection", inspectionService.getInspectionById(id));
+        return "inspection/detail";
+    }
+
     @GetMapping("/{inspectionId}/edit")
     public String editForm(@PathVariable String inspectionId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         InspectionId id = new InspectionId(userDetails.getCompanyId(), inspectionId);
@@ -62,19 +77,13 @@ public class InspectionController {
         return "inspection/form";
     }
 
-    @PostMapping("/save")
-    public String save(@ModelAttribute Inspection inspection, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
+    @PostMapping("/{inspectionId}")
+    public String update(@PathVariable String inspectionId, @ModelAttribute Inspection inspection, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
         inspection.setCompanyId(userDetails.getCompanyId());
+        inspection.setInspectionId(inspectionId);
         inspectionService.saveInspection(inspection);
-        redirectAttributes.addFlashAttribute("message", "Inspection saved successfully.");
-        return "redirect:/inspection/list";
-    }
-
-    @GetMapping("/{inspectionId}")
-    public String detail(@PathVariable String inspectionId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        InspectionId id = new InspectionId(userDetails.getCompanyId(), inspectionId);
-        model.addAttribute("inspection", inspectionService.getInspectionById(id));
-        return "inspection/detail";
+        redirectAttributes.addFlashAttribute("message", "Inspection updated successfully.");
+        return "redirect:/inspection";
     }
 
     @PostMapping("/{inspectionId}/delete")
@@ -86,6 +95,6 @@ public class InspectionController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting inspection: " + e.getMessage());
         }
-        return "redirect:/inspection/list";
+        return "redirect:/inspection";
     }
 }

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title th:text="${workorder.workorderId == null} ? #{workorder.form.title.create} : #{workorder.form.title.edit}">Workorder Form</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <h1 class="text-3xl font-bold text-gray-800 mb-6"
+                th:text="${workorder.workorderId == null} ? #{workorder.form.header.create} : #{workorder.form.header.edit}">
+                Create Workorder
+            </h1>
+
+            <form th:action="@{/workorder}" th:object="${workorder}" method="post" class="space-y-8">
+                <input type="hidden" th:field="*{companyId}" />
+                <input type="hidden" th:field="*{workorderId}" />
+
+                <!-- Main Details Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{workorder.form.section.details}">Workorder Details</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="form-group">
+                            <label for="workorderName" class="form-label" th:text="#{workorder.name}">Name</label>
+                            <input type="text" id="workorderName" th:field="*{workorderName}" class="form-input" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="plant_id" class="form-label" th:text="#{workorder.plantId}">Plant</label>
+                             <select id="plantId" th:field="*{plantId}" class="form-select" required>
+                                <option value="" th:text="#{common.select.placeholder}">Select a plant...</option>
+                                <option th:each="plant : ${plants}" th:value="${plant.plantId}" th:text="${plant.plantName}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="job_type" class="form-label" th:text="#{workorder.jobType}">Job Type</label>
+                            <select id="jobType" th:field="*{jobType}" class="form-select" required>
+                                <option value="" th:text="#{common.select.placeholder}">Select a type...</option>
+                                <option th:each="jt : ${jobTypes}" th:value="${jt.codeId}" th:text="${jt.codeName}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                         <div class="form-group">
+                            <label for="plannedDate" class="form-label" th:text="#{workorder.startDate}">Start Date</label>
+                            <input type="date" id="plannedDate" th:field="*{plannedDate}" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label for="actualDate" class="form-label" th:text="#{workorder.endDate}">End Date</label>
+                            <input type="date" id="actualDate" th:field="*{actualDate}" class="form-input" />
+                        </div>
+                    </div>
+                     <div class="form-group mt-6">
+                        <label for="notes" class="form-label" th:text="#{workorder.note}">Note</label>
+                        <textarea id="notes" th:field="*{notes}" class="form-textarea" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- Workorder Items Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title" th:text="#{workorder.form.section.items}">Workorder Items</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="th-style" th:text="#{workorder.item.name}">Item Name</th>
+                                    <th class="th-style" th:text="#{workorder.item.method}">Method</th>
+                                    <th class="th-style" th:text="#{workorder.item.result}">Result</th>
+                                    <th class="th-style" th:text="#{workorder.item.note}">Note</th>
+                                </tr>
+                            </thead>
+                            <tbody id="items-tbody">
+                                <tr th:each="item, iterStat : *{items}">
+                                    <td class="td-style"><input type="text" th:field="*{items[__${iterStat.index}__].itemName}" class="form-input-sm" /></td>
+                                    <td class="td-style"><input type="text" th:field="*{items[__${iterStat.index}__].method}" class="form-input-sm" /></td>
+                                    <td class="td-style"><input type="text" th:field="*{items[__${iterStat.index}__].resultValue}" class="form-input-sm" /></td>
+                                    <td class="td-style"><input type="text" th:field="*{items[__${iterStat.index}__].notes}" class="form-input-sm" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="flex justify-start space-x-2 mt-4">
+                        <button type="button" onclick="addItemRow()" class="btn-secondary" th:text="#{common.button.addRow}">Add Item</button>
+                        <button type="button" onclick="removeItemRow()" class="btn-secondary-outline" th:text="#{common.button.removeLast}">Remove Last</button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end space-x-4 pt-4 border-t">
+                    <a th:href="@{/workorder}" class="btn-secondary" th:text="#{common.button.cancel}">Cancel</a>
+                    <button type="submit" class="btn-primary" th:text="#{common.button.save}">Save Workorder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <th:block layout:fragment="page-js">
+        <script>
+            function addItemRow() {
+                const tbody = document.getElementById('items-tbody');
+                const index = tbody.rows.length;
+                const newRow = tbody.insertRow();
+                newRow.innerHTML = `
+                    <td class="td-style"><input type="text" name="items[${index}].itemName" class="form-input-sm" /></td>
+                    <td class="td-style"><input type="text" name="items[${index}].method" class="form-input-sm" /></td>
+                    <td class="td-style"><input type="text" name="items[${index}].resultValue" class="form-input-sm" /></td>
+                    <td class="td-style"><input type="text" name="items[${index}].notes" class="form-input-sm" /></td>
+                `;
+            }
+
+            function removeItemRow() {
+                const tbody = document.getElementById('items-tbody');
+                if (tbody.rows.length > 0) {
+                    tbody.deleteRow(-1);
+                }
+            }
+        </script>
+    </th:block>
+</body>
+</html>

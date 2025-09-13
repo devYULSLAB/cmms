@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title th:text="#{inspection.detail.title} + ' - ' + ${inspection.inspectionName}">Inspection Details</title>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: white; }
+            .printable-area { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+        }
+        .detail-group { padding: 1rem; border-bottom: 1px solid #e5e7eb; }
+        .detail-group:last-child { border-bottom: none; }
+        .detail-label { font-weight: 500; color: #4b5563; }
+        .detail-value { color: #1f2937; }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-6 no-print">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800" th:text="${inspection.inspectionName}">Inspection Name</h1>
+                    <p class="text-sm text-gray-500" th:text="'ID: ' + ${inspection.inspectionId}"></p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <a th:href="@{/inspection}" class="btn-secondary" th:text="#{common.button.toList}">Back to List</a>
+                    <a th:href="@{/inspection/{inspectionId}/edit(inspectionId=${inspection.inspectionId})}" class="btn-primary" th:text="#{common.button.edit}">Edit</a>
+                    <button onclick="printContent()" class="btn-secondary"><i class="fas fa-print mr-2"></i><span th:text="#{common.button.print}">Print</span></button>
+                    <form th:action="@{/inspection/{inspectionId}/delete(inspectionId=${inspection.inspectionId})}" method="post" class="inline-block" onsubmit="return confirm('Are you sure?');">
+                        <button type="submit" class="btn-danger" th:text="#{common.button.delete}">Delete</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="bg-white shadow-md rounded-lg overflow-hidden printable-area">
+
+                <!-- Basic Information -->
+                <div class="detail-group">
+                    <h2 class="form-section-title" th:text="#{inspection.form.section.details}">Inspection Details</h2>
+                    <dl class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-6 mt-4">
+                        <div><dt class="detail-label" th:text="#{inspection.name}">Name</dt><dd class="detail-value" th:text="${inspection.inspectionName}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{inspection.plantId}">Plant</dt><dd class="detail-value" th:text="${inspection.plantId}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{inspection.jobType}">Job Type</dt><dd class="detail-value" th:text="${inspection.jobType}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{inspection.status}">Status</dt><dd class="detail-value" th:text="${inspection.status}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{inspection.createDate}">Create Date</dt><dd class="detail-value" th:text="${#dates.format(inspection.createDate, 'yyyy-MM-dd HH:mm')}"></dd></div>
+                    </dl>
+                    <div class="mt-4"><dt class="detail-label" th:text="#{inspection.note}">Note</dt><dd class="detail-value" th:text="${inspection.notes}"></dd></div>
+                </div>
+
+                <!-- Inspection Items -->
+                <div class="detail-group">
+                    <h2 class="form-section-title" th:text="#{inspection.form.section.items}">Inspection Items</h2>
+                    <div class="overflow-x-auto mt-4">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="th-style" th:text="#{inspection.item.name}">Item Name</th>
+                                    <th class="th-style" th:text="#{inspection.item.method}">Method</th>
+                                    <th class="th-style" th:text="#{inspection.item.unit}">Unit</th>
+                                    <th class="th-style" th:text="#{inspection.item.lower}">Lower</th>
+                                    <th class="th-style" th:text="#{inspection.item.upper}">Upper</th>
+                                    <th class="th-style" th:text="#{inspection.item.standard}">Standard</th>
+                                    <th class="th-style" th:text="#{inspection.item.result}">Result</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr th:each="item : ${inspection.items}" class="hover:bg-gray-50">
+                                    <td class="td-style" th:text="${item.itemName}"></td>
+                                    <td class="td-style" th:text="${item.method}"></td>
+                                    <td class="td-style" th:text="${item.unit}"></td>
+                                    <td class="td-style" th:text="${item.minVal}"></td>
+                                    <td class="td-style" th:text="${item.maxVal}"></td>
+                                    <td class="td-style" th:text="${item.stdVal}"></td>
+                                    <td class="td-style" th:text="${item.resultVal}"></td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(inspection.items)}">
+                                    <td colspan="7" class="text-center py-4" th:text="#{common.table.noData}">No items for this inspection.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- /printable-area -->
+        </div>
+    </div>
+    <th:block layout:fragment="page-js">
+        <script>
+            function printContent() {
+                const content = document.querySelector('.printable-area').innerHTML;
+                const printWindow = window.open('', '', 'height=800,width=800');
+                document.querySelectorAll('link[rel="stylesheet"]').forEach(link => printWindow.document.write(link.outerHTML));
+                printWindow.document.write('<body>' + content + '</body>');
+                printWindow.document.close();
+                printWindow.focus();
+                printWindow.print();
+                printWindow.close();
+            }
+        </script>
+    </th:block>
+</body>
+</html>

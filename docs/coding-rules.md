@@ -15,11 +15,22 @@
 
 ## 2. 네이밍/엔드포인트
 - 화면 메서드: `list, form, editForm, detail, save, update, delete`
-- 화면 경로(권장):
-  - GET `/resources`, `/resources/new`, `/resources/{id}`, `/resources/{id}/edit`
-  - POST `/resources`, POST `/resources/{id}` + `_method=PUT`, POST `/resources/{id}/delete`
-- API (REST):
-  - GET `/api/v1/resources`(page), GET `/{id}`, POST `/`, PUT `/{id}`, DELETE `/{id}`
+- 표준 접근방법 
+GET    /inventory              - 목록 조회 (list)
+GET    /inventory/new          - 신규 등록 폼 (form)
+POST   /inventory              - 신규 등록 실행 (save)
+GET    /inventory/{id}         - 상세 조회 (detail)
+GET    /inventory/{id}/edit    - 편집 폼 (editForm)
+PUT    /inventory/{id}         - 수정 실행 (update)
+DELETE /inventory/{id}         - 삭제 실행 (delete)
+
+복합 키 리소스 (Plant 예시)
+GET    /plant/{siteId}/{plantId}         - 상세 조회
+GET    /plant/{siteId}/{plantId}/edit    - 편집 폼
+PUT    /plant/{siteId}/{plantId}         - 수정 실행
+DELETE /plant/{siteId}/{plantId}         - 삭제 실행
+
+- API (REST): GET `/api/v1/resources`(page)
 
 ## 3. DTO/Controller/Service/Repository
 - DTO 접미사: `Request` / `Response` / `Dto`

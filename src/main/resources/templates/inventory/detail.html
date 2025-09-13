@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/defaultLayout}">
+
+<head>
+    <title th:text="#{inventory.detail.title} + ' - ' + ${inventory.inventoryName}">Inventory Item Details</title>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: white; }
+            .printable-area {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+        }
+        .detail-group {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .detail-group:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: 500;
+            color: #4b5563;
+        }
+        .detail-value {
+            color: #1f2937;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- Page Header -->
+            <div class="flex justify-between items-center mb-6 no-print">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800" th:text="${inventory.inventoryName}">Item Name</h1>
+                    <p class="text-sm text-gray-500" th:text="'ID: ' + ${inventory.inventoryId}">ID: I-2401-0001</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <a th:href="@{/inventory}" class="btn-secondary" th:text="'목록'">Back to List</a>
+                    <a th:href="@{/inventory/{inventoryId}/edit(inventoryId=${inventory.inventoryId})}" class="btn-primary" th:text="#{common.button.edit}">Edit</a>
+                    <button onclick="printContent()" class="btn-secondary" th:text="'출력'">Print</button>
+                    <form th:action="@{/inventory/{inventoryId}/delete(inventoryId=${inventory.inventoryId})}" method="post" class="inline-block" onsubmit="return confirm('Are you sure?');">
+                        <button type="submit" class="btn-danger" th:text="#{common.button.delete}">Delete</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="bg-white shadow-md rounded-lg overflow-hidden printable-area">
+
+                <!-- Item Details -->
+                <div class="detail-group">
+                    <h2 class="form-section-title" th:text="#{inventory.form.section.details}">Item Details</h2>
+                    <dl class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-6 mt-4">
+                        <div><dt class="detail-label" th:text="#{inventory.name}">Item Name</dt><dd class="detail-value" th:text="${inventory.inventoryName}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{inventory.spec}">Specification</dt><dd class="detail-value" th:text="${inventory.spec}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{inventory.unit}">Unit</dt><dd class="detail-value" th:text="${inventory.uom}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{inventory.category}">Category</dt><dd class="detail-value" th:text="${inventory.masterType}"></dd></div>
+                    </dl>
+                </div>
+
+                <!-- Manufacturer Information -->
+                <div class="detail-group">
+                    <h2 class="form-section-title" th:text="#{inventory.form.section.manufacturer}">Manufacturer Information</h2>
+                    <dl class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-6 mt-4">
+                        <div><dt class="detail-label" th:text="#{inventory.manufacturer}">Manufacturer</dt><dd class="detail-value" th:text="${inventory.makerName}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{inventory.model}">Model</dt><dd class="detail-value" th:text="${inventory.modelNo}"></dd></div>
+                        <div><dt class="detail-label" th:text="#{inventory.serialNo}">Serial No.</dt><dd class="detail-value" th:text="${inventory.serialNo}"></dd></div>
+                    </dl>
+                </div>
+
+                <!-- Note -->
+                <div class="detail-group">
+                    <h2 class="form-section-title" th:text="#{inventory.form.section.notes}">Notes</h2>
+                    <p class="mt-2 text-gray-700" th:text="${inventory.notes}"></p>
+                </div>
+
+                <!-- File Attachments -->
+                <div class="detail-group no-print">
+                    <h2 class="form-section-title" th:text="#{common.file.attachments}">File Attachments</h2>
+                    <div class="mt-4" th:replace="~{common/file/listFragment :: fileListFragment(fileGroupId=*{fileGroupId})}"></div>
+                </div>
+
+            </div> <!-- /printable-area -->
+        </div>
+    </div>
+    <th:block layout:fragment="page-js">
+        <script>
+            function printContent() {
+                const content = document.querySelector('.printable-area').innerHTML;
+                const printWindow = window.open('', '', 'height=800,width=800');
+                document.querySelectorAll('link[rel="stylesheet"]').forEach(link => printWindow.document.write(link.outerHTML));
+                printWindow.document.write('<body>' + content + '</body>');
+                printWindow.document.close();
+                printWindow.focus();
+                printWindow.print();
+                printWindow.close();
+            }
+        </script>
+    </th:block>
+</body>
+</html>

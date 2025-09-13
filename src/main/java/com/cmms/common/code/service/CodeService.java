@@ -31,6 +31,16 @@ public class CodeService {
         return codeRepository.save(code);
     }
 
+    @Transactional(readOnly = true)
+    public Code getCodeById(CodeId id) {
+        return codeRepository.findById(id).orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public CodeType getCodeTypeById(CodeTypeId id) {
+        return codeTypeRepository.findById(id).orElse(null);
+    }
+
     public void deleteCode(CodeId id) {
         codeRepository.deleteById(id);
     }

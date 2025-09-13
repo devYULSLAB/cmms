@@ -18,26 +18,19 @@ public class RoleController {
 
     private final RoleService roleService;
 
-    @GetMapping("/list")
+    @GetMapping
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         model.addAttribute("roles", roleService.getRolesByCompanyId(userDetails.getCompanyId()));
         return "domain/role/list";
     }
 
-    @GetMapping("/form")
+    @GetMapping("/new")
     public String form(Model model) {
         model.addAttribute("role", new Role());
         return "domain/role/form";
     }
 
-    @GetMapping("/{roleId}/edit")
-    public String editForm(@PathVariable String roleId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        RoleId id = new RoleId(userDetails.getCompanyId(), roleId);
-        model.addAttribute("role", roleService.getRoleById(id));
-        return "domain/role/form";
-    }
-
-    @PostMapping("/save")
+    @PostMapping
     public String save(@ModelAttribute Role role, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
         role.setCompanyId(userDetails.getCompanyId());
         try {
@@ -45,20 +38,48 @@ public class RoleController {
             redirectAttributes.addFlashAttribute("message", "Role saved successfully.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error saving role: " + e.getMessage());
-            return "redirect:/domain/role/form";
+            return "redirect:/domain/role/new";
         }
-        return "redirect:/domain/role/list";
+        return "redirect:/domain/role";
     }
 
-    @PostMapping("/{roleId}/delete")
-    public String delete(@PathVariable String roleId, @AuthenticationPrincipal CustomUserDetails userDetails, RedirectAttributes redirectAttributes) {
-        RoleId id = new RoleId(userDetails.getCompanyId(), roleId);
+    @GetMapping("/{companyId}/{roleId}")
+    public String detail(@PathVariable String companyId, @PathVariable String roleId, Model model) {
+        RoleId id = new RoleId(companyId, roleId);
+        model.addAttribute("role", roleService.getRoleById(id));
+        return "domain/role/detail";
+    }
+
+    @GetMapping("/{companyId}/{roleId}/edit")
+    public String editForm(@PathVariable String companyId, @PathVariable String roleId, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        RoleId id = new RoleId(companyId, roleId);
+        model.addAttribute("role", roleService.getRoleById(id));
+        return "domain/role/form";
+    }
+
+    @PostMapping("/{companyId}/{roleId}")
+    public String update(@PathVariable String companyId, @PathVariable String roleId, @ModelAttribute Role role, RedirectAttributes redirectAttributes) {
+        role.setCompanyId(companyId);
+        role.setRoleId(roleId);
+        try {
+            roleService.saveRole(role);
+            redirectAttributes.addFlashAttribute("message", "Role updated successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error updating role: " + e.getMessage());
+            return "redirect:/domain/role/" + companyId + "/" + roleId + "/edit";
+        }
+        return "redirect:/domain/role";
+    }
+
+    @PostMapping("/{companyId}/{roleId}/delete")
+    public String delete(@PathVariable String companyId, @PathVariable String roleId, RedirectAttributes redirectAttributes) {
+        RoleId id = new RoleId(companyId, roleId);
         try {
             roleService.deleteRole(id);
             redirectAttributes.addFlashAttribute("message", "Role deleted successfully.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting role: " + e.getMessage());
         }
-        return "redirect:/domain/role/list";
+        return "redirect:/domain/role";
     }
 }
